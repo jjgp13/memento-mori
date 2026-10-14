@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { AuthProvider, useAuth } from '@/providers/auth-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -45,6 +46,9 @@ function RootNavigator({ ready }: { ready: boolean }) {
     colors: { ...base.colors, background: colors.bg, card: colors.bg, text: colors.fg, primary: colors.accent, border: colors.line },
   };
 
+  // Sign-in turns on once Supabase is configured; until then anyone can try the app (e.g. on GitHub Pages).
+  const canEnter = !!session || !isSupabaseConfigured;
+
   const done = ready && !isLoading;
   useEffect(() => {
     if (done) SplashScreen.hideAsync();
@@ -56,10 +60,10 @@ function RootNavigator({ ready }: { ready: boolean }) {
     <ThemeProvider value={theme}>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={!!session}>
+        <Stack.Protected guard={canEnter}>
           <Stack.Screen name="(app)" />
         </Stack.Protected>
-        <Stack.Protected guard={!session}>
+        <Stack.Protected guard={!canEnter}>
           <Stack.Screen name="sign-in" />
         </Stack.Protected>
       </Stack>

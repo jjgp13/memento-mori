@@ -14,7 +14,7 @@ cp .env.example .env.local   # then fill in the two values
 npx expo start               # press w for web, or scan the QR code with Expo Go
 ```
 
-Without `.env.local` the app still starts and shows a "Supabase not configured" notice on the sign-in screen.
+Without Supabase settings, sign-in is switched off and the app opens straight to the tabs (this is how the GitHub Pages build runs until the Actions variables are set). Add the settings and sign-in turns on automatically.
 
 ## Supabase setup (one time)
 

@@ -39,18 +39,29 @@ export default function AccountScreen() {
           <Button title="Done" variant="link" onPress={() => router.back()} />
         </View>
 
-        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-          <ThemedText type="heading">SIGNED IN AS</ThemedText>
-          <ThemedText>{user?.email ?? 'Unknown'}</ThemedText>
-          {provider ? <ThemedText type="small">via {provider}</ThemedText> : null}
-        </View>
+        {user ? (
+          <>
+            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+              <ThemedText type="heading">SIGNED IN AS</ThemedText>
+              <ThemedText>{user.email ?? 'Unknown'}</ThemedText>
+              {provider ? <ThemedText type="small">via {provider}</ThemedText> : null}
+            </View>
 
-        <Button title="Sign out" variant="ghost" loading={busy} onPress={onSignOut} />
-        {error ? (
-          <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
-            {error}
-          </ThemedText>
-        ) : null}
+            <Button title="Sign out" variant="ghost" loading={busy} onPress={onSignOut} />
+            {error ? (
+              <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
+                {error}
+              </ThemedText>
+            ) : null}
+          </>
+        ) : (
+          <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+            <ThemedText type="heading">NOT SIGNED IN</ThemedText>
+            <ThemedText type="small">
+              Sign-in is off until Supabase is configured. Nothing you do here is saved to an account yet.
+            </ThemedText>
+          </View>
+        )}
 
         <ThemedText type="small">
           Data export and account deletion will live here (GDPR / CCPA / Washington My Health My Data Act).
