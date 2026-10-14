@@ -9,9 +9,14 @@ export type OAuthProvider = 'apple' | 'google';
 /**
  * Where Supabase sends people back after OAuth or a magic link. Each value must be in
  * Supabase → Authentication → URL Configuration → Redirect URLs:
- *   web: http://localhost:8081   Expo Go: exp://**   dev/production builds: mementomori://**
+ *   web: http://localhost:8081/**, https://jjgp13.github.io/memento-mori/**
+ *   Expo Go: exp://**   dev/production builds: mementomori://**
  */
 function redirectUrl() {
+  if (Platform.OS === 'web') {
+    // Linking.createURL drops the GitHub Pages base path (app.json experiments.baseUrl).
+    return `${window.location.origin}${process.env.EXPO_BASE_URL ?? ''}/`;
+  }
   return Linking.createURL('/');
 }
 

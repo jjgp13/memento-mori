@@ -4,6 +4,8 @@ A free app that estimates how much life you likely have left and helps you spend
 
 Expo (SDK 57, Expo Router) for iOS, Android and web · Supabase for auth and data.
 
+**Live web build:** https://jjgp13.github.io/memento-mori/ — rebuilt by `.github/workflows/deploy-web.yml` on every push to `main`. Its Supabase settings come from the repo's Actions **variables** `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+
 ## Run it
 
 ```bash
@@ -19,7 +21,8 @@ Without `.env.local` the app still starts and shows a "Supabase not configured" 
 1. Create a project at [supabase.com](https://supabase.com). From **Project Settings → API**, put the project URL and the publishable (or legacy anon) key into `.env.local`.
 2. Apply the schema: paste `supabase/migrations/*.sql` into the SQL editor, or `supabase link` + `supabase db push` with the Supabase CLI.
 3. **Authentication → URL Configuration → Redirect URLs**: add
-   - `http://localhost:8081` (web dev)
+   - `http://localhost:8081/**` (web dev)
+   - `https://jjgp13.github.io/memento-mori/**` (GitHub Pages)
    - `exp://**` (Expo Go)
    - `mementomori://**` (development and store builds)
 4. **Authentication → Emails → Magic Link** template: include `{{ .Token }}` so emails carry the 6-digit code the app asks for. The link in the same email also works.
