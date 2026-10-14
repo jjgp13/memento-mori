@@ -5,7 +5,9 @@ A free app that estimates how much life a person likely has left and helps them 
 ## Status
 - `prototype/index.html` is a working single-file web prototype (built in a claude.ai chat, Oct 2026). Open it in a browser to see the intended flow and feel. Treat it as the design and logic reference for the real app.
 - Oct 13 2026: Expo app scaffolded (SDK 57, Expo Router, routes in `src/app/`) with Supabase auth (Apple, Google, email OTP) and placeholder Life / Habits / Loves / Today tabs. See README.md for setup and layout.
-- Next: port the model and screens from the prototype; onboarding; health-data consent before storing profile answers.
+- Live web build: https://jjgp13.github.io/memento-mori/ (GitHub Pages, deploys on push to main). Sign-in is skipped until Supabase env vars are set.
+- Done: model ported to `src/lib/model.ts` (parity with prototype checked by `npm run check:model`); Life screen with all four zoom levels; interim one-page details form (`src/app/(app)/details.tsx`); profile stored on device only (`src/lib/profile.ts`).
+- Next: Habits screen; one-question-per-screen onboarding + opening sequence; Supabase setup; health-data consent before syncing profile answers.
 
 ## Working in this repo
 - Follow @AGENTS.md for Expo conventions (versioned docs, `npx expo install`, no hand-edited `ios/`/`android/`).

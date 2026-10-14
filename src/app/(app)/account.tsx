@@ -63,6 +63,8 @@ export default function AccountScreen() {
           </View>
         )}
 
+        <Button title="Edit your details" variant="ghost" onPress={() => router.push('/details')} />
+
         <ThemedText type="small">
           Data export and account deletion will live here (GDPR / CCPA / Washington My Health My Data Act).
         </ThemedText>
