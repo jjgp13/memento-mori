@@ -3,7 +3,9 @@ import 'expo-sqlite/localStorage/install';
 
 import { useSyncExternalStore } from 'react';
 
+import type { Love } from '@/lib/loves';
 import type { ModelInput } from '@/lib/model';
+import type { ValueKey } from '@/lib/values';
 
 /**
  * The person's answers. Kept on this device only for now; syncing to Supabase waits for the
@@ -11,6 +13,10 @@ import type { ModelInput } from '@/lib/model';
  */
 export type Profile = ModelInput & {
   name: string;
+  /** Up to three things that matter most (added in onboarding v2; absent on older profiles). */
+  values?: ValueKey[];
+  /** People and activities they love. */
+  loves?: Love[];
 };
 
 const KEY = 'mm.profile.v1';

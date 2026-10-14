@@ -47,7 +47,7 @@ export function Segmented<K extends string>({ options, value, onChange, accessib
           <Pressable
             key={o.key}
             accessibilityRole="tab"
-            accessibilityState={{ selected: on }}
+            aria-selected={on}
             onPress={() => onChange(o.key)}
             style={styles.button}>
             <Text style={[styles.label, { color: on ? theme.bg : theme.muted }]}>{o.label}</Text>

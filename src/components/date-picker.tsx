@@ -132,7 +132,7 @@ function Cell({ label, on, onPress, width, round }: CellProps) {
     <View style={{ width, padding: 3 }}>
       <Pressable
         accessibilityRole="button"
-        accessibilityState={{ selected: on }}
+        aria-selected={on}
         onPress={onPress}
         style={[styles.cell, round && styles.round, on && { backgroundColor: theme.fg }]}>
         <Text style={[styles.cellText, { color: on ? theme.bg : theme.fg }]}>{label}</Text>
@@ -146,7 +146,8 @@ function Head({ label, current, disabled, onPress }: { label: string; current: b
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityState={{ selected: current, disabled: !!disabled }}
+      aria-selected={current}
+      aria-disabled={!!disabled}
       disabled={disabled}
       onPress={onPress}
       style={[styles.headBtn, { borderColor: current ? theme.accent : theme.line }, disabled && styles.disabled]}>

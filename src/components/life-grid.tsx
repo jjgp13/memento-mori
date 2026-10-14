@@ -29,7 +29,7 @@ export function LifeGrid({ view }: { view: GridView }) {
   const r = Math.max(1.4, cell / 2 - Math.max(0.8, cell * 0.12));
   const small = r < 3.2;
 
-  const paths: Record<Exclude<CellState, 'none' | 'now'>, string[]> = { lived: [], likely: [], maybe: [] };
+  const paths: Record<Exclude<CellState, 'none' | 'now'>, string[]> = { lived: [], likely: [], reach: [], maybe: [] };
   const labels: { x: number; y: number; text: string; onLived: boolean }[] = [];
   let nowCell: { cx: number; cy: number } | null = null;
 
@@ -63,6 +63,7 @@ export function LifeGrid({ view }: { view: GridView }) {
             <>
               <Path d={paths.likely.join('')} fill={theme.remain} />
               <Path d={paths.maybe.join('')} fill={theme.maybe} />
+              <Path d={paths.reach.join('')} fill={theme.accent} opacity={0.55} />
             </>
           ) : (
             <>
@@ -74,6 +75,7 @@ export function LifeGrid({ view }: { view: GridView }) {
                 strokeWidth={stroke}
                 strokeDasharray={[dash, dash]}
               />
+              <Path d={paths.reach.join('')} fill={theme.accentSoft} stroke={theme.accent} strokeWidth={stroke} />
             </>
           )}
 

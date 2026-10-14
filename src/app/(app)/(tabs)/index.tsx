@@ -1,10 +1,8 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
-import { Button } from '@/components/button';
 import { LifeGrid } from '@/components/life-grid';
 import { RichText } from '@/components/rich-text';
 import { Screen } from '@/components/screen';
@@ -13,14 +11,16 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { ZOOMS, lifeView, type Zoom } from '@/lib/life-views';
-import { DAY_MS, YEAR_MS, ageAt, birthTime, estimate } from '@/lib/model';
+import { bestLever, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
+import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
+import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, type ModelInput } from '@/lib/model';
 import { useProfile, type Profile } from '@/lib/profile';
 
 export default function LifeScreen() {
   const profile = useProfile();
 
-  return <Screen>{profile ? <Life profile={profile} /> : <Empty />}</Screen>;
+  // Onboarding guards this screen, so a profile is always here in practice.
+  return <Screen>{profile ? <Life profile={profile} /> : null}</Screen>;
 }
 
 function Life({ profile }: { profile: Profile }) {
@@ -30,7 +30,8 @@ function Life({ profile }: { profile: Profile }) {
   const now = useNow(60_000);
   const est = estimate(profile, now);
   const age = ageAt(profile.dob, now);
-  const view = lifeView(zoom, profile.dob, est, now);
+  const lever = bestLever(profile, now);
+  const view = lifeView(zoom, profile.dob, est, now, lever?.years ?? 0);
   // The median is found in monthly steps from the current age, so re-estimating every tick would
   // pin "time left" to a constant. Anchor it to when the screen opened so the clock really counts down.
   const [anchor] = useState(() => Date.now());
@@ -57,6 +58,8 @@ function Life({ profile }: { profile: Profile }) {
         </ThemedText>
       </View>
 
+      <HabitsCard profile={profile} now={now} lever={lever} />
+
       <View>
         <ThemedText type="eyebrow" themeColor="muted">
           Likely time left
@@ -73,7 +76,7 @@ function Life({ profile }: { profile: Profile }) {
       </View>
 
       <RichText style={styles.caption} parts={view.caption} />
-      <Legend />
+      <Legend lever={lever} />
 
       <ThemedText type="small">
         Estimates come from population averages and broad risk ratios. They show direction and rough size, not a
@@ -102,12 +105,13 @@ function Clock({ end }: { end: number }) {
   );
 }
 
-function Legend() {
+function Legend({ lever }: { lever: Lever | null }) {
   const theme = useTheme();
   const items = [
     { label: 'Lived', fill: theme.lived },
     { label: 'Now', fill: theme.accent },
     { label: 'Likely ahead', stroke: theme.remain },
+    ...(lever ? [{ label: 'Within reach', fill: theme.accentSoft, stroke: theme.accent }] : []),
     { label: 'If fortune allows', stroke: theme.remain, dashed: true },
   ];
 
@@ -119,7 +123,7 @@ function Legend() {
             <Circle
               cx={5}
               cy={5}
-              r={it.fill ? 5 : 4.25}
+              r={it.fill && !it.stroke ? 5 : 4.25}
               fill={it.fill ?? 'none'}
               stroke={it.stroke}
               strokeWidth={1.5}
@@ -135,16 +139,50 @@ function Legend() {
   );
 }
 
-function Empty() {
+/** What the person's habits do to the estimate, and the one change that would help most. */
+function HabitsCard({ profile, now, lever }: { profile: ModelInput; now: number; lever: Lever | null }) {
+  const theme = useTheme();
+  const total = habitsEffect(profile, now);
+  const items = habitBreakdown(profile, now);
+  const signed = (y: number) => `${y > 0 ? '+' : '−'}${Math.abs(y).toFixed(1)}`;
+
   return (
-    <View style={styles.empty}>
-      <ThemedText type="eyebrow">Your time</ThemedText>
-      <ThemedText type="subtitle">How much life is likely ahead?</ThemedText>
-      <ThemedText>
-        A few questions about you (birth date, sex at birth and a handful of habits) turn into a count of your weeks.
-        Your answers stay on this device.
+    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+      <ThemedText type="eyebrow" themeColor="muted">
+        Your habits
       </ThemedText>
-      <Button title="Begin" onPress={() => router.push('/details')} />
+      <RichText
+        parts={
+          Math.abs(total) < 0.2
+            ? [{ text: 'Your habits keep you close to the baseline estimate.' }]
+            : [
+                { text: `Your habits ${total > 0 ? 'add' : 'cost'} about ` },
+                { text: `${Math.abs(total).toFixed(1)} years`, strong: true },
+                { text: '.' },
+              ]
+        }
+      />
+      {items.map((it) => (
+        <View key={it.key} style={styles.habitRow}>
+          <ThemedText type="small" style={styles.flex}>
+            {it.label} · {it.answer}
+          </ThemedText>
+          <ThemedText type="mono" themeColor={it.years > 0 ? 'accent' : 'muted'}>
+            {signed(it.years)} yrs
+          </ThemedText>
+        </View>
+      ))}
+      {lever ? (
+        <View style={[styles.lever, { borderTopColor: theme.line }]}>
+          <RichText
+            parts={[
+              { text: `${lever.label} could add about ` },
+              { text: `${lever.years.toFixed(1)} years`, strong: true },
+              { text: `, roughly ${fmt(lever.years * WEEKS_PER_YEAR)} more weekends. They're the bronze circles below.` },
+            ]}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -186,7 +224,23 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: 11.5,
   },
-  empty: {
-    gap: 14,
+  card: {
+    borderWidth: 1,
+    borderRadius: Radius.card,
+    padding: 16,
+    gap: 8,
+  },
+  habitRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 10,
+  },
+  flex: {
+    flex: 1,
+  },
+  lever: {
+    borderTopWidth: 1,
+    paddingTop: 10,
+    marginTop: 4,
   },
 });

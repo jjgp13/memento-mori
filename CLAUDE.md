@@ -7,8 +7,8 @@ A free app that estimates how much life a person likely has left and helps them 
 - Oct 13 2026: Expo app scaffolded (SDK 57, Expo Router, routes in `src/app/`) with Supabase auth (Apple, Google, email OTP) and placeholder Life / Habits / Loves / Today tabs. See README.md for setup and layout.
 - Live web build: https://jjgp13.github.io/memento-mori/ (GitHub Pages, deploys on push to main).
 - Supabase project `memento-mori` (ref `apncolizrozdjjwrqtzr`, us-west-1, free tier, org J^2). Migrations in `supabase/migrations/` are applied. Sign-in methods are switched in `SIGN_IN_METHODS` (`src/lib/auth.ts`): guest (anonymous) is on; Google is off until its provider is configured; email needs custom SMTP; Apple needs a paid developer account.
-- Done: model ported to `src/lib/model.ts` (parity with prototype checked by `npm run check:model`); Life screen with all four zoom levels; interim one-page details form (`src/app/(app)/details.tsx`); profile stored on device only (`src/lib/profile.ts`).
-- Next: finish Google provider setup; Habits screen; one-question-per-screen onboarding + opening sequence; health-data consent before syncing profile answers.
+- Done: model ported to `src/lib/model.ts` (parity with prototype checked by `npm run check:model`); Life screen with all four zoom levels, a habits card (years each habit adds/costs, best single change) and "within reach" circles for that change; one-question-per-screen onboarding (`src/app/(app)/onboarding.tsx`: name, birth, sex, 5 habits, up to 3 values, people who love them, activities, then a weeks-remaining reveal), reused with `?edit=1` for editing; profile stored on device only (`src/lib/profile.ts`).
+- Next: finish Google provider setup; daily phrases + 1–2 notifications a week (design discussion pending); how science updates change the model; Habits and Loves screens; opening sequence; health-data consent before syncing profile answers.
 
 ## Working in this repo
 - Follow @AGENTS.md for Expo conventions (versioned docs, `npx expo install`, no hand-edited `ios/`/`android/`).

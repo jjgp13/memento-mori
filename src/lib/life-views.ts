@@ -12,8 +12,11 @@ export const ZOOMS: { key: Zoom; label: string }[] = [
   { key: 'today', label: 'Today' },
 ];
 
-/** lived · now (fills like a pie) · likely ahead (before the median) · maybe (median to 75th pct) · none (gap) */
-export type CellState = 'lived' | 'now' | 'likely' | 'maybe' | 'none';
+/**
+ * lived · now (fills like a pie) · likely ahead (before the median) · reach (extra time one habit change
+ * would likely add) · maybe (median to 75th pct) · none (gap)
+ */
+export type CellState = 'lived' | 'now' | 'likely' | 'reach' | 'maybe' | 'none';
 
 /** Plain text with **bold** runs, so captions can be both styled and read aloud. */
 export type Rich = { text: string; strong?: boolean }[];
@@ -36,7 +39,8 @@ const pct = (f: number) => `${Math.floor(f * 100)}%`;
 const b = (text: string) => ({ text, strong: true });
 const t = (text: string) => ({ text });
 
-export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number): GridView {
+/** `gain`: years the best habit change would add, drawn just past the median as "within reach". */
+export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, gain = 0): GridView {
   const age = ageAt(dob, now);
 
   if (zoom === 'life') {
@@ -44,10 +48,11 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number): G
     const frac = age - a;
     return {
       cols: 10,
-      count: Math.ceil(est.q75) + 1,
+      count: Math.ceil(Math.max(est.q75, est.med + gain)) + 1,
       labelW: 26,
       frac,
-      state: (i) => (i < a ? 'lived' : i === a ? 'now' : i < est.med ? 'likely' : i < est.q75 ? 'maybe' : 'none'),
+      state: (i) =>
+        i < a ? 'lived' : i === a ? 'now' : i < est.med ? 'likely' : i < est.med + gain ? 'reach' : i < est.q75 ? 'maybe' : 'none',
       label: (i) => (i % 5 === 0 ? String(i) : ''),
       rowLabel: (row) => String(row * 10),
       caption: [t(`Your year ${a + 1} is `), b(pct(frac)), t(' gone. About '), b(fmt(est.med - age)), t(' more birthdays are likely.')],
@@ -58,12 +63,13 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number): G
     const weeksLived = (now - birthTime(dob)) / WEEK_MS;
     const w = Math.floor(weeksLived);
     const med = est.med * WEEKS_PER_YEAR;
+    const reach = (est.med + gain) * WEEKS_PER_YEAR;
     return {
       cols: 52,
-      count: Math.ceil(est.q75 * WEEKS_PER_YEAR),
+      count: Math.ceil(Math.max(est.q75, est.med + gain) * WEEKS_PER_YEAR),
       labelW: 22,
       frac: weeksLived - w,
-      state: (i) => (i < w ? 'lived' : i === w ? 'now' : i < med ? 'likely' : 'maybe'),
+      state: (i) => (i < w ? 'lived' : i === w ? 'now' : i < med ? 'likely' : i < reach ? 'reach' : 'maybe'),
       rowLabel: (row) => (row % 10 === 0 ? String(row) : ''),
       caption: [t(`Week ${fmt(w + 1)} of your life is `), b(pct(weeksLived - w)), t(' gone. About '), b(fmt(med - weeksLived)), t(' weeks likely remain.')],
     };
