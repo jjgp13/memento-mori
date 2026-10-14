@@ -1,0 +1,755 @@
+<title>Memento Mori</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single phone-width column. Onboarding is one question at a time; the app is four stacked screens that slide, with a fixed bottom nav. Stone and bronze, like an inscription. */
+:root{
+  --bg:#ECEEEA; --surface:#F7F8F5; --fg:#1E2421; --muted:#5F6862; --line:#CDD2CC;
+  --accent:#8C6230; --accent-soft:#E8DCCB; --lived:#3B443F; --remain:#A9B2AB; --maybe:#D3D9D2;
+  --display:"Cinzel","Trajan Pro",Georgia,serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#131715; --surface:#1B201D; --fg:#E4E7E2; --muted:#9AA39D; --line:#2D3430;
+  --accent:#C9965A; --accent-soft:#3A3024; --lived:#C8CFC9; --remain:#56605A; --maybe:#2F3632; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131715; --surface:#1B201D; --fg:#E4E7E2; --muted:#9AA39D; --line:#2D3430;
+  --accent:#C9965A; --accent-soft:#3A3024; --lived:#C8CFC9; --remain:#56605A; --maybe:#2F3632; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5;padding-inline:16px;padding-block:0;-webkit-tap-highlight-color:transparent}
+.shell{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.06em;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,8vw,2.7rem);line-height:1.1}
+h2{font-size:clamp(1.35rem,5.5vw,1.7rem);line-height:1.2}
+h3{font-size:.85rem;letter-spacing:.12em;color:var(--muted)}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select,textarea{font:inherit;font-size:1rem;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:11px 12px;width:100%}
+.btn{font-family:var(--mono);font-size:.85rem;letter-spacing:.05em;background:var(--fg);color:var(--bg);border:0;border-radius:99px;padding:13px 22px}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.link{background:none;color:var(--muted);padding:8px 4px}
+
+/* ---------- onboarding ---------- */
+#ob{flex:1;display:flex;flex-direction:column;padding-block:20px 28px}
+.ob-top{display:flex;align-items:center;gap:12px;min-height:40px}
+.progress{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .5s var(--ease)}
+#stage{flex:1;display:grid;padding-top:28px}
+.stage{grid-area:1/1;display:flex;flex-direction:column;gap:18px}
+.stage > *{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0)*80ms)}
+.stage.leave{animation:out .24s ease both}
+.stage.leave.back{animation-name:outBack}
+.stage.leave > *{animation:none}
+.stage.back > *{animation-name:riseBack}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes riseBack{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+@keyframes out{to{opacity:0;transform:translateY(-14px)}}
+@keyframes outBack{to{opacity:0;transform:translateY(14px)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.why{font-size:.9rem;color:var(--muted);font-style:italic}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{display:flex;justify-content:space-between;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;transition:border-color .2s,background .2s,transform .2s}
+.choice:hover{border-color:var(--muted)}
+.choice.on{border-color:var(--accent);background:var(--accent-soft)}
+.choice.on::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.choice small{display:block;color:var(--muted);font-size:.82rem}
+.ob-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:24px}
+
+/* date picker */
+.dp{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.dp-head{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:.95rem}
+.dp-head button{background:none;border:1px solid var(--line);border-radius:99px;padding:5px 12px}
+.dp-head button.cur{border-color:var(--accent);color:var(--accent)}
+.dp-head button:disabled{opacity:.4;cursor:default}
+#dpBody{display:grid}
+.dp-view{grid-area:1/1;animation:fade .35s ease both}
+.dp-years{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:260px;overflow-y:auto;padding-right:4px}
+.dp-years .dec{grid-column:1/-1;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;color:var(--muted);padding-top:8px}
+.dp-cell{background:none;border:1px solid transparent;border-radius:8px;padding:9px 0;font-family:var(--mono);font-size:.92rem;font-variant-numeric:tabular-nums}
+.dp-cell:hover{border-color:var(--line)}
+.dp-cell.on{background:var(--fg);color:var(--bg)}
+.dp-months{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dp-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.dp-days .wd{font-family:var(--mono);font-size:.68rem;color:var(--muted);padding:4px 0}
+.dp-days .dp-cell{padding:8px 0;border-radius:50%;aspect-ratio:1;max-width:100%}
+.alive{font-size:1.05rem;min-height:1.6em}
+.alive b{font-family:var(--mono);font-weight:500;color:var(--accent)}
+
+/* loves editor */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:7px 13px;font-size:.88rem}
+.chip:hover{border-color:var(--accent)}
+.lform{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.lform .full{grid-column:1/-1}
+.lform label{display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--muted);min-width:0}
+.lform input,.lform select{background:var(--bg)}
+.check{flex-direction:row!important;align-items:center;gap:8px!important;font-size:.85rem!important}
+.check input{width:auto}
+.lrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);animation:rise .4s var(--ease) both}
+.lrow button{background:none;border:0;color:var(--muted);font-family:var(--mono);font-size:.78rem}
+.health{display:flex;flex-direction:column;gap:10px}
+.health .choice{opacity:.55;cursor:default}
+.tag{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:2px 8px;color:var(--muted)}
+
+/* computing */
+.compute{align-items:center;justify-content:center;text-align:center;gap:24px}
+.compute-dots{display:grid;grid-template-columns:repeat(10,14px);gap:8px}
+.compute-dots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--remain);animation:fill .3s ease both}
+@keyframes fill{to{background:var(--lived);border-color:var(--lived)}}
+
+/* ---------- app ---------- */
+#app{flex:1;display:flex;flex-direction:column}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:14px 10px}
+.brand{font-family:var(--display);font-size:.95rem;letter-spacing:.14em}
+.icons{display:flex;gap:6px}
+.icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.icon.on{border-color:var(--accent);color:var(--accent)}
+#screens{flex:1;display:grid;padding-bottom:110px;overflow-x:clip}
+.screen{grid-area:1/1;display:flex;flex-direction:column;gap:22px;min-width:0}
+.screen.inR{animation:inR .42s var(--ease) both}
+.screen.inL{animation:inL .42s var(--ease) both}
+.screen.outL{animation:outL .3s ease both;pointer-events:none}
+.screen.outR{animation:outR .3s ease both;pointer-events:none}
+@keyframes inR{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+@keyframes outL{to{opacity:0;transform:translateX(-40px)}}
+@keyframes outR{to{opacity:0;transform:translateX(40px)}}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:8px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+nav .in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+nav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;color:var(--muted);font-family:var(--mono);font-size:.68rem;letter-spacing:.06em}
+nav button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:var(--fg)}
+.navmark{position:absolute;top:-9px;height:2px;width:25%;background:var(--accent);transition:transform .4s var(--ease)}
+
+.verdict{font-size:clamp(1.2rem,5vw,1.45rem);line-height:1.35}
+.verdict b{font-family:var(--mono);font-weight:500;color:var(--accent)}
+.clock{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(1.05rem,4.6vw,1.3rem);letter-spacing:.02em}
+.clock .sec{color:var(--accent)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:3px;position:relative}
+.seg button{position:relative;z-index:1;background:none;border:0;border-radius:99px;padding:8px 0;font-family:var(--mono);font-size:.76rem;color:var(--muted);transition:color .3s}
+.seg button.on{color:var(--bg)}
+.seg .pill{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/4);background:var(--fg);border-radius:99px;transition:transform .4s var(--ease)}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;touch-action:pan-y;overflow:hidden}
+.board canvas{display:block;margin:0 auto;max-width:100%;transition:opacity .25s,transform .35s var(--ease)}
+.board canvas.zoomOut{opacity:0;transform:scale(.94)}
+.board canvas.zoomIn{opacity:0;transform:scale(1.06)}
+.caption{font-size:.95rem}
+.caption b{font-family:var(--mono);font-weight:500;color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.hint{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+
+/* habits */
+.est{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.est .big{font-family:var(--mono);font-size:2.4rem;font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+.factor{display:flex;flex-direction:column;gap:8px;padding-bottom:16px;border-bottom:1px dashed var(--line)}
+.factor-opts{display:flex;flex-wrap:wrap;gap:6px}
+.fo{flex:1 1 90px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 8px;text-align:center;font-size:.88rem;display:flex;flex-direction:column;gap:2px;transition:all .25s}
+.fo.on{border-color:var(--accent);background:var(--accent-soft)}
+.fo small{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+.fo small.up{color:var(--accent)}
+
+/* loves */
+.love{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0)*70ms)}
+.love canvas{flex:none}
+.love .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.love .n{font-family:var(--mono);font-size:1.7rem;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+.love .what{font-size:1rem}
+.love .sub{font-size:.8rem;color:var(--muted)}
+.love button{align-self:flex-start;background:none;border:0;color:var(--muted);font-family:var(--mono);font-size:.72rem}
+
+/* today */
+.quote{font-size:clamp(1.25rem,5.4vw,1.55rem);line-height:1.4;font-style:italic;padding-left:18px;border-left:2px solid var(--accent);margin:0}
+.quote cite{display:block;margin-top:12px;font-style:normal;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;color:var(--muted)}
+.reveal{opacity:0}
+.screen.shown .reveal{animation:rise .8s var(--ease) both;animation-delay:var(--d,0s)}
+.question{font-family:var(--display);font-size:clamp(1.15rem,5vw,1.4rem);letter-spacing:.03em;line-height:1.3}
+textarea{min-height:110px;resize:vertical}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.entries{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.entries li{font-size:.94rem;border-bottom:1px solid var(--line);padding-bottom:10px}
+.entries time{font-family:var(--mono);font-size:.7rem;color:var(--muted);display:block}
+.foot{font-size:.78rem;color:var(--muted)}
+
+/* opening sequence */
+#intro{position:fixed;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 20px) 16px calc(env(safe-area-inset-bottom,0px) + 28px)}
+#intro.closing{animation:introOut .45s ease both}
+@keyframes introOut{to{opacity:0;transform:scale(1.03)}}
+.intro-top{max-width:520px;width:100%;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.dots{display:flex;gap:6px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:background .3s,width .3s}
+.dots i.on{background:var(--accent);width:18px;border-radius:3px}
+#introStage{flex:1;display:grid;max-width:520px;width:100%;margin:0 auto;cursor:pointer}
+.icard{justify-content:center;gap:16px;padding-bottom:40px}
+.huge{font-family:var(--mono);font-weight:500;font-size:clamp(3.6rem,19vw,5.6rem);line-height:1;color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.icard .what{font-family:var(--display);font-size:clamp(1.3rem,6vw,1.7rem);letter-spacing:.04em}
+.agency{border-top:1px solid var(--line);padding-top:14px;font-size:1rem}
+.agency b{font-family:var(--mono);font-weight:500;color:var(--accent)}
+
+/* movement + evidence */
+.move{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.move .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.move .val{font-family:var(--mono);font-size:1.3rem;font-variant-numeric:tabular-nums}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--accent)}
+.math{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+.math li{display:flex;gap:8px}
+.math li span:first-child{color:var(--muted);min-width:1.2em}
+.math b{font-weight:500;color:var(--accent)}
+.ev{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;border-radius:99px;padding:2px 8px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.ev.strong{border-color:var(--accent);color:var(--accent)}
+.ev.emerging{border-style:dashed}
+.rank{list-style:none;margin:0;padding:0;counter-reset:r;display:flex;flex-direction:column}
+.rank li{counter-increment:r;display:grid;grid-template-columns:1.6em 1fr auto;gap:4px 10px;padding:11px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.rank li::before{content:counter(r);font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.rank li small{grid-column:2/-1;color:var(--muted);font-size:.84rem}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}}
+</style>
+
+<div class="shell">
+  <div id="ob" hidden>
+    <div class="ob-top">
+      <button class="btn link" id="obBack" aria-label="Back">← Back</button>
+      <div class="progress"><i id="obProg"></i></div>
+    </div>
+    <div id="stage"></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="bar">
+      <span class="brand">MEMENTO MORI</span>
+      <div class="icons">
+        <button class="icon" id="soundBtn" aria-label="Ticking sound" aria-pressed="false" title="Ticking sound">
+          <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="waves" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>
+        </button>
+        <button class="icon" id="editBtn" aria-label="Edit your details" title="Edit your details">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="screens">
+      <!-- LIFE -->
+      <section class="screen" id="s0" aria-label="Life">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span class="eyebrow" id="hello"></span>
+          <p class="verdict" id="verdict"></p>
+          <p class="small muted" id="range"></p>
+        </div>
+        <div>
+          <span class="hint">LIKELY TIME LEFT</span>
+          <div class="clock" id="clock"></div>
+        </div>
+        <div class="seg" id="zoomSeg" role="tablist" aria-label="Zoom">
+          <span class="pill" id="zoomPill"></span>
+          <button data-z="0" role="tab">Life</button>
+          <button data-z="1" role="tab">Weeks</button>
+          <button data-z="2" role="tab">Year</button>
+          <button data-z="3" role="tab">Today</button>
+        </div>
+        <div class="board" id="board"><canvas id="cv" aria-label="Circles showing time lived and time likely left"></canvas></div>
+        <p class="caption" id="caption"></p>
+        <div class="legend">
+          <span><i style="background:var(--lived)"></i>Lived</span>
+          <span><i style="background:var(--accent)"></i>Now</span>
+          <span><i style="border:1.5px solid var(--remain)"></i>Likely ahead</span>
+          <span><i style="border:1.5px dotted var(--remain)"></i>If fortune allows</span>
+        </div>
+        <span class="hint">Pinch or ctrl+scroll on the circles to zoom</span>
+      </section>
+
+      <!-- HABITS -->
+      <section class="screen" id="s1" aria-label="Habits" hidden>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span class="eyebrow">What is in your control</span>
+          <h2>Change a habit, change the count</h2>
+        </div>
+        <div class="est"><span class="big" id="estBig">0</span><span class="muted">median age, for someone living like you</span></div>
+        <div class="move">
+          <div class="head"><h3>DAILY STEPS · MEASURED</h3><span class="ev strong">Strong evidence</span></div>
+          <div class="head"><label for="steps" class="small muted">90-day average</label><span class="val" id="stepsVal"></span></div>
+          <input type="range" id="steps" min="1000" max="15000" step="250">
+          <ol class="math" id="stepsMath"></ol>
+          <div class="row"><button class="btn link" id="stepsClear" hidden>Use my exercise answer instead</button></div>
+          <p class="hint">In the mobile app this comes from Apple Health or Health Connect. Here you can set it by hand.</p>
+        </div>
+        <div id="factors" style="display:flex;flex-direction:column;gap:16px"></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3>WHAT MATTERS MOST</h3>
+          <ol class="rank">
+            <li><span>Not smoking</span><span class="ev strong">Strong</span><small>Up to about 10 years. Quitting at any age helps.</small></li>
+            <li><span>Moving more, staying fit</span><span class="ev strong">Strong</span><small>Cardio fitness is one of the strongest single predictors of survival.</small></li>
+            <li><span>Close relationships</span><span class="ev strong">Strong</span><small>Loneliness carries risk on the scale of smoking.</small></li>
+            <li><span>Diet quality</span><span class="ev strong">Strong</span><small>More plants and whole foods, less processed meat.</small></li>
+            <li><span>Healthy weight and blood pressure</span><span class="ev strong">Strong</span><small>Both drive heart disease, the top cause of death.</small></li>
+            <li><span>Drinking little</span><span class="ev">Moderate</span><small>Heavy drinking clearly shortens life. Benefits of light drinking are doubtful.</small></li>
+            <li><span>Sleeping 7–8 hours</span><span class="ev">Moderate</span><small>Short sleep is linked to higher risk.</small></li>
+            <li><span>Walking after meals</span><span class="ev emerging">Emerging</span><small>Lowers blood-sugar spikes. No direct lifespan study yet.</small></li>
+          </ol>
+        </div>
+        <p class="foot">Effects use broad risk ratios from population studies. They show direction and rough size, not a promise.</p>
+      </section>
+
+      <!-- LOVES -->
+      <section class="screen" id="s2" aria-label="Loves" hidden>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span class="eyebrow">What you love</span>
+          <h2>How many more times?</h2>
+          <p class="muted small">At your current pace, over the life you likely have left.</p>
+        </div>
+        <div id="loveCards" style="display:flex;flex-direction:column;gap:12px"></div>
+        <div id="loveAdd"></div>
+      </section>
+
+      <!-- TODAY -->
+      <section class="screen" id="s3" aria-label="Today" hidden>
+        <span class="eyebrow reveal" id="todayDate"></span>
+        <blockquote class="quote reveal" id="quote" style="--d:.15s"></blockquote>
+        <p class="question reveal" id="question" style="--d:1.3s"></p>
+        <div class="reveal" style="--d:1.9s;display:flex;flex-direction:column;gap:10px">
+          <label for="reflect" class="hint">YOUR ANSWER · EVENING REVIEW</label>
+          <textarea id="reflect" placeholder="Write a line. What matters, what you did, what you'll do better."></textarea>
+          <div class="row"><button class="btn" id="saveEntry">Save today's entry</button><span class="hint" id="savedMsg" aria-live="polite"></span></div>
+        </div>
+        <ul class="entries reveal" id="entries" style="--d:2.1s"></ul>
+      </section>
+    </div>
+
+    <nav aria-label="Screens"><div class="in">
+      <span class="navmark" id="navmark"></span>
+      <button data-s="0"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.2"/><circle cx="12" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="6" cy="12" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="18" cy="12" r="2.2"/><circle cx="6" cy="18" r="2.2"/></svg>Life</button>
+      <button data-s="1"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Habits</button>
+      <button data-s="2"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Loves</button>
+      <button data-s="3"><svg viewBox="0 0 24 24"><path d="M7 4h10M7 20h10M8 4c0 5 8 6 8 16M16 4c0 5-8 6-8 16"/></svg>Today</button>
+    </div></nav>
+  </div>
+</div>
+
+<div id="intro" hidden>
+  <div class="intro-top"><div class="dots" id="introDots"></div><button class="btn link" id="introSkip">Skip</button></div>
+  <div id="introStage" aria-live="polite"></div>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const reduced=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DAY=864e5, YEAR=365.2425*DAY, WEEK=7*DAY;
+const fmt=n=>Math.max(0,Math.round(n)).toLocaleString("en-US");
+
+/* ---------- model ---------- */
+// Gompertz–Makeham hazard calibrated to US period life tables (~75 M / ~81 F at birth)
+const MODEL={m:{A:0.0012,B:6.0e-5,b:0.085},f:{A:0.0007,B:4.2e-5,b:0.085}};
+const FACTORS={
+  sex:{q:"What was your sex at birth?",why:"On average women outlive men by about five years.",opts:[["m","Male"],["f","Female"]]},
+  smoke:{q:"Do you smoke?",short:"Smoking",why:"The single biggest lever on this list.",opts:[["never","Never",1],["former","I quit",1.3],["current","Yes",2.2]]},
+  exercise:{q:"How often do you exercise?",short:"Exercise",why:"Brisk walking counts.",opts:[["none","Rarely",1.3],["some","1–2× a week",1],["regular","3+× a week",0.85]]},
+  bmi:{q:"Which describes your weight?",short:"Weight",why:"Body mass index ranges. Rough is fine.",opts:[["under","Underweight",1.4],["normal","Healthy",1],["over","Overweight",1.05],["obese","Obese",1.35]]},
+  alcohol:{q:"How much do you drink?",short:"Alcohol",why:"Heavy means about 15 or more drinks a week.",opts:[["none","Little or none",1],["moderate","Moderate",1],["heavy","Heavy",1.4]]},
+  sleep:{q:"How much do you sleep?",short:"Sleep",why:"Most nights, not your best nights.",opts:[["short","Under 6 hours",1.15],["ok","6–9 hours",1]]},
+};
+const HABITS=["smoke","exercise","bmi","alcohol","sleep"];
+const hr=(k,v)=>(FACTORS[k].opts.find(o=>o[0]===v)||[0,0,1])[2]??1;
+// Steps: log-linear risk vs a 6,000-step reference, plateau at 10,000 (8k vs 4k ≈ 0.75)
+const stepsHR=s=>Math.exp(-0.072*(Math.min(Math.max(s,1000),10000)-6000)/1000);
+const GOMPERTZ_B=0.085, yearsFromHR=h=>Math.log(1/h)/GOMPERTZ_B;
+const mult=p=>HABITS.reduce((m,k)=>m*(k==="exercise"&&p.steps?stepsHR(p.steps):hr(k,p[k])),1);
+function survival(sex,age,m){
+  const M=MODEL[sex];let S=1,x=age,ex=0,q={},p80=age>=80?1:0;
+  while(x<121&&S>1e-4){const h=(M.A+M.B*Math.exp(M.b*x))*m/12,s=Math.exp(-h);ex+=S*(1+s)/2/12;const prev=S;S*=s;x+=1/12;
+    for(const t of [.75,.5,.25]) if(q[t]==null&&S<=t) q[t]=x;
+    if(!p80&&x>=80&&x<80+1/12) p80=prev;}
+  return {mean:age+ex,q25:q[.75]??x,med:q[.5]??x,q75:q[.25]??x,p80};
+}
+const ageAt=(dob,t=Date.now())=>Math.max(0,(t-new Date(dob+"T00:00:00"))/YEAR);
+const est=p=>survival(p.sex,ageAt(p.dob),mult(p));
+
+/* ---------- state ---------- */
+const blank={name:"",dob:"",sex:"",smoke:"",exercise:"",bmi:"",alcohol:"",sleep:"",loves:[]};
+let P=store.get("mm2-profile",null);
+const save=()=>store.set("mm2-profile",P);
+
+/* ---------- onboarding ---------- */
+const STEPS=["welcome","name","dob","sex","smoke","exercise","bmi","alcohol","sleep","health","loves","compute"];
+let step=0, draft;
+function stagger(el){[...el.children].forEach((c,i)=>c.style.setProperty("--i",i))}
+function swap(box,html,dir,init,cls="stage"){
+  const old=box.firstElementChild, el=document.createElement("div");
+  el.className=cls+(dir<0?" back":""); el.innerHTML=html; stagger(el);
+  const put=()=>{box.innerHTML="";box.appendChild(el);init&&init(el)};
+  if(old&&!reduced){old.classList.add("leave");if(dir<0)old.classList.add("back");setTimeout(put,230)}else put();
+}
+function startOnboarding(existing){
+  draft=existing?JSON.parse(JSON.stringify(existing)):JSON.parse(JSON.stringify(blank));
+  $("app").hidden=true;$("ob").hidden=false;step=existing?1:0;showStep(1);
+}
+$("obBack").onclick=()=>{if(step>0){step--;showStep(-1)}};
+function next(){step++;showStep(1)}
+function foot(ok=true,label="Continue"){return `<div class="ob-foot"><span></span><button class="btn" id="nextBtn" ${ok?"":"disabled"}>${label}</button></div>`}
+function showStep(dir){
+  const s=STEPS[step];
+  $("obBack").style.visibility=step>0&&s!=="compute"?"visible":"hidden";
+  $("obProg").style.width=(step/(STEPS.length-1)*100)+"%";
+  let html="",init=null;
+  if(s==="welcome"){
+    html=`<span class="eyebrow">Remember you will die</span><h1>Memento Mori</h1>
+      <p style="font-size:1.15rem">The Stoics kept death in mind so they would not waste their days. This app counts the time you likely have left, so today gets the weight it deserves.</p>
+      <p class="muted small">Ten short questions. Your answers stay on this device.</p>${foot(true,"Begin")}`;
+  } else if(s==="name"){
+    html=`<span class="eyebrow">1 · You</span><h2>What should we call you?</h2>
+      <input id="nm" autocomplete="given-name" placeholder="Your first name" value="${esc(draft.name)}">${foot(true)}`;
+    init=el=>{const i=el.querySelector("#nm");i.focus({preventScroll:true});i.oninput=()=>draft.name=i.value.trim();i.onkeydown=e=>{if(e.key==="Enter")next()}};
+  } else if(s==="dob"){
+    html=`<span class="eyebrow">2 · Birth</span><h2>When were you born?</h2>
+      <div class="dp"><div class="dp-head" id="dpHead"></div><div id="dpBody"></div></div>
+      <p class="alive" id="alive"></p>${foot(!!draft.dob)}`;
+    init=el=>datePicker(el);
+  } else if(FACTORS[s]){
+    const f=FACTORS[s], n=STEPS.indexOf(s)-0;
+    html=`<span class="eyebrow">${n} · Body</span><h2>${f.q}</h2><p class="why">${f.why}</p>
+      <div class="choices">${f.opts.map(o=>`<button class="choice${draft[s]===o[0]?" on":""}" data-v="${o[0]}">${o[1]}</button>`).join("")}</div>`;
+    init=el=>el.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{draft[s]=b.dataset.v;el.querySelectorAll(".choice").forEach(x=>x.classList.toggle("on",x===b));setTimeout(next,reduced?0:320)});
+  } else if(s==="health"){
+    html=`<span class="eyebrow">9 · Health data</span><h2>Connect your health data</h2>
+      <p class="why">In the mobile app, steps, sleep, heart rate and weight will refine your estimate automatically.</p>
+      <div class="health">
+        <div class="choice"><span>Apple Health<small>iPhone · HealthKit</small></span><span class="tag">Mobile app</span></div>
+        <div class="choice"><span>Health Connect<small>Android · Google</small></span><span class="tag">Mobile app</span></div>
+      </div>${foot(true,"Continue without")}`;
+  } else if(s==="loves"){
+    html=`<span class="eyebrow">10 · What you love</span><h2>What do you love doing, and who do you love seeing?</h2>
+      <p class="why">We'll count how many more times you get to do it.</p>
+      <div class="chips" id="chips">
+        <button class="chip" data-p='{"name":"Play soccer","count":2,"per":"week","until":65}'>Play soccer</button>
+        <button class="chip" data-p='{"name":"Go to the movies","count":2,"per":"month"}'>Go to the movies</button>
+        <button class="chip" data-p='{"name":"See Mom","count":4,"per":"year","person":true,"theirAge":60}'>See Mom</button>
+        <button class="chip" data-p='{"name":"Read a book","count":1,"per":"month"}'>Read a book</button>
+      </div>
+      <div id="lf"></div><div id="llist"></div>${foot(true)}`;
+    init=el=>{loveEditor(el.querySelector("#lf"),el.querySelector("#llist"),draft,el.querySelector("#chips"))};
+  } else if(s==="compute"){
+    html=`<div class="stage compute" style="flex:1"><div class="compute-dots" id="cd"></div><h2>Counting your weeks</h2><p class="muted">Turning your answers into time.</p></div>`;
+    init=el=>{const cd=el.querySelector("#cd");cd.innerHTML=Array.from({length:40},(_,i)=>`<i style="animation-delay:${i*35}ms"></i>`).join("");
+      setTimeout(()=>{const first=!draft.created;P=draft;P.created=P.created||Date.now();save();enterApp();showIntro(first)},reduced?200:1800)};
+  }
+  swap($("stage"),html,dir,el=>{const nb=el.querySelector("#nextBtn");if(nb)nb.onclick=()=>{if(!nb.disabled)next()};init&&init(el)});
+}
+
+/* date picker: year → month → day, with a fade between views */
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function datePicker(el){
+  const now=new Date(), head=el.querySelector("#dpHead"), body=el.querySelector("#dpBody");
+  let [y,m,d]=draft.dob?draft.dob.split("-").map(Number):[null,null,null]; if(m) m--;
+  let view=y?"day":"year";
+  const drawHead=()=>{head.innerHTML=`<button data-v="year" class="${view==="year"?"cur":""}">${y??"Year"}</button><button data-v="month" class="${view==="month"?"cur":""}" ${y?"":"disabled"}>${m!=null?MONTHS[m]:"Month"}</button><button data-v="day" class="${view==="day"?"cur":""}" ${m!=null?"":"disabled"}>${d??"Day"}</button>`;
+    head.querySelectorAll("button").forEach(b=>b.onclick=()=>{view=b.dataset.v;draw()})};
+  const draw=()=>{drawHead();let h="";
+    if(view==="year"){const max=now.getFullYear()-13,min=now.getFullYear()-100;
+      for(let dec=Math.floor(min/10)*10;dec<=max;dec+=10){h+=`<span class="dec">${dec}s</span>`;for(let k=Math.max(dec,min);k<Math.min(dec+10,max+1);k++)h+=`<button class="dp-cell${k===y?" on":""}" data-y="${k}">${k}</button>`}
+      h=`<div class="dp-view dp-years">${h}</div>`;
+    } else if(view==="month"){h=`<div class="dp-view dp-months">${MONTHS.map((n,i)=>`<button class="dp-cell${i===m?" on":""}" data-m="${i}">${n.slice(0,3)}</button>`).join("")}</div>`;
+    } else {const first=new Date(y,m,1).getDay(), n=new Date(y,m+1,0).getDate();
+      h=`<div class="dp-view dp-days">${"SMTWTFS".split("").map(c=>`<span class="wd">${c}</span>`).join("")}${"<span></span>".repeat(first)}${Array.from({length:n},(_,i)=>`<button class="dp-cell${i+1===d?" on":""}" data-d="${i+1}">${i+1}</button>`).join("")}</div>`;}
+    body.innerHTML=h;
+    if(view==="year"){const yc=body.querySelector(".dp-years"),t=body.querySelector(`[data-y="${y||1990}"]`);if(t)yc.scrollTop=t.offsetTop-yc.offsetTop-90}
+    body.querySelectorAll("[data-y]").forEach(b=>b.onclick=()=>{y=+b.dataset.y;view="month";if(d&&m!=null&&d>new Date(y,m+1,0).getDate())d=null;draw();commit()});
+    body.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{m=+b.dataset.m;view="day";if(d&&d>new Date(y,m+1,0).getDate())d=null;draw();commit()});
+    body.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{d=+b.dataset.d;draw();commit()});
+  };
+  const commit=()=>{const ok=y&&m!=null&&d;draft.dob=ok?`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`:"";
+    const nb=el.querySelector("#nextBtn"); if(nb) nb.disabled=!ok;
+    const a=el.querySelector("#alive"); if(ok){const days=(Date.now()-new Date(draft.dob+"T00:00:00"))/DAY;a.innerHTML=`You have been alive for <b>${fmt(days)}</b> days.`;a.style.animation="none";a.offsetWidth;a.style.animation="fade .6s ease both"} else a.textContent=""};
+  draw(); if(draft.dob) commit();
+}
+
+/* loves editor (onboarding and Loves screen) */
+const PER={week:52.1775,month:12,year:1};
+const PERL={week:"a week",month:"a month",year:"a year"};
+function loveEditor(formBox,listBox,target,chips,onChange){
+  const form=(v={})=>{formBox.innerHTML=`<div class="lform">
+      <label class="full" for="lName">What is it?<input id="lName" placeholder="Play soccer, see Mom…" value="${esc(v.name||"")}"></label>
+      <label for="lCount">How many times<input id="lCount" type="number" min="1" value="${v.count||1}"></label>
+      <label for="lPer">Per<select id="lPer">${Object.keys(PER).map(k=>`<option value="${k}"${v.per===k?" selected":""}>${k}</option>`).join("")}</select></label>
+      <label for="lUntil">Until what age? (optional)<input id="lUntil" type="number" min="1" max="120" placeholder="For life" value="${v.until||""}"></label>
+      <label class="check" for="lPerson"><input type="checkbox" id="lPerson"${v.person?" checked":""}> It's a person</label>
+      <label class="full" for="lTheir" id="lTheirWrap" ${v.person?"":"hidden"}>Their age<input id="lTheir" type="number" min="0" max="115" value="${v.theirAge||""}"></label>
+      <div class="full row"><button class="btn ghost" id="lAdd">Add</button></div></div>`;
+    const q=s=>formBox.querySelector(s);
+    q("#lPerson").onchange=()=>q("#lTheirWrap").hidden=!q("#lPerson").checked;
+    q("#lAdd").onclick=()=>{const name=q("#lName").value.trim();if(!name){q("#lName").focus();return}
+      const it={id:Date.now(),name,count:Math.max(1,+q("#lCount").value||1),per:q("#lPer").value,until:+q("#lUntil").value||null,person:q("#lPerson").checked,theirAge:+q("#lTheir").value||null,at:Date.now()};
+      target.loves.push(it);list();form();onChange&&onChange()};
+  };
+  const list=()=>{if(!listBox)return;listBox.innerHTML=target.loves.map(l=>`<div class="lrow"><span>${esc(l.name)} <span class="muted small">· ${l.count} ${PERL[l.per]}</span></span><button data-id="${l.id}">Remove</button></div>`).join("");
+    listBox.querySelectorAll("button").forEach(b=>b.onclick=()=>{target.loves=target.loves.filter(l=>l.id!=b.dataset.id);list();onChange&&onChange()})};
+  if(chips) chips.querySelectorAll(".chip").forEach(c=>c.onclick=()=>form(JSON.parse(c.dataset.p)));
+  form();list();
+}
+function loveCount(l,p){
+  const age=ageAt(p.dob), mine=est(p).med;
+  let end=mine; if(l.until) end=Math.min(end,l.until);
+  let yrs=end-age;
+  if(l.person&&l.theirAge){const their=l.theirAge+(Date.now()-(l.at||Date.now()))/YEAR;
+    const tm=(survival("m",their,1).med+survival("f",their,1).med)/2; yrs=Math.min(yrs,tm-their)}
+  return {n:Math.max(0,yrs)*l.count*PER[l.per],yrs:Math.max(0,yrs)};
+}
+
+/* ---------- app ---------- */
+let screen=0, zoom=1, timer=null;
+function enterApp(){
+  $("ob").hidden=true;$("app").hidden=false;
+  ["s0","s1","s2","s3"].forEach((id,i)=>{$(id).hidden=i!==screen;$(id).className="screen"+(i===screen?" inR shown":"")});
+  setNav();renderLife(true);renderHabits();renderLoves();renderToday();
+  clearInterval(timer);timer=setInterval(secondTick,1000);
+}
+$("editBtn").onclick=()=>{clearInterval(timer);startOnboarding(P)};
+
+function go(i){
+  if(i===screen) return; const dir=i>screen?1:-1, a=$("s"+screen), b=$("s"+i);
+  a.className="screen "+(dir>0?"outL":"outR");
+  setTimeout(()=>{a.hidden=true;a.className="screen"},reduced?0:290);
+  b.hidden=false;b.className="screen "+(dir>0?"inR":"inL");
+  requestAnimationFrame(()=>b.classList.add("shown"));
+  screen=i;setNav();window.scrollTo({top:0,behavior:reduced?"auto":"smooth"});
+  if(i===0) renderLife(); if(i===1) renderHabits(); if(i===2) renderLoves(); if(i===3) renderToday();
+}
+function setNav(){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",+b.dataset.s===screen));$("navmark").style.transform=`translateX(${screen*100}%)`}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(+b.dataset.s));
+// swipe between screens
+let sx=null,sy=null;
+$("screens").addEventListener("touchstart",e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY}else sx=null},{passive:true});
+$("screens").addEventListener("touchend",e=>{if(sx==null)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;
+  if(e.target.closest("textarea,input,.lform"))return;
+  if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6) go(Math.min(3,Math.max(0,screen+(dx<0?1:-1))))},{passive:true});
+
+/* LIFE */
+function renderLife(first){
+  const r=est(P), age=ageAt(P.dob);
+  $("hello").textContent=P.name?`${P.name}, today`:"Today";
+  $("verdict").innerHTML=`You are <b>${age.toFixed(1)}</b>. Half of people living like you reach <b>${Math.round(r.med)}</b>. That leaves about <b>${Math.round(r.med-age)} years</b>.`;
+  $("range").textContent=`Likely range ${Math.round(r.q25)}–${Math.round(r.q75)} · ${Math.round(r.p80*100)}% chance of reaching 80`;
+  setZoom(zoom,0);
+}
+function setZoom(z,dir){
+  zoom=Math.max(0,Math.min(3,z));
+  document.querySelectorAll("#zoomSeg button").forEach(b=>b.classList.toggle("on",+b.dataset.z===zoom));
+  $("zoomPill").style.transform=`translateX(${zoom*100}%)`;
+  const cv=$("cv");
+  if(dir&&!reduced){cv.classList.add(dir>0?"zoomIn":"zoomOut");setTimeout(()=>{draw();cv.classList.remove("zoomIn","zoomOut")},220)} else draw();
+}
+document.querySelectorAll("#zoomSeg button").forEach(b=>b.onclick=()=>setZoom(+b.dataset.z,+b.dataset.z-zoom));
+// pinch and ctrl+wheel zoom
+let pd=null;
+$("board").addEventListener("touchstart",e=>{if(e.touches.length===2)pd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)},{passive:true});
+$("board").addEventListener("touchmove",e=>{if(e.touches.length!==2||!pd)return;const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  if(d/pd>1.35){setZoom(zoom+1,1);pd=d} else if(d/pd<.74){setZoom(zoom-1,-1);pd=d}},{passive:true});
+$("board").addEventListener("touchend",()=>pd=null,{passive:true});
+let wheelLock=0;
+$("board").addEventListener("wheel",e=>{if(!e.ctrlKey)return;e.preventDefault();const t=Date.now();if(t-wheelLock<350)return;wheelLock=t;setZoom(zoom+(e.deltaY<0?1:-1),e.deltaY<0?1:-1)},{passive:false});
+
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function dotGrid(spec){
+  const cv=$("cv"), W=Math.min($("board").clientWidth-28,560), labelW=spec.labelW||0;
+  if(W<120) return;
+  const cell=Math.floor((W-labelW)/spec.cols), rows=Math.ceil(spec.count/spec.cols), H=rows*cell;
+  const dpr=window.devicePixelRatio||1; cv.width=(labelW+cell*spec.cols)*dpr; cv.height=H*dpr; cv.style.width=(labelW+cell*spec.cols)+"px"; cv.style.height=H+"px";
+  const g=cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,cv.width,cv.height);
+  const C={lived:css("--lived"),acc:css("--accent"),rem:css("--remain"),maybe:css("--maybe"),muted:css("--muted"),soft:css("--accent-soft"),surf:css("--surface")};
+  const mono=css("--mono"), r=Math.max(1.4,cell/2-Math.max(.8,cell*.12));
+  g.textAlign="center";g.textBaseline="middle";
+  for(let i=0;i<spec.count;i++){
+    const st=spec.state(i); if(st==="none")continue;
+    const cx=labelW+(i%spec.cols)*cell+cell/2, cy=Math.floor(i/spec.cols)*cell+cell/2;
+    g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);
+    if(st==="lived"){g.fillStyle=C.lived;g.fill()}
+    else if(st==="now"){const f=spec.frac;g.fillStyle=C.soft;g.fill();
+      g.beginPath();g.moveTo(cx,cy);g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*f);g.closePath();g.fillStyle=C.acc;g.fill();
+      g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.lineWidth=Math.max(1,r*.18);g.strokeStyle=C.acc;g.stroke();
+      if(r>=10){g.beginPath();g.arc(cx,cy,r*.62,0,Math.PI*2);g.fillStyle=C.surf;g.fill();g.fillStyle=C.acc;g.font=`500 ${Math.round(r*.48)}px ${mono}`;g.fillText(Math.floor(f*100)+"%",cx,cy+1)}}
+    else{const solid=st==="likely";
+      if(r<3.2){g.fillStyle=solid?C.rem:C.maybe;g.fill()}
+      else{g.lineWidth=Math.max(1,r*.12);g.strokeStyle=C.rem;g.setLineDash(solid?[]:[Math.max(1.5,r*.3),Math.max(1.5,r*.3)]);g.stroke();g.setLineDash([])}}
+    if(spec.label&&r>=11&&st!=="now"){const t=spec.label(i);if(t){g.fillStyle=st==="lived"?C.surf:C.muted;g.font=`${Math.round(r*.62)}px ${mono}`;g.fillText(t,cx,cy+1)}}
+  }
+  if(spec.rowLabel){g.fillStyle=C.muted;g.textAlign="left";g.font=`${Math.min(11,Math.max(8,cell*.9))}px ${mono}`;
+    for(let row=0;row<rows;row++){const t=spec.rowLabel(row);if(t)g.fillText(t,0,row*cell+cell/2)}}
+}
+function draw(){
+  if(!P||$("app").hidden) return;
+  const now=Date.now(), birth=new Date(P.dob+"T00:00:00").getTime(), r=est(P), age=ageAt(P.dob,now);
+  const pct=f=>`<b>${Math.floor(f*100)}%</b>`;
+  if(zoom===0){ // life in years
+    const count=Math.ceil(r.q75)+1, a=Math.floor(age), frac=age-a;
+    dotGrid({cols:10,count,labelW:26,frac,state:i=>i<a?"lived":i===a?"now":i<r.med?"likely":i<r.q75?"maybe":"none",label:i=>i%5===0?String(i):"",rowLabel:row=>String(row*10)});
+    $("caption").innerHTML=`Your year ${a+1} is ${pct(frac)} gone. About <b>${fmt(r.med-age)}</b> more birthdays are likely.`;
+  } else if(zoom===1){ // life in weeks
+    const wl=(now-birth)/WEEK, w=Math.floor(wl), frac=wl-w, med=r.med*52.1775, max=r.q75*52.1775;
+    dotGrid({cols:52,count:Math.ceil(max),labelW:22,frac,state:i=>i<w?"lived":i===w?"now":i<med?"likely":"maybe",rowLabel:row=>row%10===0?String(row):""});
+    $("caption").innerHTML=`Week ${fmt(w+1)} of your life is ${pct(frac)} gone. About <b>${fmt(med-wl)}</b> weeks likely remain.`;
+  } else if(zoom===2){ // this year in days
+    const d=new Date(now), Y=d.getFullYear(), start=new Date(Y,0,1).getTime(), end=new Date(Y+1,0,1).getTime();
+    const today=Math.floor((now-start)/DAY), frac=(now-new Date(Y,d.getMonth(),d.getDate()).getTime())/DAY;
+    const idx=i=>{const mo=Math.floor(i/31),dy=i%31+1;if(dy>new Date(Y,mo+1,0).getDate())return -1;return Math.round((new Date(Y,mo,dy)-start)/DAY)};
+    dotGrid({cols:31,count:12*31,labelW:16,frac,state:i=>{const k=idx(i);return k<0?"none":k<today?"lived":k===today?"now":"likely"},rowLabel:row=>"JFMAMJJASOND"[row]});
+    $("caption").innerHTML=`${Y} is ${pct((now-start)/(end-start))} gone. Today is ${pct(frac)} gone. <b>${fmt((end-now)/DAY)}</b> days left this year.`;
+  } else { // today in hours
+    const d=new Date(now), h=d.getHours(), frac=(d.getMinutes()*60+d.getSeconds())/3600;
+    dotGrid({cols:6,count:24,frac,state:i=>i<h?"lived":i===h?"now":"likely",label:i=>{const k=i%12||12;return k+(i<12?"a":"p")}});
+    const awakeLeft=Math.max(0,23-h-frac);
+    $("caption").innerHTML=`This hour is ${pct(frac)} gone. Today has about <b>${awakeLeft.toFixed(1)}</b> hours left. Spend them on purpose.`;
+  }
+  updateClock();
+}
+function updateClock(){
+  const r=est(P), birth=new Date(P.dob+"T00:00:00").getTime(), endT=birth+r.med*YEAR, ms=Math.max(0,endT-Date.now());
+  const y=Math.floor(ms/YEAR), rem=ms-y*YEAR, dd=Math.floor(rem/DAY), s=Math.floor((rem-dd*DAY)/1000);
+  const hh=String(Math.floor(s/3600)).padStart(2,"0"), mm=String(Math.floor(s%3600/60)).padStart(2,"0"), ss=String(s%60).padStart(2,"0");
+  $("clock").innerHTML=`${y}y ${dd}d ${hh}:${mm}:<span class="sec">${ss}</span>`;
+}
+function secondTick(){if(screen===0&&!$("app").hidden){if(zoom>=1)draw();else updateClock()} tick()}
+window.addEventListener("resize",()=>{if(screen===0)draw()});
+if(window.matchMedia){const mq=matchMedia("(prefers-color-scheme: dark)");mq.addEventListener&&mq.addEventListener("change",()=>{draw();renderLoves()})}
+new MutationObserver(()=>{draw();renderLoves()}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* ticking sound */
+let actx=null, soundOn=store.get("mm2-sound",false)&&false, tock=false;
+function tick(){if(!soundOn||!actx)return;const t=actx.currentTime,o=actx.createOscillator(),f=actx.createBiquadFilter(),g=actx.createGain();
+  o.type="square";o.frequency.value=tock?1250:1650;f.type="bandpass";f.frequency.value=o.frequency.value;f.Q.value=8;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.35,t+.002);g.gain.exponentialRampToValueAtTime(.0001,t+.045);
+  o.connect(f);f.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+.06);tock=!tock}
+$("soundBtn").onclick=()=>{soundOn=!soundOn;
+  try{if(soundOn&&!actx)actx=new (window.AudioContext||window.webkitAudioContext)();if(actx&&actx.state==="suspended")actx.resume()}catch(e){soundOn=false}
+  $("soundBtn").classList.toggle("on",soundOn);$("soundBtn").setAttribute("aria-pressed",soundOn);$("waves").style.opacity=soundOn?1:.25;tick()};
+$("waves").style.opacity=.25;
+
+/* HABITS */
+let shownEst=0;
+function animateNum(el,to){const from=shownEst||to*.9,t0=performance.now(),dur=reduced?0:700;
+  const step=t=>{const k=dur?Math.min(1,(t-t0)/dur):1,e=1-Math.pow(1-k,3);el.textContent=(from+(to-from)*e).toFixed(1);if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step);shownEst=to}
+function renderSteps(){
+  const s=P.steps||6000, h=stepsHR(s), y=yearsFromHR(h);
+  $("steps").value=s; $("stepsVal").textContent=fmt(s);
+  $("stepsClear").hidden=!P.steps;
+  $("stepsMath").innerHTML=P.steps?`<li><span>1</span>Average: <b>${fmt(s)}</b> steps a day</li>
+    <li><span>2</span>Risk vs 6,000 steps: hazard ratio <b>${h.toFixed(2)}</b></li>
+    <li><span>3</span>Years ≈ ln(1 ÷ ${h.toFixed(2)}) ÷ 0.085 = <b>${y>=0?"+":"−"}${Math.abs(y).toFixed(1)}</b></li>
+    <li><span>4</span>This replaces your exercise answer, so nothing is counted twice.</li>`
+    :`<li><span>·</span>Move the slider to use steps instead of your exercise answer.</li>`;
+}
+$("steps").addEventListener("input",()=>{P.steps=+$("steps").value;save();renderSteps();animateNum($("estBig"),est(P).med);renderFactors()});
+$("stepsClear").onclick=()=>{delete P.steps;save();renderHabits()};
+function renderHabits(){
+  animateNum($("estBig"),est(P).med);
+  renderSteps();renderFactors();
+}
+function renderFactors(){
+  const base=est(P).med, age=ageAt(P.dob);
+  $("factors").innerHTML=HABITS.map(k=>{const f=FACTORS[k];
+    if(k==="exercise"&&P.steps) return `<div class="factor"><h3>EXERCISE</h3><p class="small muted">Replaced by your measured steps above.</p></div>`;
+    return `<div class="factor"><h3>${f.short.toUpperCase()}</h3><div class="factor-opts">${f.opts.map(o=>{
+      const on=P[k]===o[0]; let delta="";
+      if(!on){const d=survival(P.sex,age,mult({...P,[k]:o[0]})).med-base; if(Math.abs(d)>=.05) delta=`<small class="${d>0?"up":""}">${d>0?"+":"−"}${Math.abs(d).toFixed(1)} yrs</small>`; else delta=`<small>no change</small>`}
+      else delta=`<small>you now</small>`;
+      return `<button class="fo${on?" on":""}" data-k="${k}" data-v="${o[0]}">${o[1]}${delta}</button>`}).join("")}</div></div>`}).join("");
+  $("factors").querySelectorAll(".fo").forEach(b=>b.onclick=()=>{P[b.dataset.k]=b.dataset.v;save();renderHabits()});
+}
+
+/* LOVES */
+function ring(cv,f){const s=54,dpr=window.devicePixelRatio||1;cv.width=s*dpr;cv.height=s*dpr;cv.style.width=s+"px";cv.style.height=s+"px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);const c=s/2,r=s/2-4;
+  g.lineWidth=4;g.strokeStyle=css("--maybe");g.beginPath();g.arc(c,c,r,0,Math.PI*2);g.stroke();
+  g.strokeStyle=css("--accent");g.lineCap="round";g.beginPath();g.arc(c,c,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,f));g.stroke()}
+function renderLoves(){
+  if(!P) return; const age=ageAt(P.dob), med=est(P).med;
+  $("loveCards").innerHTML=P.loves.length?P.loves.map((l,i)=>{const {n,yrs}=loveCount(l,P);
+    const why=l.person&&l.theirAge?`${l.count} ${PERL[l.per]}, over the years you both likely have`:l.until?`${l.count} ${PERL[l.per]}, until you're ${l.until}`:`${l.count} ${PERL[l.per]}, for the rest of your life`;
+    return `<div class="love" style="--i:${i}"><canvas data-f="${Math.min(1,yrs/Math.max(1,med-age))}" aria-hidden="true"></canvas><div class="txt"><span class="n">${fmt(n)}</span><span class="what">more times: ${esc(l.name.toLowerCase())}</span><span class="sub">${why}</span></div><button data-id="${l.id}" aria-label="Remove ${esc(l.name)}">Remove</button></div>`}).join("")
+    :`<p class="muted">Nothing here yet. Add something you love below.</p>`;
+  $("loveCards").querySelectorAll("canvas").forEach(c=>ring(c,+c.dataset.f));
+  $("loveCards").querySelectorAll("button").forEach(b=>b.onclick=()=>{P.loves=P.loves.filter(l=>l.id!=b.dataset.id);save();renderLoves()});
+  if(!$("loveAdd").dataset.ready){$("loveAdd").dataset.ready=1;$("loveAdd").innerHTML=`<h3 style="margin-bottom:10px">ADD SOMETHING YOU LOVE</h3><div id="laForm"></div>`;
+    loveEditor($("laForm"),null,{get loves(){return P.loves},set loves(v){P.loves=v}},null,()=>{save();renderLoves()})}
+}
+
+/* TODAY — public-domain Stoic sources (Long 1862, Gummere 1917–25, Higginson 1865 translations; some lightly adapted) */
+const QUOTES=[
+ ["Do not act as if you had ten thousand years to live. While you live, while it is in your power, be good.","Marcus Aurelius · Meditations IV.17"],
+ ["While we are postponing, life speeds by.","Seneca · Letters 1"],
+ ["Think of yourself as dead. You have lived your life. Now take what is left and live it properly.","Marcus Aurelius · Meditations VII.56"],
+ ["Let us prepare our minds as if we had come to the very end of life. Let us postpone nothing.","Seneca · Letters 101"],
+ ["It is not that we have a short time to live, but that we waste much of it.","Seneca · On the Shortness of Life"],
+ ["Let death be daily before your eyes, and you will never have an abject thought.","Epictetus · Enchiridion 21"],
+ ["Every man lives only this present moment. All the rest is either past or uncertain.","Marcus Aurelius · Meditations III.10"],
+ ["Begin at once to live, and count each separate day as a separate life.","Seneca · Letters 101"],
+ ["You could leave life right now. Let that decide what you do and say and think.","Marcus Aurelius · Meditations II.11"],
+ ["No man is free who is not master of himself.","Epictetus · Fragments"],
+];
+const QUESTIONS=["What would make today worth it?","Who deserves your full attention today?","What are you postponing that you would regret never doing?","What is in your control today, and what is not?","If this were your last ordinary {day}, what would you keep the same?","What would you do today if you were not afraid?","What can you let go of today?","What do you want to be remembered for, and did today move you toward it?"];
+const entries=store.get("mm-entries",{});
+function renderToday(){
+  const now=new Date(), doy=Math.floor((now-new Date(now.getFullYear(),0,0))/DAY), key=now.toISOString().slice(0,10);
+  const [q,a]=QUOTES[doy%QUOTES.length];
+  $("todayDate").textContent=now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+  $("quote").innerHTML=`${esc(q)}<cite>${esc(a)}</cite>`;
+  $("question").textContent=QUESTIONS[doy%QUESTIONS.length].replace("{day}",now.toLocaleDateString("en-US",{weekday:"long"}));
+  if(document.activeElement!==$("reflect")) $("reflect").value=entries[key]||"";
+  const ks=Object.keys(entries).sort().reverse().slice(0,7);
+  $("entries").innerHTML=ks.map(k=>`<li><time>${new Date(k+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</time>${esc(entries[k])}</li>`).join("");
+  $("saveEntry").onclick=()=>{const t=$("reflect").value.trim();if(!t){$("savedMsg").textContent="Write a line first.";return}entries[key]=t;store.set("mm-entries",entries);$("savedMsg").textContent="Saved.";renderToday()};
+  // replay the reveal each time the screen is shown
+  const s=$("s3"); if(screen===3){s.classList.remove("shown");void s.offsetWidth;s.classList.add("shown")}
+}
+
+/* ---------- opening sequence: impact card → quote → life ---------- */
+const LEVER_LABEL={smoke:"Quitting smoking",exercise:"Exercising 3+ times a week",bmi:"Reaching a healthy weight",alcohol:"Drinking less",sleep:"Sleeping 6–9 hours",steps:"Walking 10,000 steps a day"};
+const BEST={smoke:"never",exercise:"regular",bmi:"normal",alcohol:"moderate",sleep:"ok"};
+function bestLever(){
+  const age=ageAt(P.dob), base=est(P).med; let best=null;
+  for(const k of HABITS){ if(k==="exercise"&&P.steps){ if(P.steps<10000){const g=survival(P.sex,age,mult({...P,steps:10000})).med-base;if(!best||g>best.g)best={k:"steps",g}} continue }
+    if(P[k]===BEST[k]) continue; const g=survival(P.sex,age,mult({...P,[k]:BEST[k]})).med-base; if(!best||g>best.g)best={k,g} }
+  return best&&best.g>=.2?best:null;
+}
+function countUp(el,to,dur=1400){if(reduced){el.textContent=fmt(to);return}const t0=performance.now();
+  const f=t=>{const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,4);el.textContent=fmt(to*e);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+function impactPool(){
+  const r=est(P), age=ageAt(P.dob), left=Math.max(0,r.med-age), pool=[];
+  P.loves.forEach(l=>{const c=loveCount(l,P);pool.push({n:c.n,what:`more times: ${l.name.toLowerCase()}`,sub:`At ${l.count} ${PERL[l.per]}, over the time you likely have.`,rate:l.count*PER[l.per],cap:l.until||l.person})});
+  pool.push({n:left*52.1775,what:"more weekends",sub:"Each one is a Saturday and a Sunday you get to spend on purpose.",rate:52.1775});
+  pool.push({n:left,what:"more summers",sub:"Long evenings. Warm nights. Not unlimited.",rate:1});
+  pool.push({n:left*12.37,what:"more full moons",sub:"Step outside for the next one.",rate:12.37});
+  pool.push({n:age*52.1775,what:"weekends already lived",sub:"Some of them were wonderful. Be grateful for those, and make room for more.",back:true});
+  return pool;
+}
+function showIntro(first){
+  const doy=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/DAY), r=est(P), age=ageAt(P.dob);
+  const pool=impactPool(), item=pool[doy%pool.length], lever=bestLever();
+  const [q,a]=QUOTES[doy%QUOTES.length], question=QUESTIONS[doy%QUESTIONS.length].replace("{day}",new Date().toLocaleDateString("en-US",{weekday:"long"}));
+  const cards=[];
+  if(first) cards.push({html:`<span class="eyebrow">Your time</span><p class="muted">About</p><span class="huge" data-n="${(r.med-age)*52.1775}">0</span><p class="what">weeks likely remain</p><p class="muted">A full life is about ${fmt(r.med*52.1775)} weeks. You've lived ${fmt(age*52.1775)} of them. Let's make the rest count.</p>`});
+  let ag=""; if(lever&&!item.back&&!item.cap) ag=`<p class="agency">${LEVER_LABEL[lever.k]} could add about <b>${lever.g.toFixed(1)} years</b>. That's about <b>${fmt(lever.g*item.rate)}</b> more.</p>`;
+  cards.push({html:`<span class="eyebrow">${item.back?"Look back":"Today's count"}</span><span class="huge" data-n="${item.n}">0</span><p class="what">${esc(item.what)}</p><p class="muted">${esc(item.sub)}</p>${ag}`});
+  cards.push({html:`<span class="eyebrow">Today</span><blockquote class="quote">${esc(q)}<cite>${esc(a)}</cite></blockquote><p class="question">${esc(question)}</p><p class="hint">TAP TO SEE YOUR LIFE</p>`});
+  let i=0; const intro=$("intro"); intro.hidden=false; intro.classList.remove("closing");
+  const dots=()=>{$("introDots").innerHTML=cards.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")};
+  const show=dir=>{dots();swap($("introStage"),cards[i].html,dir,el=>{const h=el.querySelector(".huge");if(h)setTimeout(()=>countUp(h,+h.dataset.n),reduced?0:250)},"stage icard")};
+  const close=()=>{intro.classList.add("closing");setTimeout(()=>{intro.hidden=true;if(screen!==0)go(0);else draw()},reduced?0:440)};
+  $("introStage").onclick=()=>{if(i<cards.length-1){i++;show(1)}else close()};
+  $("introSkip").onclick=close;
+  show(1);
+}
+
+/* ---------- boot ---------- */
+if(P&&P.dob&&P.sex){enterApp();showIntro(false)} else startOnboarding(null);
+})();
+</script>
