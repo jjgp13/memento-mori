@@ -86,7 +86,7 @@ export default function SignInScreen() {
                   onPress={() => run('guest', signInAsGuest)}
                 />
                 <ThemedText type="small" style={styles.note}>
-                  A guest account lives in this browser. Link Google later to keep it.
+                  A guest account lives in this browser{SIGN_IN_METHODS.google ? '. Link Google later to keep it.' : ' until you clear its data.'}
                 </ThemedText>
               </>
             ) : null}
