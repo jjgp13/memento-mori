@@ -7,27 +7,28 @@ import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { signOut } from '@/lib/auth';
+import { SIGN_IN_METHODS, linkGoogle, signOut } from '@/lib/auth';
 import { useAuth } from '@/providers/auth-provider';
 
 export default function AccountScreen() {
   const theme = useTheme();
   const { session } = useAuth();
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<'link' | 'signout' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const user = session?.user;
   const provider = user?.app_metadata.provider;
 
-  async function onSignOut() {
-    setBusy(true);
+  async function run(kind: 'link' | 'signout', action: () => Promise<void>) {
+    setBusy(kind);
     setError(null);
     try {
-      await signOut();
-      // The root guard swaps to sign-in once the session clears.
+      // After sign-out the root guard swaps to sign-in; after linking, the session refreshes.
+      await action();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not sign out.');
-      setBusy(false);
+      setError(e instanceof Error ? e.message : 'Something went wrong. Try again.');
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -41,13 +42,37 @@ export default function AccountScreen() {
 
         {user ? (
           <>
-            <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-              <ThemedText type="heading">SIGNED IN AS</ThemedText>
-              <ThemedText>{user.email ?? 'Unknown'}</ThemedText>
-              {provider ? <ThemedText type="small">via {provider}</ThemedText> : null}
-            </View>
+            {user.is_anonymous ? (
+              <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+                <ThemedText type="heading">GUEST</ThemedText>
+                <ThemedText type="small">
+                  This guest account lives in this browser. Signing out or clearing site data ends it for good.
+                  {SIGN_IN_METHODS.google ? ' Link Google to keep it and use it on other devices.' : ''}
+                </ThemedText>
+              </View>
+            ) : (
+              <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+                <ThemedText type="heading">SIGNED IN AS</ThemedText>
+                <ThemedText>{user.email ?? 'Unknown'}</ThemedText>
+                {provider ? <ThemedText type="small">via {provider}</ThemedText> : null}
+              </View>
+            )}
 
-            <Button title="Sign out" variant="ghost" loading={busy} onPress={onSignOut} />
+            {user.is_anonymous && SIGN_IN_METHODS.google ? (
+              <Button
+                title="Link Google"
+                loading={busy === 'link'}
+                disabled={busy !== null && busy !== 'link'}
+                onPress={() => run('link', linkGoogle)}
+              />
+            ) : null}
+            <Button
+              title={user.is_anonymous ? 'Leave guest account' : 'Sign out'}
+              variant="ghost"
+              loading={busy === 'signout'}
+              disabled={busy !== null && busy !== 'signout'}
+              onPress={() => run('signout', signOut)}
+            />
             {error ? (
               <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
                 {error}

@@ -7,6 +7,20 @@ import { supabase } from '@/lib/supabase';
 export type OAuthProvider = 'apple' | 'google';
 
 /**
+ * Sign-in methods shown on the sign-in screen. Turn one on only after it works in Supabase:
+ *   google: Authentication → Providers → Google (OAuth client from Google Cloud Console)
+ *   guest:  Authentication → Providers → Anonymous sign-ins (+ "Allow manual linking" for upgrades)
+ *   email:  needs custom SMTP; Supabase's built-in mailer only sends to the project's own team
+ *   apple:  needs a paid Apple Developer account
+ */
+export const SIGN_IN_METHODS = {
+  google: false, // TODO: true once the Google provider is enabled in Supabase
+  guest: true,
+  email: false,
+  apple: false,
+} as const;
+
+/**
  * Where Supabase sends people back after OAuth or a magic link. Each value must be in
  * Supabase → Authentication → URL Configuration → Redirect URLs:
  *   web: http://localhost:8081/**, https://jjgp13.github.io/memento-mori/**
@@ -34,33 +48,48 @@ export async function createSessionFromUrl(url: string) {
   return true;
 }
 
+type OAuthStart = (options: {
+  redirectTo: string;
+  skipBrowserRedirect?: boolean;
+}) => Promise<{ data: { url?: string | null }; error: Error | null }>;
+
 /**
- * Browser-based OAuth: works on web, in Expo Go, and in builds.
- * TODO: switch iOS to native Sign in with Apple (expo-apple-authentication + signInWithIdToken)
- * before App Store review.
+ * Browser-based OAuth for both sign-in and linking: works on web, in Expo Go, and in builds.
+ * Web does a full-page redirect and supabase-js picks up the ?code= on return (detectSessionInUrl);
+ * native opens an auth session and exchanges the code itself.
  */
-export async function signInWithProvider(provider: OAuthProvider) {
+async function runOAuth(start: OAuthStart) {
+  const redirectTo = redirectUrl();
   if (Platform.OS === 'web') {
-    // Full-page redirect; supabase-js picks up the ?code= on return (detectSessionInUrl).
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: redirectUrl() },
-    });
+    const { error } = await start({ redirectTo });
     if (error) throw error;
     return;
   }
 
-  const redirectTo = redirectUrl();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: { redirectTo, skipBrowserRedirect: true },
-  });
+  const { data, error } = await start({ redirectTo, skipBrowserRedirect: true });
   if (error) throw error;
+  if (!data.url) throw new Error('Sign-in could not start. Try again.');
 
   const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
   if (result.type === 'success') {
     await createSessionFromUrl(result.url);
   }
+}
+
+/** TODO: switch iOS to native Sign in with Apple (expo-apple-authentication + signInWithIdToken) before App Store review. */
+export function signInWithProvider(provider: OAuthProvider) {
+  return runOAuth((options) => supabase.auth.signInWithOAuth({ provider, options }));
+}
+
+/** A real but anonymous account, kept in this browser or app install until linked or signed out. */
+export async function signInAsGuest() {
+  const { error } = await supabase.auth.signInAnonymously();
+  if (error) throw error;
+}
+
+/** Turns a guest into a permanent account by attaching Google; the user id (and their data) stays the same. */
+export function linkGoogle() {
+  return runOAuth((options) => supabase.auth.linkIdentity({ provider: 'google', options }));
 }
 
 /**

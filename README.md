@@ -25,9 +25,10 @@ Without Supabase settings, sign-in is switched off and the app opens straight to
    - `https://jjgp13.github.io/memento-mori/**` (GitHub Pages)
    - `exp://**` (Expo Go)
    - `mementomori://**` (development and store builds)
-4. **Authentication → Emails → Magic Link** template: include `{{ .Token }}` so emails carry the 6-digit code the app asks for. The link in the same email also works.
-5. **Authentication → Providers**:
-   - **Google**: create an OAuth client (Web application) in Google Cloud and use the callback URL Supabase shows.
+4. **Email sign-in (off for now):** Supabase's built-in mailer only sends to your own team, 2 emails an hour. To offer email codes to others, set up custom SMTP (e.g. Resend with your own domain), include `{{ .Token }}` in the Magic Link template, then set `email: true` in `SIGN_IN_METHODS` (`src/lib/auth.ts`).
+5. **Authentication → Sign In / Providers**: turn on **Allow anonymous sign-ins** (the "Try without an account" button) and **Allow manual linking** (lets a guest attach Google later). Changes take up to a minute to apply.
+6. **Authentication → Providers**:
+   - **Google**: in Google Cloud Console, create an OAuth client (Web application) with JavaScript origins `https://jjgp13.github.io` and `http://localhost:8081` and redirect URI `https://<project-ref>.supabase.co/auth/v1/callback`; publish the consent screen so anyone can sign in. Paste the client ID and secret into Supabase, then set `google: true` in `SIGN_IN_METHODS`.
    - **Apple**: needs an Apple Developer account (Services ID, key, team ID). Before App Store review, switch iOS to native Sign in with Apple (`expo-apple-authentication` + `signInWithIdToken`), as noted in `src/lib/auth.ts`.
 
 ## Layout
