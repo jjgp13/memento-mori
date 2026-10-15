@@ -45,7 +45,7 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
   const cell = W > 120 ? Math.floor((W - view.labelW) / view.cols) : 0;
   const rows = Math.ceil(view.count / view.cols);
   const r = Math.max(1.4, cell / 2 - Math.max(0.8, cell * 0.12));
-  const small = r < 3.2;
+  const small = view.dense || r < 3.2;
 
   const paths: Record<Base, string[]> = { lived: [], likely: [], maybe: [] };
   const layers: Record<Layer, string[]> = { reach: [], sleep: [], phone: [] };
@@ -93,7 +93,8 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
             {small ? (
               <>
                 <Path d={paths.likely.join('')} fill={theme.remain} />
-                <Path d={paths.maybe.join('')} fill={theme.maybe} />
+                {/* Dashes don't fit a dot this small; a hollow ring still reads as "if fortune allows". */}
+                <Path d={paths.maybe.join('')} fill="none" stroke={theme.remain} strokeWidth={Math.max(0.8, r * 0.32)} />
               </>
             ) : (
               <>
