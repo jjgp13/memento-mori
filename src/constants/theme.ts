@@ -17,14 +17,15 @@ export const Colors = {
     danger: '#9A3B2E',
     /** Calendar layers: time likely spent asleep, and on the phone. */
     sleep: '#AFBBC8',
-    screen: '#D2AFA4',
+    // Magenta, like a screen's glow: apart from every "what if" color, since they show together.
+    screen: '#C2407F',
     /** "What if" changes, each drawn on the calendar in its own color. */
     leverMove: '#4F8A57',
     leverPeople: '#B8613F',
     leverWeight: '#2F7F8F',
     leverSleep: '#5F5FA8',
     leverSmoke: '#A37A1C',
-    leverDrink: '#8E4A7C',
+    leverDrink: '#7E8A2A',
   },
   dark: {
     bg: '#131715',
@@ -39,13 +40,13 @@ export const Colors = {
     maybe: '#2F3632',
     danger: '#D98A7E',
     sleep: '#3A4A5A',
-    screen: '#5E4039',
+    screen: '#E0559F',
     leverMove: '#7FBF86',
     leverPeople: '#E08A68',
     leverWeight: '#6CB8C8',
     leverSleep: '#9D9DE0',
     leverSmoke: '#D9B04E',
-    leverDrink: '#CC86B8',
+    leverDrink: '#B8C46A',
   },
 } as const;
 

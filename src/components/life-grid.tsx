@@ -1,6 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState, type PropsWithChildren } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 
 import { Fonts } from '@/constants/theme';
@@ -106,7 +114,6 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
               {small ? (
                 <>
                   <Path d={layers.sleep.join('')} fill={theme.sleep} />
-                  <Path d={layers.phone.join('')} fill={theme.screen} />
                   <Path d={layers.reach.join('')} fill={theme.accent} opacity={0.55} />
                   {reach.map((p, k) => (
                     <Path key={k} d={p.join('')} fill={reachColors[k]} />
@@ -115,7 +122,6 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
               ) : (
                 <>
                   <Path d={layers.sleep.join('')} fill={theme.sleep} stroke={theme.sleep} strokeWidth={stroke} />
-                  <Path d={layers.phone.join('')} fill={theme.screen} stroke={theme.screen} strokeWidth={stroke} />
                   <Path d={layers.reach.join('')} fill={theme.accentSoft} stroke={theme.accent} strokeWidth={stroke} />
                   {reach.map((p, k) => (
                     <Path key={k} d={p.join('')} fill={reachColors[k]} fillOpacity={0.45} stroke={reachColors[k]} strokeWidth={stroke} />
@@ -124,6 +130,14 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
               )}
             </Svg>
           </Animated.View>
+
+          {layers.phone.length ? (
+            <Pulse trigger={layers.phone.length}>
+              <Svg width={w} height={h}>
+                <Path d={layers.phone.join('')} fill={theme.screen} stroke={small ? undefined : theme.screen} strokeWidth={stroke} />
+              </Svg>
+            </Pulse>
+          ) : null}
 
           <Svg width={w} height={h} style={StyleSheet.absoluteFill} pointerEvents="none">
             {nowCell ? <NowCell {...nowCell} r={r} frac={view.frac} /> : null}
@@ -163,6 +177,27 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
         </View>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * Phone time pulses three times when it appears or changes, then holds still: enough to catch the eye,
+ * never a constant blink (distracting, and moving content must stop on its own; WCAG 2.2.2). Still under
+ * Reduce Motion.
+ */
+function Pulse({ trigger, children }: PropsWithChildren<{ trigger: number }>) {
+  const reduced = useReducedMotion();
+  const opacity = useSharedValue(1);
+  useEffect(() => {
+    if (reduced) return;
+    opacity.set(withRepeat(withSequence(withTiming(0.25, { duration: 450 }), withTiming(1, { duration: 450 })), 3));
+  }, [trigger, reduced, opacity]);
+  const style = useAnimatedStyle(() => ({ opacity: opacity.get() }));
+
+  return (
+    <Animated.View style={[StyleSheet.absoluteFill, style]} pointerEvents="none">
+      {children}
+    </Animated.View>
   );
 }
 
