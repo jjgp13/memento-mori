@@ -122,6 +122,12 @@ export const WHAT_MATTERS: Evidence[] = [
   },
 ];
 
+/** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */
+export const LIFE_TABLES = {
+  claim: 'Life tables for 237 countries and areas, by sex, estimates for 2023.',
+  source: { label: 'UN World Population Prospects 2024', url: 'https://population.un.org/wpp/' },
+};
+
 /** Behavior findings used in copy (see docs/nudges.md), not ranked as health factors. */
 export const REACHING_OUT = {
   claim: 'People appreciate being reached out to more than we expect, especially after a while.',
@@ -179,7 +185,7 @@ export function evidenceFor(key: string): Evidence | undefined {
 }
 
 export const HOW_IT_WORKS = [
-  'Everyone’s yearly risk of dying rises with age, roughly doubling every 8 years. We start from that curve for your sex, an approximation of US life tables.',
+  'Everyone’s yearly risk of dying rises with age, roughly doubling every 7 years. We start from that curve for your sex in your country, fitted to its UN life table (World Population Prospects 2024, deaths in 2023). Without a country, we use an approximation of US tables.',
   'Your habits multiply that risk: smoking ×2.2, exercising 3+ times a week ×0.85, under 6 hours of sleep ×1.15, rarely seeing people you are close to ×1.29, and so on.',
   'We follow that risk month by month from your age today. The age by which half of people like you have died is your median; the 25% and 75% marks give your range.',
   'Rule of thumb: years ≈ ln(risk multiplier) ÷ 0.085. That is why doubling your risk costs about 8 years, and why quitting smoking can give back about 9.',

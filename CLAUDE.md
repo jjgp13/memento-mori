@@ -22,6 +22,7 @@ A free app that estimates how much life a person likely has left and helps them 
 - Behavior-change brief: `docs/nudges.md` (if-then plans, well-timed few prompts, fresh starts, welcome-backs, death reminders always paired with one doable action, "could" not "should").
 - Oct 15: plans (`src/lib/plans.ts`): an if-then plan per person (Loves) and one small habit plan (Life), Today's "This week" with one-tap actions, welcome-backs (no streaks), at most one suggested plan a week, fresh starts (Mondays, the 1st, birthdays), "Add to my calendar" .ics download on web.
 - Oct 15: Life puts the clock, legend and calendar first; "All / Awake / Off phone" layers (sleep framed as time well spent) and a "What if…" panel (habit changes and phone hours, animated weeks bar, fades onto the calendar, offers a plan). Today opens with one rotating count, weighted to loves, paired with its next step. Evidence notes in docs/nudges.md §1k.
+- Oct 15: baseline by country (`gm-2026.10c+wpp2024-2023`): UN WPP 2024 life tables fitted per country and sex by `npm run fit:countries` (`scripts/fit-country-tables.mts` → `src/lib/country-tables.ts`); a country step in onboarding, pre-filled from the device region (`expo-localization`, `src/lib/country.ts`); Life says which tables it uses. No country = the old US approximation.
 - Next: 1–2 local reminders a week (needs native build for notifications); diet/strength/purpose as model factors; native build for health data and screen time; healthy-years estimate.
 
 ## Working in this repo
@@ -39,11 +40,12 @@ A free app that estimates how much life a person likely has left and helps them 
 - **Tone:** show ranges, not a single death date. Pair scarcity with agency ("…and walking more could add ~2 years"). Sometimes look back with gratitude. Let users hide numbers.
 
 ## Model
-- Gompertz–Makeham hazard h(x) = (A + B·e^(b·x)) × habit multiplier, b = 0.085.
-  - Male A=0.0012, B=6.0e-5 (~75 at birth). Female A=0.0007, B=4.2e-5 (~81 at birth). Approximation of US period life tables — replace with real SSA tables.
+- Gompertz–Makeham hazard h(x) = (A + B·e^(b·x) + c before 15 + y from 15 to 29) × habit multiplier.
+  - Per country and sex: fitted to UN WPP 2024 life tables (2023), ages 30–100 for A, B, b; c and y match survival to 15 and 30. `npm run check:model` checks every median at birth is within a year of the table.
+  - No country (older profiles): male A=0.0012, B=6.0e-5 (~75 at birth), female A=0.0007, B=4.2e-5 (~81), b = 0.085, the prototype's US approximation.
 - Habit hazard ratios: smoking former 1.3 / current 2.2; exercise rarely 1.3 / 3+×wk 0.85; BMI under 1.4 / over 1.05 / obese 1.35; heavy alcohol 1.4; sleep <6h 1.15; connection (seeing close people) a few times a month 1.1 (interpolated) / rarely 1.29 (Holt-Lunstad 2015; model `gm-approx-2026.10b`).
 - Steps: HR = exp(−0.072 × (min(steps,10000) − 6000)/1000). Steps replace the exercise answer (never double count).
-- Shortcut: years gained ≈ ln(1/HR) ÷ 0.085.
+- Shortcut: years gained ≈ ln(1/HR) ÷ 0.085 (fitted b runs ~0.09–0.11, so the shortcut is a rule of thumb; the screens compute real deltas).
 - Output: median, middle-50% range, P(reach 80). Combined gains capped at 14 years (`MAX_TOTAL_GAIN`, Li 2018); associations are not causation. Every claim in the UI links its source via `SourceLink` / `evidenceFor()` in `src/lib/evidence.ts`.
 
 ## Planned architecture

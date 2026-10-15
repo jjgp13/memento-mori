@@ -1,23 +1,53 @@
 /**
  * Life-expectancy model, ported from prototype/index.html. Pure functions, no app imports.
  *
- * Gompertz–Makeham hazard h(x) = (A + B·e^(b·x)) × habit multiplier, integrated monthly.
- * A and B approximate US period life tables (~75 at birth for males, ~81 for females).
- * TODO: replace with real SSA period life tables; bump MODEL_VERSION when it changes.
+ * Gompertz–Makeham hazard h(x) = (A + B·e^(b·x) + early-life terms) × habit multiplier, integrated
+ * monthly. The early-life terms are constants: c before CHILD_END and y from then until YOUTH_END
+ * (childhood and youth deaths aren't Gompertz-shaped). A, B, b, c and y are fitted per country and sex to the UN World Population
+ * Prospects 2024 life tables (scripts/fit-country-tables.mts → country-tables.ts). Without a
+ * country, the prototype's approximation of US tables is used (~75 at birth for males, ~81 for
+ * females), so profiles saved before countries existed give the same answer as before.
  */
+import { COUNTRY_TABLES, COUNTRY_TABLES_SOURCE } from './country-tables.ts';
 
 /** Stored alongside any saved estimate so results can be traced to the model that produced them. */
-export const MODEL_VERSION = 'gm-approx-2026.10b';
+export const MODEL_VERSION = `gm-2026.10c+${COUNTRY_TABLES_SOURCE.version}`;
 // 2026.10b: adds social connection (Holt-Lunstad 2015). Everything else matches the prototype.
+// 2026.10c: baseline mortality by country (UN WPP 2024). No country = the 2026.10b US approximation.
 
+/** Gompertz slope of the US approximation; also the rule-of-thumb slope for "years ≈ ln(1/HR) ÷ b". */
 export const GOMPERTZ_B = 0.085;
+
+/** Childhood hazard `c` applies before this age, youth hazard `y` from it until YOUTH_END. */
+export const CHILD_END = 15;
+export const YOUTH_END = 30;
 
 export type Sex = 'm' | 'f';
 
-const PARAMS: Record<Sex, { A: number; B: number; b: number }> = {
+/** Baseline hazard parameters for one sex in one place; c and y are the early-life terms (may be negative). */
+export type CountryParams = { A: number; B: number; b: number; c?: number; y?: number };
+
+/** Yearly baseline hazard at age x, before habits. */
+export function baseHazard({ A, B, b, c = 0, y = 0 }: CountryParams, x: number) {
+  return A + B * Math.exp(b * x) + (x < CHILD_END ? c : x < YOUTH_END ? y : 0);
+}
+
+/** The prototype's approximation of US period life tables: used when no country is set. */
+export const US_APPROX: Record<Sex, CountryParams> = {
   m: { A: 0.0012, B: 6.0e-5, b: GOMPERTZ_B },
   f: { A: 0.0007, B: 4.2e-5, b: GOMPERTZ_B },
 };
+
+const BY_CODE = new Map(COUNTRY_TABLES.map((c) => [c.code, c]));
+
+/** The life table for an ISO 3166-1 alpha-2 code, if the UN publishes one. */
+export function countryTable(code: string | undefined) {
+  return code ? BY_CODE.get(code.toUpperCase()) : undefined;
+}
+
+export function paramsFor(sex: Sex, country?: string): CountryParams {
+  return countryTable(country)?.[sex] ?? US_APPROX[sex];
+}
 
 type Option<V extends string> = { value: V; label: string; hr: number };
 
@@ -97,6 +127,8 @@ export type Habits = { [K in HabitKey]: HabitValue<K> };
 
 export type ModelInput = Habits & {
   sex: Sex;
+  /** ISO 3166-1 alpha-2 code whose life table sets the baseline. Absent on older profiles (US approximation). */
+  country?: string;
   /** ISO date, YYYY-MM-DD. */
   dob: string;
   /** 90-day average daily steps. When set, replaces the exercise answer (never double count). */
@@ -143,9 +175,12 @@ export type Survival = {
   p80: number;
 };
 
-/** Survival from `age` onward, stepping monthly to age 121. */
-export function survival(sex: Sex, age: number, multiplier: number): Survival {
-  const { A, B, b } = PARAMS[sex];
+/** Survival from `age` onward for a sex and (optional) country, stepping monthly to age 121. */
+export function survival(sex: Sex, age: number, multiplier: number, country?: string): Survival {
+  return survivalWith(paramsFor(sex, country), age, multiplier);
+}
+
+export function survivalWith(params: CountryParams, age: number, multiplier: number): Survival {
   const quantiles: Partial<Record<0.75 | 0.5 | 0.25, number>> = {};
   let S = 1;
   let x = age;
@@ -153,7 +188,7 @@ export function survival(sex: Sex, age: number, multiplier: number): Survival {
   let p80 = age >= 80 ? 1 : 0;
 
   while (x < 121 && S > 1e-4) {
-    const h = ((A + B * Math.exp(b * x)) * multiplier) / 12;
+    const h = (baseHazard(params, x) * multiplier) / 12;
     const s = Math.exp(-h);
     expectancy += (S * (1 + s)) / 2 / 12;
     const prev = S;
@@ -184,5 +219,5 @@ export function ageAt(dob: string, t = Date.now()) {
 }
 
 export function estimate(p: ModelInput, t = Date.now()) {
-  return survival(p.sex, ageAt(p.dob, t), hazardMultiplier(p));
+  return survival(p.sex, ageAt(p.dob, t), hazardMultiplier(p), p.country);
 }

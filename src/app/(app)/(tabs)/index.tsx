@@ -1,4 +1,4 @@
-import { useIsFocused } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -19,7 +19,8 @@ import { Fonts, Radius } from '@/constants/theme';
 import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { PERSONAL_NUMBERS, WALK_AFTER_MEALS } from '@/lib/evidence';
+import { countryName } from '@/lib/country';
+import { LIFE_TABLES, PERSONAL_NUMBERS, WALK_AFTER_MEALS } from '@/lib/evidence';
 import { MAX_TOTAL_GAIN, allLevers, combinedGain, gainFrom, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
 import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
 import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate } from '@/lib/model';
@@ -140,6 +141,7 @@ function Life({ profile }: { profile: Profile }) {
         <ThemedText type="small">
           Likely range {Math.round(est.q25)}–{Math.round(est.q75)} · {Math.round(est.p80 * 100)}% chance of reaching 80
         </ThemedText>
+        <TablesNote country={profile.country} />
       </View>
 
       <HabitsCard profile={profile} now={now} levers={levers} />
@@ -514,7 +516,43 @@ function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; l
   );
 }
 
+/** Whose life tables the estimate starts from, or a nudge to pick a country on profiles saved before there was one. */
+function TablesNote({ country }: { country: string | undefined }) {
+  const name = countryName(country);
+  const edit = () => router.push({ pathname: '/onboarding', params: { edit: '1', only: 'country' } });
+  return (
+    <View style={styles.tables}>
+      {name ? (
+        <ThemedText type="small">Starting from life tables for {name}.</ThemedText>
+      ) : (
+        <ThemedText type="small">Starting from an approximation of US life tables.</ThemedText>
+      )}
+      <View style={styles.tablesLinks}>
+        <SourceLink source={LIFE_TABLES.source} prefix="Life tables" />
+        <Pressable accessibilityRole="button" onPress={edit} hitSlop={6}>
+          <ThemedText type="small" themeColor="accent" style={styles.tablesEdit}>
+            {name ? 'Change country' : 'Set your country'}
+          </ThemedText>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  tables: {
+    gap: 2,
+  },
+  tablesLinks: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    columnGap: 14,
+  },
+  tablesEdit: {
+    fontSize: 12.5,
+    textDecorationLine: 'underline',
+  },
   head: {
     gap: 8,
   },
