@@ -4,7 +4,9 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
+import { Button } from '@/components/button';
 import { LifeGrid } from '@/components/life-grid';
+import { PlanEditor, PlanSummary } from '@/components/plan-editor';
 import { RichText } from '@/components/rich-text';
 import { Screen } from '@/components/screen';
 import { Segmented } from '@/components/segmented';
@@ -16,9 +18,11 @@ import { Fonts, Radius } from '@/constants/theme';
 import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
+import { WALK_AFTER_MEALS } from '@/lib/evidence';
 import { MAX_TOTAL_GAIN, allLevers, combinedGain, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
 import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
-import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, type ModelInput } from '@/lib/model';
+import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate } from '@/lib/model';
+import { defaultHabitPlan, planSentence } from '@/lib/plans';
 import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 import { SWAP_HOURS, shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
@@ -202,8 +206,10 @@ function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
  * What the person's habits do to the estimate, and every change within reach, each linked to its study.
  * The combined gain is what the bronze circles on the calendar show.
  */
-function HabitsCard({ profile, now, levers, gain }: { profile: ModelInput; now: number; levers: Lever[]; gain: number }) {
+function HabitsCard({ profile, now, levers, gain }: { profile: Profile; now: number; levers: Lever[]; gain: number }) {
   const theme = useTheme();
+  const [planning, setPlanning] = useState<Lever['key'] | null>(null);
+  const plan = profile.habitPlan;
   const total = habitsEffect(profile, now);
   const items = habitBreakdown(profile, now);
   const signed = (y: number) => `${y > 0 ? '+' : '−'}${Math.abs(y).toFixed(1)}`;
@@ -244,15 +250,52 @@ function HabitsCard({ profile, now, levers, gain }: { profile: ModelInput; now: 
             Within reach
           </ThemedText>
           {levers.map((l) => (
-            <View key={l.key} style={styles.habitRow}>
-              <View style={styles.flex}>
-                <ThemedText>{l.label}</ThemedText>
-                <ThemedText type="small">about {fmt(l.years * WEEKS_PER_YEAR)} more weekends</ThemedText>
-                <SourceLink of={l.key} />
+            <View key={l.key} style={styles.leverItem}>
+              <View style={styles.habitRow}>
+                <View style={styles.flex}>
+                  <ThemedText>{l.label}</ThemedText>
+                  <ThemedText type="small">about {fmt(l.years * WEEKS_PER_YEAR)} more weekends</ThemedText>
+                  <SourceLink of={l.key} />
+                </View>
+                <ThemedText type="mono" themeColor="accent">
+                  {signed(l.years)} yrs
+                </ThemedText>
               </View>
-              <ThemedText type="mono" themeColor="accent">
-                {signed(l.years)} yrs
-              </ThemedText>
+              {planning === l.key ? (
+                <PlanEditor
+                  initial={plan?.habit === l.key ? plan : defaultHabitPlan(l.key)}
+                  onCancel={() => setPlanning(null)}
+                  onSave={(next) => {
+                    saveProfile({ ...profile, habitPlan: { ...next, createdAt: plan?.habit === l.key ? plan.createdAt : Date.now() } });
+                    setPlanning(null);
+                  }}
+                  note={
+                    <>
+                      {l.key === 'steps' || l.key === 'exercise' ? (
+                        <>
+                          <ThemedText type="small">{WALK_AFTER_MEALS.claim}</ThemedText>
+                          <SourceLink source={WALK_AFTER_MEALS.source} />
+                        </>
+                      ) : null}
+                      {plan && plan.habit !== l.key ? (
+                        <ThemedText type="small">
+                          One small plan at a time: this would take the place of “{planSentence(plan)}”
+                        </ThemedText>
+                      ) : null}
+                    </>
+                  }
+                />
+              ) : plan?.habit === l.key ? (
+                <PlanSummary plan={plan} onEdit={() => setPlanning(l.key)} onRemove={() => saveProfile({ ...profile, habitPlan: undefined })} />
+              ) : (
+                <Button
+                  title="Make a small plan"
+                  variant="link"
+                  accessibilityLabel={`Make a small plan for: ${l.label}`}
+                  onPress={() => setPlanning(l.key)}
+                  style={styles.start}
+                />
+              )}
             </View>
           ))}
           <RichText
@@ -329,6 +372,12 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  leverItem: {
+    gap: 4,
+  },
+  start: {
+    alignSelf: 'flex-start',
   },
   lever: {
     borderTopWidth: 1,

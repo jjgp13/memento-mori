@@ -128,6 +128,33 @@ export const REACHING_OUT = {
   source: { label: 'Liu et al., J Pers Soc Psychol 2023', url: 'https://www.apa.org/news/press/releases/2022/07/friends-enjoy-being-reached' },
 };
 
+/** If-then plans (docs/nudges.md §1a). */
+export const PLANS = {
+  claim: 'Deciding when and where you will do something, as an if-then, makes following through much more likely (94 studies).',
+  source: {
+    label: 'Gollwitzer & Sheeran, Adv Exp Soc Psychol 2006',
+    url: 'https://www.socmot.uni-konstanz.de/publications/implementation-intentions-and-goal-achievement-meta-analysis-effects-and-processes',
+  },
+};
+
+/** Fresh starts (docs/nudges.md §1d). */
+export const FRESH_START = {
+  claim: 'People are more likely to start on a goal at a new week, a new month or a birthday: a fresh start.',
+  source: { label: 'Dai, Milkman & Riis, Management Science 2014', url: 'https://faculty.wharton.upenn.edu/wp-content/uploads/2014/06/Dai_Fresh_Start_2014_Mgmt_Sci.pdf' },
+};
+
+/** Welcome-backs (docs/nudges.md §1e). */
+export const COMING_BACK = {
+  claim: 'In the largest test of exercise nudges (61,293 people), what helped most was rewarding a return after a missed workout.',
+  source: { label: 'Milkman et al., Nature 2021', url: 'https://authors.library.caltech.edu/records/mys88-cc756' },
+};
+
+/** Short walks after meals (docs/nudges.md §1j). */
+export const WALK_AFTER_MEALS = {
+  claim: 'A few minutes of light walking after a meal lowered blood sugar by about 17% compared with sitting.',
+  source: { label: 'Buffey et al., Sports Med 2022', url: 'https://ktvz.com/health/cnn-health/2023/09/08/just-2-minutes-of-walking-after-eating-can-help-blood-sugar-study-says-2/' },
+};
+
 /** Which evidence backs each habit, lever or claim, so every number in the app can link to its source. */
 const EVIDENCE_FOR: Record<string, string> = {
   smoke: 'smoking',

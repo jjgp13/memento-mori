@@ -5,6 +5,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { Button } from '@/components/button';
 import { LoveEditor } from '@/components/onboarding/love-editor';
+import { PersonPlan } from '@/components/plan-editor';
 import { Screen } from '@/components/screen';
 import { ReachOut } from '@/components/reach-out';
 import { Segmented } from '@/components/segmented';
@@ -108,7 +109,12 @@ function LoveCard({
         </View>
         <Button title="Remove" variant="link" accessibilityLabel={`Remove ${love.name}`} onPress={onRemove} />
       </View>
-      {love.kind === 'person' ? <ReachOut love={love} onChange={onChange} /> : null}
+      {love.kind === 'person' ? (
+        <>
+          <ReachOut love={love} onChange={onChange} />
+          <PersonPlan love={love} onChange={onChange} />
+        </>
+      ) : null}
     </Animated.View>
   );
 }
