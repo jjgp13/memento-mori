@@ -38,7 +38,8 @@
         }
       ],
       "expo-sqlite",
-      "expo-audio"
+      "expo-audio",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

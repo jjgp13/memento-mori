@@ -8,19 +8,20 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts } from '@/constants/theme';
 import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
-import { fmt } from '@/lib/life-views';
+import { useT } from '@/i18n';
+import { fmt } from '@/i18n/format';
 import { DAY_MS, WEEK_MS, YEAR_MS, birthTime } from '@/lib/model';
 import { setPref, usePrefs } from '@/lib/prefs';
 
-const UNITS: { label: string; ms: number }[] = [
-  { label: 'seconds', ms: 1000 },
-  { label: 'minutes', ms: 60_000 },
-  { label: 'hours', ms: 3_600_000 },
-  { label: 'days', ms: DAY_MS },
-  { label: 'weeks', ms: WEEK_MS },
-  { label: 'months', ms: YEAR_MS / 12 },
-  { label: 'years', ms: YEAR_MS },
-];
+const UNITS = [
+  { key: 'seconds', ms: 1000 },
+  { key: 'minutes', ms: 60_000 },
+  { key: 'hours', ms: 3_600_000 },
+  { key: 'days', ms: DAY_MS },
+  { key: 'weeks', ms: WEEK_MS },
+  { key: 'months', ms: YEAR_MS / 12 },
+  { key: 'years', ms: YEAR_MS },
+] as const;
 
 const ease = Easing.bezier(0.2, 0.7, 0.2, 1);
 const FIRST = 250;
@@ -40,6 +41,7 @@ export function AliveTimeline({ dob }: { dob: string }) {
 }
 
 function Timeline({ dob }: { dob: string }) {
+  const t = useT();
   const now = useNow(1000);
   const { tickOnboarding } = usePrefs();
   // The clock starts ticking once the seconds have finished counting up and begin to move on their own.
@@ -51,21 +53,21 @@ function Timeline({ dob }: { dob: string }) {
   useClockTick(ticking && tickOnboarding, TICKS);
 
   const lived = now - birthTime(dob);
-  const summary = `You have been alive for ${fmt(lived / DAY_MS)} days, about ${Math.floor(lived / YEAR_MS)} years.`;
+  const summary = t.alive.summary(fmt(lived / DAY_MS), Math.floor(lived / YEAR_MS));
 
   return (
     <View style={styles.wrap}>
       <Animated.View entering={FadeInDown.delay(FIRST - 150).duration(500).easing(ease)} style={styles.head}>
         <ThemedText type="eyebrow" themeColor="muted" accessible accessibilityLabel={summary}>
-          You have been alive for
+          {t.alive.heading}
         </ThemedText>
-        <SoundToggle on={tickOnboarding} onChange={(on) => setPref('tickOnboarding', on)} label="Clock ticking" />
+        <SoundToggle on={tickOnboarding} onChange={(on) => setPref('tickOnboarding', on)} label={t.common.clockTicking} />
       </Animated.View>
       {UNITS.map((u, i) => {
         const delay = FIRST + i * EACH;
         return (
           <Animated.View
-            key={u.label}
+            key={u.key}
             entering={FadeInDown.delay(delay).duration(550).easing(ease)}
             style={styles.row}>
             <CountUp
@@ -75,7 +77,7 @@ function Timeline({ dob }: { dob: string }) {
               themeColor="accent"
               style={[styles.num, i === 0 && styles.first]}
             />
-            <ThemedText style={styles.unit}>{u.label}</ThemedText>
+            <ThemedText style={styles.unit}>{t.alive.units[u.key]}</ThemedText>
           </Animated.View>
         );
       })}

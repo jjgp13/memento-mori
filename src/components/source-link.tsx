@@ -1,6 +1,7 @@
 import { Linking, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { useT } from '@/i18n';
 import { evidenceFor } from '@/lib/evidence';
 
 /**
@@ -11,24 +12,26 @@ import { evidenceFor } from '@/lib/evidence';
 export function SourceLink({
   of,
   source,
-  prefix = 'Source',
+  prefix,
 }: {
   of?: string;
   /** A source not in the ranked list (e.g. a behavior finding). */
   source?: { label: string; url: string };
   prefix?: string;
 }) {
+  const t = useT();
+  const label = prefix ?? t.common.source;
   const found = source ?? (of ? evidenceFor(of)?.source : undefined);
   if (!found) return null;
 
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={`${prefix}: ${found.label}, opens in browser`}
+      accessibilityLabel={t.common.sourceA11y(label, found.label)}
       onPress={() => Linking.openURL(found.url)}
       hitSlop={6}>
       <ThemedText type="small" themeColor="accent" style={styles.link}>
-        {prefix}: {found.label} ↗
+        {label}: {found.label} ↗
       </ThemedText>
     </Pressable>
   );

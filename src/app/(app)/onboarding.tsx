@@ -15,22 +15,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { Choices } from '@/components/choices';
 import { DatePicker } from '@/components/date-picker';
+import { LanguagePicker } from '@/components/language-picker';
 import { AliveTimeline } from '@/components/onboarding/alive-timeline';
 import { CountUp } from '@/components/onboarding/count-up';
 import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Stagger } from '@/components/onboarding/stagger';
+import { RichText } from '@/components/rich-text';
 import { SourceLink } from '@/components/source-link';
 import { Stepper } from '@/components/stepper';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT, type Strings } from '@/i18n';
+import { dec1, fmt, num } from '@/i18n/format';
+import { habitOptions } from '@/i18n/labels';
+import { s as plain } from '@/i18n/rich';
 import { bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
-import { fmt } from '@/lib/life-views';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
-  HABITS,
   HABIT_KEYS,
   WEEKS_PER_YEAR,
   ageAt,
@@ -74,10 +78,10 @@ const EDIT: StepKey[] = ['name', 'dob', 'sex', ...HABIT_KEYS, 'phone', 'values',
 
 type Draft = Partial<Profile> & { name: string; dob: string; values: ValueKey[]; loves: Love[] };
 
-const SEX_OPTIONS = [
-  { value: 'm', label: 'Male' },
-  { value: 'f', label: 'Female' },
-] as const;
+const sexOptions = (t: Strings) => [
+  { value: 'm' as const, label: t.onboarding.sex.m },
+  { value: 'f' as const, label: t.onboarding.sex.f },
+];
 
 const ease = Easing.bezier(0.2, 0.7, 0.2, 1);
 /** Starting point for the phone question: roughly the US adult average. */
@@ -92,6 +96,8 @@ function modelInput(d: Draft): ModelInput | null {
 /** One question per screen: name, birth, body, habits, what matters, who and what they love. */
 export default function OnboardingScreen() {
   const theme = useTheme();
+  const t = useT();
+  const o = t.onboarding;
   const reduced = useReducedMotion();
   const existing = useProfile();
   const editing = useLocalSearchParams<{ edit?: string }>().edit === '1';
@@ -155,39 +161,39 @@ export default function OnboardingScreen() {
 
   let body: ReactNode[] = [];
   let footer: ReactNode = null;
-  const continueButton = (title = 'Continue', disabled = false) => (
+  const continueButton = (title = t.common.continue, disabled = false) => (
     <Button title={title} disabled={disabled} onPress={editing && index === steps.length - 1 ? finish : next} />
   );
 
   if (step === 'welcome') {
     body = [
       <ThemedText key="e" type="eyebrow">
-        Remember you will die
+        {o.welcomeEyebrow}
       </ThemedText>,
       <ThemedText key="t" type="title">
         Memento Mori
       </ThemedText>,
       <ThemedText key="p" style={styles.lede}>
-        The Stoics kept death in mind so they would not waste their days. This app counts the time you likely have
-        left, so today gets the weight it deserves, and points it at what you love.
+        {o.welcomeLede}
       </ThemedText>,
       <ThemedText key="m" type="small">
-        A few short questions, one at a time. Your answers stay on this device.
+        {o.welcomeNote}
       </ThemedText>,
+      <LanguagePicker key="l" />,
     ];
-    footer = <Button title="Begin" onPress={next} />;
+    footer = <Button title={o.begin} onPress={next} />;
   } else if (step === 'name') {
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · You
+        {number} · {o.step.you}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
-        What should we call you?
+        {o.nameQuestion}
       </ThemedText>,
       <TextField
         key="f"
-        accessibilityLabel="First name"
-        placeholder="Your first name"
+        accessibilityLabel={o.nameA11y}
+        placeholder={o.namePlaceholder}
         autoComplete="given-name"
         autoFocus={Platform.OS === 'web'}
         value={draft.name}
@@ -196,38 +202,38 @@ export default function OnboardingScreen() {
         returnKeyType="next"
       />,
     ];
-    footer = continueButton(draft.name.trim() ? 'Continue' : 'Skip');
+    footer = continueButton(draft.name.trim() ? t.common.continue : t.common.skip);
   } else if (step === 'dob') {
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · Birth
+        {number} · {o.step.birth}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
-        When were you born?
+        {o.dobQuestion}
       </ThemedText>,
       <DatePicker key="d" value={draft.dob} onChange={(dob) => set({ dob })} />,
       <AliveTimeline key="a" dob={draft.dob} />,
     ];
-    footer = continueButton('Continue', !draft.dob);
+    footer = continueButton(t.common.continue, !draft.dob);
   } else if (step === 'sex') {
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · Body
+        {number} · {o.step.body}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
-        What was your sex at birth?
+        {o.sexQuestion}
       </ThemedText>,
       <ThemedText key="w" type="small" style={styles.why}>
-        On average women outlive men by about five years.
+        {o.sexWhy}
       </ThemedText>,
-      <Choices<Sex> key="c" options={SEX_OPTIONS} value={draft.sex} onChange={(sex) => answerAndAdvance({ sex })} />,
+      <Choices<Sex> key="c" options={sexOptions(t)} value={draft.sex} onChange={(sex) => answerAndAdvance({ sex })} />,
     ];
   } else if ((HABIT_KEYS as string[]).includes(step)) {
     const k = step as HabitKey;
-    const h = HABITS[k];
+    const h = t.habits[k];
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · Habits
+        {number} · {o.step.habits}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
         {h.question}
@@ -235,23 +241,18 @@ export default function OnboardingScreen() {
       <ThemedText key="w" type="small" style={styles.why}>
         {h.why}
       </ThemedText>,
-      <Choices key="c" options={h.options} value={draft[k]} onChange={(v) => answerAndAdvance({ [k]: v })} />,
-      <SourceLink key="s" of={k} prefix="The science" />,
+      <Choices key="c" options={habitOptions(t, k)} value={draft[k]} onChange={(v) => answerAndAdvance({ [k]: v })} />,
+      <SourceLink key="s" of={k} prefix={t.common.theScience} />,
     ];
   } else if (step === 'phone') {
     const hours = draft.phoneHours ?? DEFAULT_PHONE_HOURS;
-    const where =
-      Platform.OS === 'ios'
-        ? 'Your iPhone already knows: Settings → Screen Time → See All App & Website Activity. Use the daily average.'
-        : Platform.OS === 'android'
-          ? 'Your phone already knows: Settings → Digital Wellbeing. Use the daily average.'
-          : 'Your phone already knows. iPhone: Settings → Screen Time. Android: Settings → Digital Wellbeing. Use the daily average.';
+    const where = Platform.OS === 'ios' ? o.phoneWhereIos : Platform.OS === 'android' ? o.phoneWhereAndroid : o.phoneWhereWeb;
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · Your time
+        {number} · {o.step.time}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
-        How many hours a day are you on your phone?
+        {o.phoneQuestion}
       </ThemedText>,
       <ThemedText key="w" type="small" style={styles.why}>
         {where}
@@ -263,22 +264,14 @@ export default function OnboardingScreen() {
         step={0.5}
         min={0}
         max={16}
-        format={(v) => `${v} h`}
-        accessibilityLabel="Hours a day on your phone"
+        format={(v) => t.common.hoursValue(num(v))}
+        accessibilityLabel={o.phoneA11y}
       />,
-      me ? (
-        <ThemedText key="i">
-          Over the time you likely have left, that is about{' '}
-          <ThemedText themeColor="accent" style={styles.num}>
-            {yearsOfHours(hours, yearsLeft(me)).toFixed(1)} years
-          </ThemedText>
-          , {shareOfWaking(hours)} of your waking hours.
-        </ThemedText>
-      ) : null,
+      me ? <RichText key="i" parts={o.phoneResult(dec1(yearsOfHours(hours, yearsLeft(me))), shareOfWaking(hours, t))} /> : null,
     ];
     footer = (
       <Button
-        title="Continue"
+        title={t.common.continue}
         onPress={() => {
           if (draft.phoneHours == null) set({ phoneHours: hours });
           if (editing && index === steps.length - 1) finish();
@@ -290,26 +283,26 @@ export default function OnboardingScreen() {
     const full = draft.values.length >= MAX_VALUES;
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · What matters
+        {number} · {o.step.values}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
-        What matters most to you?
+        {o.valuesQuestion}
       </ThemedText>,
       <ThemedText key="w" type="small" style={styles.why}>
-        Pick up to three. Your reminders will keep pointing back to them.
+        {o.valuesWhy}
       </ThemedText>,
       <View key="c" style={styles.chips} accessibilityRole="list">
         {VALUES.map((v) => {
-          const on = draft.values.includes(v.key);
+          const on = draft.values.includes(v);
           const disabled = !on && full;
           return (
             <Pressable
-              key={v.key}
+              key={v}
               accessibilityRole="checkbox"
               aria-checked={on}
               aria-disabled={disabled}
               disabled={disabled}
-              onPress={() => set({ values: on ? draft.values.filter((x) => x !== v.key) : [...draft.values, v.key] })}
+              onPress={() => set({ values: on ? draft.values.filter((x) => x !== v) : [...draft.values, v] })}
               style={[
                 styles.chip,
                 {
@@ -318,27 +311,25 @@ export default function OnboardingScreen() {
                   opacity: disabled ? 0.4 : 1,
                 },
               ]}>
-              <ThemedText themeColor="fg">{v.label}</ThemedText>
+              <ThemedText themeColor="fg">{t.values[v]}</ThemedText>
             </Pressable>
           );
         })}
       </View>,
     ];
-    footer = continueButton(draft.values.length ? 'Continue' : 'Skip for now');
+    footer = continueButton(draft.values.length ? t.common.continue : t.common.skipForNow);
   } else if (step === 'people' || step === 'activities') {
     const people = step === 'people';
     const any = draft.loves.some((l) => (people ? l.kind !== 'activity' : l.kind === 'activity'));
     body = [
       <ThemedText key="e" type="eyebrow">
-        {number} · {people ? 'Who loves you' : 'What you love'}
+        {number} · {people ? o.step.who : o.step.what}
       </ThemedText>,
       <ThemedText key="t" type="subtitle">
-        {people ? 'Who loves you, and who do you love?' : 'What do you love doing?'}
+        {people ? o.peopleQuestion : o.activitiesQuestion}
       </ThemedText>,
       <ThemedText key="w" type="small" style={styles.why}>
-        {people
-          ? "The people (and pets) you'd most regret not seeing enough. We'll count how many more times you're likely to see them."
-          : "We'll count how many more times you get to do it."}
+        {people ? o.peopleWhy : o.activitiesWhy}
       </ThemedText>,
       <LoveEditor
         key={step}
@@ -349,7 +340,7 @@ export default function OnboardingScreen() {
       />,
     ];
     const last = editing && index === steps.length - 1;
-    footer = continueButton(last ? 'Save' : any ? 'Continue' : 'Skip for now');
+    footer = continueButton(last ? t.common.save : any ? t.common.continue : t.common.skipForNow);
   } else if (step === 'compute') {
     body = [<Computing key="c" />];
   } else if (step === 'reveal' && me) {
@@ -360,13 +351,13 @@ export default function OnboardingScreen() {
     <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
       <View style={styles.top}>
         <View style={styles.backSlot}>
-          {showBack ? <Button title="← Back" variant="link" onPress={() => go(-1)} /> : null}
+          {showBack ? <Button title={t.common.back} variant="link" onPress={() => go(-1)} /> : null}
         </View>
         <View style={[styles.track, { backgroundColor: theme.line }]}>
           <Animated.View style={[styles.bar, { backgroundColor: theme.accent }, barStyle]} />
         </View>
         <View style={styles.backSlot}>
-          {editing ? <Button title="Close" variant="link" onPress={close} /> : null}
+          {editing ? <Button title={t.common.close} variant="link" onPress={close} /> : null}
         </View>
       </View>
 
@@ -391,6 +382,7 @@ export default function OnboardingScreen() {
 /** Forty dots filling in, while we "turn answers into time". */
 function Computing() {
   const theme = useTheme();
+  const t = useT();
 
   return (
     <View style={styles.compute}>
@@ -405,10 +397,10 @@ function Computing() {
         ))}
       </View>
       <ThemedText type="subtitle" style={styles.center}>
-        Counting your weeks
+        {t.onboarding.computing}
       </ThemedText>
       <ThemedText type="small" style={styles.center}>
-        Turning your answers into time.
+        {t.onboarding.computingNote}
       </ThemedText>
     </View>
   );
@@ -417,6 +409,8 @@ function Computing() {
 /** The first look: weeks likely left, then what they mean and what can change them. */
 function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: () => void }) {
   const theme = useTheme();
+  const t = useT();
+  const r = t.reveal;
   const [now] = useState(() => Date.now());
   const est = estimate(me, now);
   const age = ageAt(me.dob, now);
@@ -424,72 +418,41 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
   const effect = habitsEffect(me, now);
   const lever = bestLever(me, now);
   const person = draft.loves.find((l) => l.kind !== 'activity');
-  const values = VALUES.filter((v) => draft.values.includes(v.key)).map((v) => v.label.toLowerCase());
+  const values = VALUES.filter((v) => draft.values.includes(v)).map((v) => t.values[v]);
 
   const lines: ReactNode[] = [
     <ThemedText key="e" type="eyebrow">
-      {draft.name ? `${draft.name}, your time` : 'Your time'}
+      {r.eyebrow(draft.name)}
     </ThemedText>,
     <View key="n">
-      <ThemedText type="small">About</ThemedText>
+      <ThemedText type="small">{r.about}</ThemedText>
       <CountUp to={weeksLeft} style={styles.huge} themeColor="accent" />
-      <ThemedText type="subtitle">weeks likely remain</ThemedText>
+      <ThemedText type="subtitle">{r.weeksRemain}</ThemedText>
     </View>,
-    <ThemedText key="f">
-      A full life like yours is about {fmt(est.med * WEEKS_PER_YEAR)} weeks. You have lived {fmt(age * WEEKS_PER_YEAR)} of
-      them. Let&apos;s make the rest count.
-    </ThemedText>,
+    <ThemedText key="f">{r.fullLife(fmt(est.med * WEEKS_PER_YEAR), fmt(age * WEEKS_PER_YEAR))}</ThemedText>,
   ];
 
   if (person) {
-    lines.push(
-      <ThemedText key="p">
-        That is about{' '}
-        <ThemedText themeColor="accent" style={styles.num}>
-          {fmt(loveCount(person, me, now).times)}
-        </ThemedText>{' '}
-        {loveCountLabel(person)}.
-      </ThemedText>,
-    );
+    lines.push(<RichText key="p" parts={r.person(fmt(loveCount(person, me, now).times), loveCountLabel(person, t))} />);
   }
 
   if (draft.phoneHours) {
     lines.push(
-      <ThemedText key="ph">
-        Your phone takes about{' '}
-        <ThemedText themeColor="accent" style={styles.num}>
-          {yearsOfHours(draft.phoneHours, est.med - age).toFixed(1)} years
-        </ThemedText>{' '}
-        of that. Half an hour less a day could become {swapSuggestion(me, draft.loves, now)}.
-      </ThemedText>,
+      <RichText
+        key="ph"
+        parts={r.phone(dec1(yearsOfHours(draft.phoneHours, est.med - age)), swapSuggestion(me, draft.loves, t, now))}
+      />,
     );
   }
 
   lines.push(
     <View key="h" style={[styles.agency, { borderTopColor: theme.line }]}>
-      <ThemedText>
-        {Math.abs(effect) < 0.2
-          ? 'Your habits keep you close to the baseline estimate.'
-          : `Your habits ${effect > 0 ? 'add' : 'cost'} about `}
-        {Math.abs(effect) >= 0.2 ? (
-          <>
-            <ThemedText themeColor="accent" style={styles.num}>
-              {Math.abs(effect).toFixed(1)} years
-            </ThemedText>
-            .
-          </>
-        ) : null}
-        {lever ? (
-          <>
-            {' '}
-            {lever.label} could add about{' '}
-            <ThemedText themeColor="accent" style={styles.num}>
-              {lever.years.toFixed(1)} years
-            </ThemedText>
-            , roughly {fmt(lever.years * WEEKS_PER_YEAR)} more weekends.
-          </>
-        ) : null}
-      </ThemedText>
+      <RichText
+        parts={[
+          ...(Math.abs(effect) < 0.2 ? [plain(t.life.habitsNeutral)] : t.life.habitsEffect(effect > 0, dec1(Math.abs(effect)))),
+          ...(lever ? r.lever(t.levers[lever.key], dec1(lever.years), fmt(lever.years * WEEKS_PER_YEAR)) : []),
+        ]}
+      />
       {lever ? <SourceLink of={lever.key} /> : null}
     </View>,
   );
@@ -497,18 +460,16 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
   if (values.length) {
     lines.push(
       <ThemedText key="v" type="small">
-        You said {listJoin(values)} matter{values.length === 1 ? 's' : ''} most. We will keep pointing you back to{' '}
-        {values.length === 1 ? 'it' : 'them'}.
+        {r.values(values)}
       </ThemedText>,
     );
   }
 
   lines.push(
     <ThemedText key="r" type="small">
-      This is a range, not a date: half of people living like you reach {Math.round(est.med)}, and most land between{' '}
-      {Math.round(est.q25)} and {Math.round(est.q75)}. Not medical advice.
+      {r.range(Math.round(est.med), Math.round(est.q25), Math.round(est.q75))}
     </ThemedText>,
-    <Button key="b" title="See your life" onPress={onDone} />,
+    <Button key="b" title={r.seeLife} onPress={onDone} />,
   );
 
   return (
@@ -519,8 +480,6 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
     </View>
   );
 }
-
-const listJoin = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs.at(-1)}`);
 
 const styles = StyleSheet.create({
   root: {

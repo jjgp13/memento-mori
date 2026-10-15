@@ -10,9 +10,11 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useLang } from '@/i18n';
 import { AuthProvider } from '@/providers/auth-provider';
 
 SplashScreen.preventAutoHideAsync();
@@ -50,6 +52,12 @@ function RootNavigator({ ready }: { ready: boolean }) {
   useEffect(() => {
     if (done) SplashScreen.hideAsync();
   }, [done]);
+
+  // Screen readers and browser translation read the page's language from <html lang>.
+  const lang = useLang();
+  useEffect(() => {
+    if (Platform.OS === 'web') document.documentElement.lang = lang;
+  }, [lang]);
 
   if (!done) return null;
 

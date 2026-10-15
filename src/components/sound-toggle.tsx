@@ -2,15 +2,17 @@ import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 
 /** A small speaker button for the ticking sound. */
-export function SoundToggle({ on, onChange, label = 'Ticking sound' }: { on: boolean; onChange: (on: boolean) => void; label?: string }) {
+export function SoundToggle({ on, onChange, label }: { on: boolean; onChange: (on: boolean) => void; label?: string }) {
   const theme = useTheme();
+  const t = useT();
 
   return (
     <Pressable
       accessibilityRole="switch"
-      accessibilityLabel={label}
+      accessibilityLabel={label ?? t.common.tickingSound}
       aria-checked={on}
       onPress={() => onChange(!on)}
       hitSlop={8}

@@ -19,58 +19,48 @@ const PARAMS: Record<Sex, { A: number; B: number; b: number }> = {
   f: { A: 0.0007, B: 4.2e-5, b: GOMPERTZ_B },
 };
 
-type Option<V extends string> = { value: V; label: string; hr: number };
+type Option<V extends string> = { value: V; hr: number };
 
-/** Each habit's answers and the hazard ratio applied to all-cause mortality. */
+/**
+ * Each habit's answers and the hazard ratio applied to all-cause mortality. Questions and answer labels are
+ * in the language catalogs (src/i18n), under `habits`.
+ */
 export const HABITS = {
   smoke: {
-    question: 'Do you smoke?',
-    short: 'Smoking',
-    why: 'The single biggest lever on this list.',
     options: [
-      { value: 'never', label: 'Never', hr: 1 },
-      { value: 'former', label: 'I quit', hr: 1.3 },
-      { value: 'current', label: 'Yes', hr: 2.2 },
+      { value: 'never', hr: 1 },
+      { value: 'former', hr: 1.3 },
+      { value: 'current', hr: 2.2 },
     ],
   },
   exercise: {
-    question: 'How often do you exercise?',
-    short: 'Exercise',
-    why: 'Brisk walking counts.',
     options: [
-      { value: 'none', label: 'Rarely', hr: 1.3 },
-      { value: 'some', label: '1–2× a week', hr: 1 },
-      { value: 'regular', label: '3+× a week', hr: 0.85 },
+      { value: 'none', hr: 1.3 },
+      { value: 'some', hr: 1 },
+      { value: 'regular', hr: 0.85 },
     ],
   },
+  /** Body mass index ranges. */
   bmi: {
-    question: 'Which describes your weight?',
-    short: 'Weight',
-    why: 'Body mass index ranges. Rough is fine.',
     options: [
-      { value: 'under', label: 'Underweight', hr: 1.4 },
-      { value: 'normal', label: 'Healthy', hr: 1 },
-      { value: 'over', label: 'Overweight', hr: 1.05 },
-      { value: 'obese', label: 'Obese', hr: 1.35 },
+      { value: 'under', hr: 1.4 },
+      { value: 'normal', hr: 1 },
+      { value: 'over', hr: 1.05 },
+      { value: 'obese', hr: 1.35 },
     ],
   },
+  /** Heavy: about 15 or more drinks a week. */
   alcohol: {
-    question: 'How much do you drink?',
-    short: 'Alcohol',
-    why: 'Heavy means about 15 or more drinks a week.',
     options: [
-      { value: 'none', label: 'Little or none', hr: 1 },
-      { value: 'moderate', label: 'Moderate', hr: 1 },
-      { value: 'heavy', label: 'Heavy', hr: 1.4 },
+      { value: 'none', hr: 1 },
+      { value: 'moderate', hr: 1 },
+      { value: 'heavy', hr: 1.4 },
     ],
   },
   sleep: {
-    question: 'How much do you sleep?',
-    short: 'Sleep',
-    why: 'Most nights, not your best nights.',
     options: [
-      { value: 'short', label: 'Under 6 hours', hr: 1.15 },
-      { value: 'ok', label: '6–9 hours', hr: 1 },
+      { value: 'short', hr: 1.15 },
+      { value: 'ok', hr: 1 },
     ],
   },
   /**
@@ -79,16 +69,13 @@ export const HABITS = {
    * interpolation, not a measured level.
    */
   connection: {
-    question: 'How often do you spend time with people you are close to?',
-    short: 'Connection',
-    why: 'In person or a real conversation. Close relationships are one of the strongest predictors of a long life.',
     options: [
-      { value: 'often', label: 'Every week', hr: 1 },
-      { value: 'sometimes', label: 'A few times a month', hr: 1.1 },
-      { value: 'rarely', label: 'Rarely; I often feel alone', hr: 1.29 },
+      { value: 'often', hr: 1 },
+      { value: 'sometimes', hr: 1.1 },
+      { value: 'rarely', hr: 1.29 },
     ],
   },
-} as const satisfies Record<string, { question: string; short: string; why: string; options: readonly Option<string>[] }>;
+} as const satisfies Record<string, { options: readonly Option<string>[] }>;
 
 export type HabitKey = keyof typeof HABITS;
 export const HABIT_KEYS = Object.keys(HABITS) as HabitKey[];

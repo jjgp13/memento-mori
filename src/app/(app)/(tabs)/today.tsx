@@ -10,19 +10,22 @@ import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
+import { useLang, useT, type Strings } from '@/i18n';
+import { dec1, fmt } from '@/i18n/format';
+import { localeOf } from '@/i18n/locale';
+import { RichText } from '@/components/rich-text';
 import { todaysQuestion, todaysQuote } from '@/lib/daily';
 import { allLevers } from '@/lib/habit-impact';
-import { fmt } from '@/lib/life-views';
 import { loveCount, whoToReachOut, type Love } from '@/lib/loves';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 
 const MONTH_MS = 30 * 864e5;
 
 /** For them specifically: what seeing people every week is worth in their estimate, or that they already do. */
-function connectionLine(profile: Profile, now: number) {
+function connectionLine(profile: Profile, t: Strings, now: number) {
   const lever = allLevers(profile, now).find((l) => l.key === 'connection');
-  if (lever) return `For you, seeing the people you love every week could add about ${lever.years.toFixed(1)} years.`;
-  if (profile.connection === 'often') return 'Seeing people every week is already part of your estimate. Keep it up.';
+  if (lever) return t.today.connectionLever(dec1(lever.years));
+  if (profile.connection === 'often') return t.today.connectionOften;
   return '';
 }
 
@@ -33,8 +36,10 @@ export default function TodayScreen() {
 
 function Today({ profile }: { profile: Profile }) {
   const theme = useTheme();
+  const t = useT();
+  const lang = useLang();
   const now = useNow(60_000);
-  const quote = todaysQuote(now);
+  const quote = todaysQuote(t, now);
   const loves = profile.loves ?? [];
   const person = whoToReachOut(loves);
   const setLove = (next: Love) => saveProfile({ ...profile, loves: loves.map((l) => (l.id === next.id ? next : l)) });
@@ -46,7 +51,7 @@ function Today({ profile }: { profile: Profile }) {
     <>
       <Animated.View entering={enter(0)}>
         <ThemedText type="eyebrow">
-          {new Date(now).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          {new Date(now).toLocaleDateString(localeOf(lang), { weekday: 'long', month: 'long', day: 'numeric' })}
         </ThemedText>
       </Animated.View>
 
@@ -59,38 +64,30 @@ function Today({ profile }: { profile: Profile }) {
 
       <Animated.View entering={enter(2)}>
         <ThemedText type="subtitle" style={styles.question}>
-          {todaysQuestion(now)}
+          {todaysQuestion(t, now)}
         </ThemedText>
       </Animated.View>
 
       <Animated.View entering={enter(3)} style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <ThemedText type="eyebrow" themeColor="muted">
-          Reach out today
+          {t.today.reachOut}
         </ThemedText>
         {person ? (
           <>
             <ThemedText type="subtitle" style={styles.name}>
               {person.name}
             </ThemedText>
-            <ThemedText>
-              About{' '}
-              <ThemedText themeColor="accent">{fmt(loveCount(person, profile, now).times)}</ThemedText> more visits at your
-              current pace. A message takes a minute.
-            </ThemedText>
+            <RichText parts={t.today.moreVisits(fmt(loveCount(person, profile, now).times))} />
             <ReachOut key={person.id} love={person} onChange={setLove} />
             <ThemedText type="small">
-              People who stay close to others live longer: isolation and loneliness are linked to about 26–32% higher
-              risk of dying early. {connectionLine(profile, now)}
+              {t.today.isolation} {connectionLine(profile, t, now)}
             </ThemedText>
             <SourceLink of="connection" />
           </>
         ) : (
           <>
-            <ThemedText>
-              Close relationships are one of the strongest predictors of a long, healthy life. Who would you like to see
-              more of?
-            </ThemedText>
-            <Button title="Add someone who loves you" variant="ghost" onPress={() => router.push('/loves')} />
+            <ThemedText>{t.today.noPerson}</ThemedText>
+            <Button title={t.today.addSomeone} variant="ghost" onPress={() => router.push('/loves')} />
           </>
         )}
       </Animated.View>
@@ -98,9 +95,7 @@ function Today({ profile }: { profile: Profile }) {
       {person ? (
         <Animated.View entering={enter(4)}>
           <ThemedText type="small">
-            {peopleThisMonth === 0
-              ? 'No calls or visits logged in the last 30 days yet.'
-              : `In the last 30 days you talked with or saw ${peopleThisMonth} of the people you love.`}
+            {peopleThisMonth === 0 ? t.today.noneLogged : t.today.peopleThisMonth(peopleThisMonth)}
           </ThemedText>
         </Animated.View>
       ) : null}

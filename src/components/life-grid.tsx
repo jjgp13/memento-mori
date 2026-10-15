@@ -4,7 +4,8 @@ import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 
 import { Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { richText, type CellState, type GridView } from '@/lib/life-views';
+import { richText } from '@/i18n/rich';
+import type { CellState, GridView } from '@/lib/life-views';
 
 /** SVG path for a full circle; many of these joined make one path per state, so 5,000 weeks stay cheap. */
 const ring = (cx: number, cy: number, r: number) =>

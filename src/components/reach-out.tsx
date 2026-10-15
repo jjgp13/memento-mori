@@ -6,7 +6,8 @@ import { ThemedText } from '@/components/themed-text';
 import { SourceLink } from '@/components/source-link';
 import { dayOfYear } from '@/lib/daily';
 import { REACHING_OUT } from '@/lib/evidence';
-import { OPENERS, lastContact, sinceLabel, withContact, type Love } from '@/lib/loves';
+import { useT } from '@/i18n';
+import { lastContact, sinceLabel, withContact, type Love } from '@/lib/loves';
 
 /** Opens their messages app with a gentle opener; without a number, the share sheet picks the app. */
 async function message(love: Love, text: string) {
@@ -25,27 +26,28 @@ async function message(love: Love, text: string) {
  * app suggest who to reach out to next.
  */
 export function ReachOut({ love, onChange }: { love: Love; onChange: (next: Love) => void }) {
+  const t = useT();
   const [logged, setLogged] = useState(false);
   const last = lastContact(love);
-  const opener = OPENERS[dayOfYear() % OPENERS.length];
+  const opener = t.reach.openers[dayOfYear() % t.reach.openers.length];
 
   return (
     <View style={styles.wrap}>
       <ThemedText type="small">
-        {last ? `Last time you talked or met: ${sinceLabel(last)}.` : 'Tap "We talked" after a call or visit to keep track.'}
+        {last ? t.reach.lastTime(sinceLabel(last, t)) : t.reach.hint}
       </ThemedText>
-      <ThemedText type="small">{REACHING_OUT.claim}</ThemedText>
+      <ThemedText type="small">{t.reach.claim}</ThemedText>
       <SourceLink source={REACHING_OUT.source} />
       <View style={styles.row}>
-        <Button title="Message" variant="ghost" onPress={() => message(love, opener)} style={styles.flex} />
+        <Button title={t.reach.message} variant="ghost" onPress={() => message(love, opener)} style={styles.flex} />
         {love.phone ? (
-          <Button title="Call" variant="ghost" onPress={() => Linking.openURL(`tel:${love.phone}`)} style={styles.flex} />
+          <Button title={t.reach.call} variant="ghost" onPress={() => Linking.openURL(`tel:${love.phone}`)} style={styles.flex} />
         ) : null}
         <Button
-          title={logged ? 'Logged ✓' : 'We talked'}
+          title={logged ? t.reach.logged : t.reach.weTalked}
           variant="ghost"
           disabled={logged}
-          accessibilityLabel={`Log that you talked with ${love.name} today`}
+          accessibilityLabel={t.reach.logA11y(love.name)}
           onPress={() => {
             onChange(withContact(love));
             setLogged(true);

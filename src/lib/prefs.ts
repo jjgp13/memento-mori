@@ -3,16 +3,20 @@ import 'expo-sqlite/localStorage/install';
 
 import { useSyncExternalStore } from 'react';
 
+import type { Lang } from '@/i18n/locale';
+
 /** Small device-only settings, separate from the person's answers. */
 export type Prefs = {
   /** Tick-tock while the seconds count up in onboarding. On unless turned off. */
   tickOnboarding: boolean;
   /** Tick-tock with the Life screen countdown. Off unless turned on (CLAUDE.md). */
   tickLife: boolean;
+  /** Language picked on the You screen; null follows the device. */
+  language: Lang | null;
 };
 
 const KEY = 'mm.prefs.v1';
-const DEFAULTS: Prefs = { tickOnboarding: true, tickLife: false };
+const DEFAULTS: Prefs = { tickOnboarding: true, tickLife: false, language: null };
 const listeners = new Set<() => void>();
 let current: Prefs = read();
 
@@ -24,6 +28,8 @@ function read(): Prefs {
     return DEFAULTS;
   }
 }
+
+export const getPrefs = () => current;
 
 export function setPref<K extends keyof Prefs>(key: K, value: Prefs[K]) {
   current = { ...current, [key]: value };

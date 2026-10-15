@@ -16,8 +16,10 @@ import { Fonts, Radius } from '@/constants/theme';
 import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
+import { dec1, fmt, num } from '@/i18n/format';
 import { MAX_TOTAL_GAIN, allLevers, combinedGain, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
-import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
+import { ZOOMS, lifeView, type Zoom } from '@/lib/life-views';
 import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, type ModelInput } from '@/lib/model';
 import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
@@ -32,6 +34,7 @@ export default function LifeScreen() {
 
 function Life({ profile }: { profile: Profile }) {
   const theme = useTheme();
+  const t = useT();
   const [zoom, setZoom] = useState<Zoom>('weeks');
   // The grid only needs minute precision; the clock below ticks every second on its own.
   const now = useNow(60_000);
@@ -39,7 +42,7 @@ function Life({ profile }: { profile: Profile }) {
   const age = ageAt(profile.dob, now);
   const levers = allLevers(profile, now);
   const gain = combinedGain(profile, now);
-  const view = lifeView(zoom, profile.dob, est, now, gain);
+  const view = lifeView(zoom, profile.dob, est, now, t, gain);
   // The median is found in monthly steps from the current age, so re-estimating every tick would
   // pin "time left" to a constant. Anchor it to when the screen opened so the clock really counts down.
   const [anchor] = useState(() => Date.now());
@@ -52,21 +55,10 @@ function Life({ profile }: { profile: Profile }) {
   return (
     <>
       <View style={styles.head}>
-        <ThemedText type="eyebrow">{profile.name ? `${profile.name}, today` : 'Today'}</ThemedText>
-        <RichText
-          style={styles.verdict}
-          parts={[
-            { text: 'You are ' },
-            { text: age.toFixed(1), strong: true },
-            { text: '. Half of people living like you reach ' },
-            { text: String(Math.round(est.med)), strong: true },
-            { text: '. That leaves about ' },
-            { text: `${Math.round(est.med - age)} years`, strong: true },
-            { text: '.' },
-          ]}
-        />
+        <ThemedText type="eyebrow">{t.life.eyebrow(profile.name)}</ThemedText>
+        <RichText style={styles.verdict} parts={t.life.verdict(dec1(age), Math.round(est.med), Math.round(est.med - age))} />
         <ThemedText type="small">
-          Likely range {Math.round(est.q25)}–{Math.round(est.q75)} · {Math.round(est.p80 * 100)}% chance of reaching 80
+          {t.life.range(Math.round(est.q25), Math.round(est.q75), Math.round(est.p80 * 100))}
         </ThemedText>
       </View>
 
@@ -76,14 +68,19 @@ function Life({ profile }: { profile: Profile }) {
       <View>
         <View style={styles.clockHead}>
           <ThemedText type="eyebrow" themeColor="muted">
-            Likely time left
+            {t.life.timeLeft}
           </ThemedText>
           <SoundToggle on={tickLife} onChange={(on) => setPref('tickLife', on)} />
         </View>
         <Clock end={end} />
       </View>
 
-      <Segmented options={ZOOMS} value={zoom} onChange={setZoom} accessibilityLabel="Zoom" />
+      <Segmented
+        options={ZOOMS.map((key) => ({ key, label: t.life.zooms[key] }))}
+        value={zoom}
+        onChange={setZoom}
+        accessibilityLabel={t.life.zoomA11y}
+      />
 
       <View style={[styles.board, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <Animated.View key={zoom} entering={FadeIn.duration(300)}>
@@ -94,15 +91,13 @@ function Life({ profile }: { profile: Profile }) {
       <RichText style={styles.caption} parts={view.caption} />
       <Legend reach={gain > 0} />
 
-      <ThemedText type="small">
-        Estimates come from population averages and broad risk ratios. They show direction and rough size, not a
-        promise, and are not medical advice.
-      </ThemedText>
+      <ThemedText type="small">{t.common.notAdvice}</ThemedText>
     </>
   );
 }
 
 function Clock({ end }: { end: number }) {
+  const t = useT();
   const now = useNow(1000);
   const ms = Math.max(0, end - now);
   const y = Math.floor(ms / YEAR_MS);
@@ -112,8 +107,8 @@ function Clock({ end }: { end: number }) {
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
-    <ThemedText style={styles.clock} accessibilityLabel={`About ${y} years and ${d} days`}>
-      {`${y}y ${d}d ${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:`}
+    <ThemedText style={styles.clock} accessibilityLabel={t.life.clockA11y(y, d)}>
+      {`${t.life.clock(y, d)}${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:`}
       <ThemedText style={styles.clock} themeColor="accent">
         {pad(s % 60)}
       </ThemedText>
@@ -123,12 +118,13 @@ function Clock({ end }: { end: number }) {
 
 function Legend({ reach }: { reach: boolean }) {
   const theme = useTheme();
+  const l = useT().life.legend;
   const items = [
-    { label: 'Lived', fill: theme.lived },
-    { label: 'Now', fill: theme.accent },
-    { label: 'Likely ahead', stroke: theme.remain },
-    ...(reach ? [{ label: 'Within reach', fill: theme.accentSoft, stroke: theme.accent }] : []),
-    { label: 'If fortune allows', stroke: theme.remain, dashed: true },
+    { label: l.lived, fill: theme.lived },
+    { label: l.now, fill: theme.accent },
+    { label: l.likely, stroke: theme.remain },
+    ...(reach ? [{ label: l.reach, fill: theme.accentSoft, stroke: theme.accent }] : []),
+    { label: l.maybe, stroke: theme.remain, dashed: true },
   ];
 
   return (
@@ -158,41 +154,33 @@ function Legend({ reach }: { reach: boolean }) {
 /** Daily phone time in time-left terms, and what half an hour of it could become. */
 function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
   const theme = useTheme();
+  const t = useT();
   const hours = profile.phoneHours;
   const left = yearsLeft(profile, now);
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <ThemedText type="eyebrow" themeColor="muted">
-        Your phone
+        {t.life.phoneTitle}
       </ThemedText>
       {hours != null ? (
         <>
-          <RichText
-            parts={[
-              { text: `${hours} hours a day is about ` },
-              { text: `${yearsOfHours(hours, left).toFixed(1)} years`, strong: true },
-              { text: ` of the time you likely have left: ${shareOfWaking(hours)} of your waking hours.` },
-            ]}
-          />
+          <RichText parts={t.life.phoneLine(num(hours), dec1(yearsOfHours(hours, left)), shareOfWaking(hours, t))} />
           {hours >= SWAP_HOURS ? (
-            <ThemedText type="small">
-              Half an hour less a day could become {swapSuggestion(profile, profile.loves ?? [], now)}. In experiments,
-              cutting back on social media meant more time with family and friends and less loneliness.
-            </ThemedText>
+            <ThemedText type="small">{t.life.phoneSwap(swapSuggestion(profile, profile.loves ?? [], t, now))}</ThemedText>
           ) : null}
           <SourceLink of="phone" />
         </>
       ) : (
-        <ThemedText>How many hours a day are you on your phone? Your Screen Time or Digital Wellbeing settings show the daily average.</ThemedText>
+        <ThemedText>{t.life.phoneAsk}</ThemedText>
       )}
       <Stepper
         value={hours ?? 4}
         onChange={(phoneHours) => saveProfile({ ...profile, phoneHours })}
         step={0.5}
         max={16}
-        format={(v) => `${v} h`}
-        accessibilityLabel="Hours a day on your phone"
+        format={(v) => t.common.hoursValue(num(v))}
+        accessibilityLabel={t.onboarding.phoneA11y}
       />
     </View>
   );
@@ -204,25 +192,18 @@ function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
  */
 function HabitsCard({ profile, now, levers, gain }: { profile: ModelInput; now: number; levers: Lever[]; gain: number }) {
   const theme = useTheme();
+  const t = useT();
   const total = habitsEffect(profile, now);
-  const items = habitBreakdown(profile, now);
-  const signed = (y: number) => `${y > 0 ? '+' : '−'}${Math.abs(y).toFixed(1)}`;
+  const items = habitBreakdown(profile, t, now);
+  const signed = (y: number) => `${y > 0 ? '+' : '−'}${dec1(Math.abs(y))}`;
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <ThemedText type="eyebrow" themeColor="muted">
-        Your habits
+        {t.life.habitsTitle}
       </ThemedText>
       <RichText
-        parts={
-          Math.abs(total) < 0.2
-            ? [{ text: 'Your habits keep you close to the baseline estimate.' }]
-            : [
-                { text: `Your habits ${total > 0 ? 'add' : 'cost'} about ` },
-                { text: `${Math.abs(total).toFixed(1)} years`, strong: true },
-                { text: '.' },
-              ]
-        }
+        parts={Math.abs(total) < 0.2 ? [{ text: t.life.habitsNeutral }] : t.life.habitsEffect(total > 0, dec1(Math.abs(total)))}
       />
       {items.map((it) => (
         <View key={it.key} style={styles.habitRow}>
@@ -230,10 +211,10 @@ function HabitsCard({ profile, now, levers, gain }: { profile: ModelInput; now: 
             <ThemedText type="small">
               {it.label} · {it.answer}
             </ThemedText>
-            <SourceLink of={it.key} prefix="Why" />
+            <SourceLink of={it.key} prefix={t.common.why} />
           </View>
           <ThemedText type="mono" themeColor={it.years > 0 ? 'accent' : 'muted'}>
-            {signed(it.years)} yrs
+            {t.common.yrs(signed(it.years))}
           </ThemedText>
         </View>
       ))}
@@ -241,34 +222,24 @@ function HabitsCard({ profile, now, levers, gain }: { profile: ModelInput; now: 
       {levers.length ? (
         <View style={[styles.lever, { borderTopColor: theme.line }]}>
           <ThemedText type="eyebrow" themeColor="muted">
-            Within reach
+            {t.life.withinReach}
           </ThemedText>
           {levers.map((l) => (
             <View key={l.key} style={styles.habitRow}>
               <View style={styles.flex}>
-                <ThemedText>{l.label}</ThemedText>
-                <ThemedText type="small">about {fmt(l.years * WEEKS_PER_YEAR)} more weekends</ThemedText>
+                <ThemedText>{t.levers[l.key]}</ThemedText>
+                <ThemedText type="small">{t.life.moreWeekends(fmt(l.years * WEEKS_PER_YEAR))}</ThemedText>
                 <SourceLink of={l.key} />
               </View>
               <ThemedText type="mono" themeColor="accent">
-                {signed(l.years)} yrs
+                {t.common.yrs(signed(l.years))}
               </ThemedText>
             </View>
           ))}
-          <RichText
-            parts={[
-              { text: levers.length > 1 ? 'Together, about ' : 'That is about ' },
-              { text: `${gain.toFixed(1)} more years`, strong: true },
-              {
-                text: `${gain >= MAX_TOTAL_GAIN ? ' (capped: habit effects overlap)' : ''}. They are the bronze circles below.`,
-              },
-            ]}
-          />
+          <RichText parts={t.life.together(levers.length > 1, dec1(gain), gain >= MAX_TOTAL_GAIN)} />
         </View>
       ) : (
-        <ThemedText type="small">
-          You are already doing the things that add the most time. Keep them, and keep your people close.
-        </ThemedText>
+        <ThemedText type="small">{t.life.allGood}</ThemedText>
       )}
     </View>
   );
