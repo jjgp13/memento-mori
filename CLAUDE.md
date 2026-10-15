@@ -20,7 +20,9 @@ A free app that estimates how much life a person likely has left and helps them 
 - Screen time from the OS: Android UsageStatsManager ("Usage access") and iOS Screen Time API (Family Controls entitlement, data stays in a report extension) both need the native app; self-report until then.
 - Sounds: synthesized clock tick/tock (`assets/sounds`, regenerate with `scripts/make-clock-sounds.py`) via `useClockTick`; 15 ticks when the birth-date seconds start (on by default, mutable), optional on the Life countdown (off by default). Prefs in `src/lib/prefs.ts`.
 - Behavior-change brief: `docs/nudges.md` (if-then plans, well-timed few prompts, fresh starts, welcome-backs, death reminders always paired with one doable action, "could" not "should").
-- Next: plans + 1–2 local reminders a week (needs native build for notifications); diet/strength/purpose as model factors; native build for health data and screen time; healthy-years estimate.
+- Oct 15: plans (`src/lib/plans.ts`): an if-then plan per person (Loves) and one small habit plan (Life), Today's "This week" with one-tap actions, welcome-backs (no streaks), at most one suggested plan a week, fresh starts (Mondays, the 1st, birthdays), "Add to my calendar" .ics download on web.
+- Oct 15: Life puts the clock, legend and calendar first; "All / Awake / Off phone" layers (sleep framed as time well spent) and a "What if…" panel (habit changes and phone hours, animated weeks bar, fades onto the calendar, offers a plan). Today opens with one rotating count, weighted to loves, paired with its next step. Evidence notes in docs/nudges.md §1k.
+- Next: 1–2 local reminders a week (needs native build for notifications); diet/strength/purpose as model factors; native build for health data and screen time; healthy-years estimate.
 
 ## Working in this repo
 - Follow @AGENTS.md for Expo conventions (versioned docs, `npx expo install`, no hand-edited `ios/`/`android/`).

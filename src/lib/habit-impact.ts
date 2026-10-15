@@ -74,14 +74,18 @@ export function bestLever(p: ModelInput, now = Date.now()): Lever | null {
  * single changes, since the model multiplies risks rather than adding years.
  */
 export function combinedGain(p: ModelInput, now = Date.now()) {
-  const levers = allLevers(p, now);
-  if (!levers.length) return 0;
+  return gainFrom(p, allLevers(p, now).map((l) => l.key), now);
+}
+
+/** Years these changes together would likely add ("what if I quit smoking and slept more?"), capped. */
+export function gainFrom(p: ModelInput, keys: Lever['key'][], now = Date.now()) {
+  if (!keys.length) return 0;
   const best = { ...p };
-  for (const l of levers) {
-    if (l.key === 'steps') best.steps = 10000;
-    else Object.assign(best, { [l.key]: BEST[l.key] });
+  for (const k of keys) {
+    if (k === 'steps') best.steps = 10000;
+    else Object.assign(best, { [k]: BEST[k] });
   }
-  return Math.min(MAX_TOTAL_GAIN, medianWith(best, now) - medianWith(p, now));
+  return Math.min(MAX_TOTAL_GAIN, Math.max(0, medianWith(best, now) - medianWith(p, now)));
 }
 
 /** The answer for each habit that carries no extra risk (hazard ratio 1). */

@@ -10,10 +10,11 @@ import { SourceLink } from '@/components/source-link';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { ThisWeek } from '@/components/this-week';
+import { TodaysCount } from '@/components/todays-count';
 import { Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { todaysQuestion, todaysQuote } from '@/lib/daily';
+import { todaysImpact, todaysQuestion, todaysQuote } from '@/lib/daily';
 import { allLevers } from '@/lib/habit-impact';
 import { fmt } from '@/lib/life-views';
 import { loveCount, whoToReachOut, type Love } from '@/lib/loves';
@@ -41,8 +42,12 @@ function Today({ profile }: { profile: Profile }) {
   const now = useNow(60_000);
   const quote = todaysQuote(now);
   const loves = profile.loves ?? [];
-  // Someone without a plan first; planned people already have their row under This week.
-  const person = whoToReachOut(loves.filter((l) => !l.plan)) ?? whoToReachOut(loves);
+  const impact = todaysImpact(profile, now);
+  // Someone without a plan, and not already today's count, first; planned people have their row under This week.
+  const others = loves.filter((l) => l.id !== impact.love?.id);
+  const person = whoToReachOut(others.filter((l) => !l.plan)) ?? whoToReachOut(others);
+  // Their only person is today's count, which already has Message and Call: no second card for them.
+  const hasPeople = loves.some((l) => l.kind === 'person');
   // When they were last here, read once before this visit is recorded (for "welcome back").
   const { lastSeen } = usePrefs();
   const [previousVisit] = useState(lastSeen);
@@ -60,7 +65,11 @@ function Today({ profile }: { profile: Profile }) {
         </ThemedText>
       </Animated.View>
 
-      <Animated.View entering={enter(1)} style={[styles.quote, { borderLeftColor: theme.accent }]}>
+      <Animated.View entering={enter(1)}>
+        <TodaysCount profile={profile} impact={impact} now={now} onChangeLove={setLove} />
+      </Animated.View>
+
+      <Animated.View entering={enter(2)} style={[styles.quote, { borderLeftColor: theme.accent }]}>
         <ThemedText type="quote">{quote.text}</ThemedText>
         <ThemedText type="eyebrow" themeColor="muted">
           {quote.source}
@@ -81,37 +90,39 @@ function Today({ profile }: { profile: Profile }) {
         <ThisWeek profile={profile} now={now} lastSeen={previousVisit} freshToday={!!freshStart(profile.dob, now)} />
       </Animated.View>
 
-      <Animated.View entering={enter(4)} style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-        <ThemedText type="eyebrow" themeColor="muted">
-          Reach out today
-        </ThemedText>
-        {person ? (
-          <>
-            <ThemedText type="subtitle" style={styles.name}>
-              {person.name}
-            </ThemedText>
-            <ThemedText>
-              About{' '}
-              <ThemedText themeColor="accent">{fmt(loveCount(person, profile, now).times)}</ThemedText> more visits at your
-              current pace. A message takes a minute.
-            </ThemedText>
-            <ReachOut key={person.id} love={person} onChange={setLove} />
-            <ThemedText type="small">
-              People who stay close to others live longer: isolation and loneliness are linked to about 26–32% higher
-              risk of dying early. {connectionLine(profile, now)}
-            </ThemedText>
-            <SourceLink of="connection" />
-          </>
-        ) : (
-          <>
-            <ThemedText>
-              Close relationships are one of the strongest predictors of a long, healthy life. Who would you like to see
-              more of?
-            </ThemedText>
-            <Button title="Add someone who loves you" variant="ghost" onPress={() => router.push('/loves')} />
-          </>
-        )}
-      </Animated.View>
+      {person || !hasPeople ? (
+        <Animated.View entering={enter(4)} style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <ThemedText type="eyebrow" themeColor="muted">
+            Reach out today
+          </ThemedText>
+          {person ? (
+            <>
+              <ThemedText type="subtitle" style={styles.name}>
+                {person.name}
+              </ThemedText>
+              <ThemedText>
+                About{' '}
+                <ThemedText themeColor="accent">{fmt(loveCount(person, profile, now).times)}</ThemedText> more visits at your
+                current pace. A message takes a minute.
+              </ThemedText>
+              <ReachOut key={person.id} love={person} onChange={setLove} />
+              <ThemedText type="small">
+                People who stay close to others live longer: isolation and loneliness are linked to about 26–32% higher
+                risk of dying early. {connectionLine(profile, now)}
+              </ThemedText>
+              <SourceLink of="connection" />
+            </>
+          ) : (
+            <>
+              <ThemedText>
+                Close relationships are one of the strongest predictors of a long, healthy life. Who would you like to see
+                more of?
+              </ThemedText>
+              <Button title="Add someone who loves you" variant="ghost" onPress={() => router.push('/loves')} />
+            </>
+          )}
+        </Animated.View>
+      ) : null}
 
       {person ? (
         <Animated.View entering={enter(5)}>

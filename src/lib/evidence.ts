@@ -149,6 +149,12 @@ export const COMING_BACK = {
   source: { label: 'Milkman et al., Nature 2021', url: 'https://authors.library.caltech.edu/records/mys88-cc756' },
 };
 
+/** Personal numbers, like "lung age" (docs/nudges.md §1k). */
+export const PERSONAL_NUMBERS = {
+  claim: 'Seeing your own numbers can help: smokers told their "lung age" were about twice as likely to quit within a year (13.6% vs 6.4%).',
+  source: { label: 'Parkes et al., BMJ 2008', url: 'https://www.bmj.com/content/336/7644/598' },
+};
+
 /** Short walks after meals (docs/nudges.md §1j). */
 export const WALK_AFTER_MEALS = {
   claim: 'A few minutes of light walking after a meal lowered blood sugar by about 17% compared with sitting.',

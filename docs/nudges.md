@@ -96,6 +96,18 @@ sitting (meta-analysis of 7 studies).
 
 **For us:** "a 5-minute walk after dinner" is a nudge that's small enough to do and backed by evidence.
 
+### k. Your own numbers, shown well
+- Smokers told their **"lung age"** were about **twice as likely to quit** within a year (13.6% vs 6.4%,
+  randomized trial of 561 smokers). Personal, concrete numbers beat abstract risk.
+- But across trials, communicating risk on its own changes behavior **only a little**. It works when it comes
+  with a way to act (§1a, §1g).
+- Repeated prompts wear off (§1b), so one fresh count a day beats a wall of numbers.
+- Sleep is not lost time: 7–8 hours is linked to a longer life. Show it as rest, never as waste.
+
+**For us:** the Life calendar's "What if…" lets people try a change and watch the bronze weeks appear, then
+offers a small plan for it right there. Today shows one rotating count, most often a person or thing they
+love, with the next step under it. The "Awake / Off phone" view counts sleep as time well spent.
+
 ---
 
 ## 2. What this means for Memento Mori
@@ -146,4 +158,5 @@ Daily nags, streak shame, leaderboards, guilt, dark patterns, or tracking people
 - Liu P.J. et al. The surprise of reaching out: appreciated more than we think. *J Pers Soc Psychol* 2023. — [APA](https://www.apa.org/news/press/releases/2022/07/friends-enjoy-being-reached)
 - Kumar A., Epley N. Undervaluing gratitude. *Psychol Sci* 2018. — [UChicago](https://news.uchicago.edu/story/people-underestimate-value-sending-letters-appreciation)
 - Ntoumanis N. et al. SDT interventions in health: a meta-analysis. *Health Psychol Rev* 2021. — [Nottingham](https://nottingham-repository.worktribe.com/output/3827204); Martela et al. global social-distancing message experiment, *PNAS* 2022 — [PDF](https://centaur.reading.ac.uk/108743/8/pnas.2111091119.pdf)
+- Parkes G. et al. Effect on smoking quit rate of telling patients their lung age: the Step2quit randomised controlled trial. *BMJ* 2008. — [BMJ](https://www.bmj.com/content/336/7644/598)
 - Buffey A.J. et al. Light walking/standing breaks and postprandial glucose. *Sports Med* 2022. — [CNN via KTVZ](https://ktvz.com/health/cnn-health/2023/09/08/just-2-minutes-of-walking-after-eating-can-help-blood-sugar-study-says-2/)
