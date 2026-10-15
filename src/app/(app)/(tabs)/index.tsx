@@ -15,7 +15,7 @@ import { SoundToggle } from '@/components/sound-toggle';
 import { Stepper } from '@/components/stepper';
 import { ThemedText } from '@/components/themed-text';
 import { TimeBar } from '@/components/time-bar';
-import { Fonts, Radius } from '@/constants/theme';
+import { Fonts, Radius, type ThemeColor } from '@/constants/theme';
 import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
@@ -39,24 +39,47 @@ export default function LifeScreen() {
 /** Which of the time ahead to show: all of it, the awake part, or awake and off the phone. */
 type Show = 'all' | 'awake' | 'free';
 
+/** Each change gets its own color on the calendar. */
+const LEVER_COLOR: Record<Lever['key'], ThemeColor> = {
+  steps: 'leverMove',
+  exercise: 'leverMove',
+  connection: 'leverPeople',
+  bmi: 'leverWeight',
+  sleep: 'leverSleep',
+  smoke: 'leverSmoke',
+  alcohol: 'leverDrink',
+};
+
+/** A change being tried and the share of the combined gain it's drawn with. */
+type Tried = Lever & { share: number };
+
+/**
+ * Changes together add less than their sum (and are capped), so the combined gain is split between them
+ * in proportion to what each would add alone.
+ */
+function splitGain(total: number, levers: Lever[]): Tried[] {
+  const sum = levers.reduce((t, l) => t + l.years, 0) || 1;
+  return levers.map((l) => ({ ...l, share: (total * l.years) / sum }));
+}
+
 function Life({ profile }: { profile: Profile }) {
   const theme = useTheme();
   const [zoom, setZoom] = useState<Zoom>('weeks');
   const [show, setShow] = useState<Show>('all');
-  // "What if" changes being tried on the calendar; nothing here is saved.
+  // Changes being tried on the calendar, in the order they were turned on; nothing here is saved.
   const [tries, setTries] = useState<Lever['key'][]>([]);
-  const [tryPhone, setTryPhone] = useState<number | null>(null);
   // The grid only needs minute precision; the clock ticks every second on its own.
   const now = useNow(60_000);
   const est = estimate(profile, now);
   const age = ageAt(profile.dob, now);
   const levers = allLevers(profile, now);
-  const tried = tries.filter((k) => levers.some((l) => l.key === k));
-  const gain = gainFrom(profile, tried, now);
-  const phone = tryPhone ?? profile.phoneHours;
+  const triedLevers = tries.flatMap((k) => levers.filter((l) => l.key === k));
+  const gain = gainFrom(profile, triedLevers.map((l) => l.key), now);
+  const tried = splitGain(gain, triedLevers);
+  const phone = profile.phoneHours;
   const lifeZoom = zoom === 'life' || zoom === 'weeks';
   const view = lifeView(zoom, profile.dob, est, now, {
-    gain,
+    gains: tried.map((t) => t.share),
     sleep: show === 'all' ? 0 : sleepHours(profile) / 24,
     phone: show === 'free' && phone ? phone / 24 : 0,
   });
@@ -69,9 +92,13 @@ function Life({ profile }: { profile: Profile }) {
   const focused = useIsFocused();
   useClockTick(tickLife && focused);
 
-  // A "what if" is drawn on the whole-life views, so jump to one from Year or Today.
+  // Changes are drawn on the whole-life views, so jump to one from Year or Today.
   const seeLife = () => {
     if (!lifeZoom) setZoom('weeks');
+  };
+  const toggle = (key: Lever['key']) => {
+    setTries(tries.includes(key) ? tries.filter((k) => k !== key) : [...tries, key]);
+    seeLife();
   };
   const shows: { key: Show; label: string }[] = [
     { key: 'all', label: 'All' },
@@ -94,36 +121,30 @@ function Life({ profile }: { profile: Profile }) {
       <View style={[styles.board, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <Legend
           life={lifeZoom}
-          reach={lifeZoom && gain > 0}
+          dense={!!view.dense}
           sleep={lifeZoom && show !== 'all'}
           phone={lifeZoom && show === 'free' && !!phone}
         />
+        {levers.length ? <Toggles levers={levers} tries={tries} onToggle={toggle} /> : null}
         <Animated.View key={zoom} entering={FadeIn.duration(300)}>
-          <LifeGrid view={view} />
+          <LifeGrid view={view} reachColors={tried.map((t) => theme[LEVER_COLOR[t.key]])} />
         </Animated.View>
       </View>
 
       <RichText style={styles.caption} parts={view.caption} />
       {lifeZoom ? <Segmented options={shows} value={show} onChange={setShow} accessibilityLabel="Show time ahead" /> : null}
 
-      <WhatIf
+      <PhoneCard
         profile={profile}
         now={now}
-        levers={levers}
-        tried={tried}
-        gain={gain}
-        onToggle={(k) => {
-          setTries(tried.includes(k) ? tried.filter((x) => x !== k) : [...tried, k]);
-          seeLife();
-        }}
-        phone={phone}
-        onPhone={(h) => {
-          setTryPhone(h);
+        onChange={(phoneHours) => {
+          saveProfile({ ...profile, phoneHours });
+          // Show the change where it lands: the part of life that's awake and off the phone.
           setShow('free');
           seeLife();
         }}
-        onResetPhone={() => setTryPhone(null)}
       />
+      <WhatIf profile={profile} now={now} tried={tried} gain={gain} anyLevers={levers.length > 0} />
 
       <View style={styles.head}>
         <RichText
@@ -145,7 +166,6 @@ function Life({ profile }: { profile: Profile }) {
       </View>
 
       <HabitsCard profile={profile} now={now} levers={levers} />
-      <PhoneCard profile={profile} now={now} />
 
       <ThemedText type="small">
         Estimates come from population averages and broad risk ratios. They show direction and rough size, not a
@@ -156,136 +176,100 @@ function Life({ profile }: { profile: Profile }) {
 }
 
 /**
- * Try a change and watch it land on the calendar: habit changes add bronze "within reach" time, fewer
- * phone hours grow the part of life that's awake and off the phone. Seeing your own numbers helps most
+ * "What if…" switches on the calendar itself, one per change that would add time for this person (from
+ * their onboarding answers), each in the color it's drawn with.
+ */
+function Toggles({ levers, tries, onToggle }: { levers: Lever[]; tries: Lever['key'][]; onToggle: (key: Lever['key']) => void }) {
+  const theme = useTheme();
+
+  return (
+    <View style={[styles.toggles, { borderTopColor: theme.line }]}>
+      <ThemedText type="eyebrow" themeColor="muted">
+        What if… tap to try
+      </ThemedText>
+      <View style={styles.chips}>
+        {levers.map((l) => {
+          const on = tries.includes(l.key);
+          const color = theme[LEVER_COLOR[l.key]];
+          return (
+            <Pressable
+              key={l.key}
+              accessibilityRole="switch"
+              aria-checked={on}
+              accessibilityLabel={`What if: ${l.label}, about ${l.years.toFixed(1)} years`}
+              onPress={() => onToggle(l.key)}
+              hitSlop={4}
+              style={[styles.toggle, { borderColor: on ? color : theme.line, backgroundColor: on ? theme.bg : 'transparent' }]}>
+              <View style={[styles.dot, on ? { backgroundColor: color } : { borderWidth: 1.5, borderColor: color }]} />
+              <ThemedText type="mono" style={[styles.toggleText, { color: on ? theme.fg : theme.muted }]}>
+                {l.label} <ThemedText type="mono" style={[styles.toggleText, { color }]}>+{l.years.toFixed(1)}y</ThemedText>
+              </ThemedText>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+/**
+ * What the changes being tried add up to, each linked to its source. Seeing your own numbers helps most
  * when it leads straight to a plan, so a single change offers one.
  */
-function WhatIf({
-  profile,
-  now,
-  levers,
-  tried,
-  gain,
-  onToggle,
-  phone,
-  onPhone,
-  onResetPhone,
-}: {
-  profile: Profile;
-  now: number;
-  levers: Lever[];
-  tried: Lever['key'][];
-  gain: number;
-  onToggle: (key: Lever['key']) => void;
-  phone: number | undefined;
-  onPhone: (hours: number) => void;
-  onResetPhone: () => void;
-}) {
+function WhatIf({ profile, now, tried, gain, anyLevers }: { profile: Profile; now: number; tried: Tried[]; gain: number; anyLevers: boolean }) {
   const theme = useTheme();
-  const reported = profile.phoneHours;
-  const phoneDiff = reported != null && phone != null ? reported - phone : 0;
-  const one = tried.length === 1 ? levers.find((l) => l.key === tried[0]) : undefined;
-  // The weeks ahead, split the way the "Off phone" calendar shows them, plus any time within reach.
+  // The weeks ahead, split the way the "Off phone" calendar shows them, plus the changes being tried.
   const weeks = yearsLeft(profile, now) * WEEKS_PER_YEAR;
   const sleep = sleepHours(profile) / 24;
-  const phoneShare = (phone ?? 0) / 24;
+  const phoneShare = (profile.phoneHours ?? 0) / 24;
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <ThemedText type="eyebrow" themeColor="muted">
-        What if…
+        Your weeks ahead
       </ThemedText>
       <TimeBar
         parts={[
           { key: 'free', label: 'awake, off phone', value: weeks * (1 - sleep - phoneShare), color: theme.remain },
           { key: 'phone', label: 'on your phone', value: weeks * phoneShare, color: theme.screen },
           { key: 'sleep', label: 'asleep', value: weeks * sleep, color: theme.sleep },
-          { key: 'reach', label: 'within reach', value: gain * WEEKS_PER_YEAR, color: theme.accent },
+          ...tried.map((t) => ({ key: t.key, label: t.label.toLowerCase(), value: t.share * WEEKS_PER_YEAR, color: theme[LEVER_COLOR[t.key]] })),
         ]}
       />
-      {levers.length ? (
-        <>
-          <ThemedText type="small">Tap a change to see it on your calendar.</ThemedText>
-          <View style={styles.chips}>
-            {levers.map((l) => {
-              const on = tried.includes(l.key);
-              return (
-                <Pressable
-                  key={l.key}
-                  accessibilityRole="checkbox"
-                  aria-checked={on}
-                  accessibilityLabel={`${l.label}, about ${l.years.toFixed(1)} years`}
-                  onPress={() => onToggle(l.key)}
-                  style={[styles.chip, { backgroundColor: on ? theme.accentSoft : theme.bg, borderColor: on ? theme.accent : theme.line }]}>
-                  <ThemedText type="small" themeColor="fg">
-                    {l.label}{' '}
-                    <ThemedText type="small" themeColor="accent">
-                      +{l.years.toFixed(1)} yrs
-                    </ThemedText>
-                  </ThemedText>
-                </Pressable>
-              );
-            })}
-          </View>
-        </>
+
+      {tried.length ? (
+        <Animated.View key={tried.map((t) => t.key).join()} entering={FadeIn.duration(400)} style={styles.result}>
+          <RichText
+            parts={[
+              { text: tried.length > 1 ? 'Together, about ' : 'About ' },
+              { text: `${fmt(gain * WEEKS_PER_YEAR)} more weeks`, strong: true },
+              { text: ` (${gain.toFixed(1)} years)` },
+              {
+                text:
+                  tried.length > 1
+                    ? `: less than the sum, since habit effects overlap${gain >= MAX_TOTAL_GAIN ? ', and capped' : ''}.`
+                    : '.',
+              },
+            ]}
+          />
+          {tried.map((t) => (
+            <View key={t.key} style={styles.triedRow}>
+              <View style={[styles.dot, { backgroundColor: theme[LEVER_COLOR[t.key]] }]} />
+              <View style={styles.flex}>
+                <ThemedText type="small" themeColor="fg">
+                  {t.label}: about {t.years.toFixed(1)} years on its own
+                </ThemedText>
+                <SourceLink of={t.key} />
+              </View>
+            </View>
+          ))}
+          {tried.length === 1 ? <LeverPlan profile={profile} lever={tried[0]} /> : null}
+        </Animated.View>
+      ) : anyLevers ? (
+        <ThemedText type="small">Tap a “What if” on the calendar to see what a change could add.</ThemedText>
       ) : (
         <ThemedText type="small">You already do the things that add the most time. Keep them, and keep your people close.</ThemedText>
       )}
-
-      {tried.length ? (
-        <Animated.View key={tried.join()} entering={FadeIn.duration(400)} style={styles.result}>
-          <RichText
-            parts={[
-              { text: 'About ' },
-              { text: `${fmt(gain * WEEKS_PER_YEAR)} more weeks`, strong: true },
-              { text: ` (${gain.toFixed(1)} years${gain >= MAX_TOTAL_GAIN ? ', capped: habit effects overlap' : ''}): the bronze circles above.` },
-            ]}
-          />
-          {tried.map((k) => (
-            <SourceLink key={k} of={k} />
-          ))}
-          {one ? <LeverPlan profile={profile} lever={one} /> : null}
-        </Animated.View>
-      ) : null}
-
-      <View style={[styles.phoneTry, { borderTopColor: theme.line }]}>
-        {reported != null && phone != null ? (
-          <>
-            <View style={styles.timeRow}>
-              <ThemedText type="small" style={styles.flex}>
-                Phone, hours a day
-              </ThemedText>
-              <Stepper
-                value={phone}
-                onChange={onPhone}
-                step={0.5}
-                max={16}
-                format={(v) => `${v} h`}
-                accessibilityLabel="Try fewer or more phone hours a day"
-              />
-            </View>
-            {phoneDiff ? (
-              <>
-                <RichText
-                  parts={[
-                    { text: `${Math.abs(phoneDiff)} h a day ${phoneDiff > 0 ? 'less' : 'more'} is about ` },
-                    { text: `${yearsOfHours(Math.abs(phoneDiff), yearsLeft(profile, now)).toFixed(1)} years`, strong: true },
-                    { text: phoneDiff > 0 ? ' more of your life awake and off your phone.' : ' less of your life awake and off your phone.' },
-                  ]}
-                />
-                {phoneDiff > 0 ? (
-                  <ThemedText type="small">Half an hour of it could become {swapSuggestion(profile, profile.loves ?? [], now)}.</ThemedText>
-                ) : null}
-                <Button title="Back to my answer" variant="link" onPress={onResetPhone} style={styles.start} />
-              </>
-            ) : (
-              <ThemedText type="small">Try fewer hours to see the time it gives back. Just trying: your answer stays the same.</ThemedText>
-            )}
-          </>
-        ) : (
-          <ThemedText type="small">Add your phone time under Your phone to try it here.</ThemedText>
-        )}
-      </View>
 
       <ThemedText type="small">{PERSONAL_NUMBERS.claim}</ThemedText>
       <SourceLink source={PERSONAL_NUMBERS.source} />
@@ -356,17 +340,17 @@ function Clock({ end }: { end: number }) {
   );
 }
 
-/** What each color means, above the calendar; layers appear only while they're shown. */
-function Legend({ life, reach, sleep, phone }: { life: boolean; reach: boolean; sleep: boolean; phone: boolean }) {
+/** What each color means, above the calendar; sleep and phone appear only while they're shown. */
+function Legend({ life, dense, sleep, phone }: { life: boolean; dense: boolean; sleep: boolean; phone: boolean }) {
   const theme = useTheme();
+  // Matches how the grid draws: on the dense Weeks view, likely weeks are dots and "maybe" ones plain rings.
   const items = [
     { label: 'Lived', fill: theme.lived },
     { label: 'Now', fill: theme.accent },
-    { label: 'Likely ahead', stroke: theme.remain },
+    dense ? { label: 'Likely ahead', fill: theme.remain } : { label: 'Likely ahead', stroke: theme.remain },
     ...(sleep ? [{ label: 'Asleep', fill: theme.sleep }] : []),
     ...(phone ? [{ label: 'On your phone', fill: theme.screen }] : []),
-    ...(reach ? [{ label: 'Within reach', fill: theme.accentSoft, stroke: theme.accent }] : []),
-    ...(life ? [{ label: 'If fortune allows', stroke: theme.remain, dashed: true }] : []),
+    ...(life ? [{ label: 'If fortune allows', stroke: theme.remain, dashed: !dense }] : []),
   ];
 
   return (
@@ -393,17 +377,23 @@ function Legend({ life, reach, sleep, phone }: { life: boolean; reach: boolean; 
   );
 }
 
-/** Daily phone time in time-left terms, and what half an hour of it could become. */
-function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
+/**
+ * Daily phone time in time-left terms, and what half an hour of it could become. The one place to set
+ * it; a change shows right away on the calendar above.
+ */
+function PhoneCard({ profile, now, onChange }: { profile: Profile; now: number; onChange: (hours: number) => void }) {
   const theme = useTheme();
   const hours = profile.phoneHours;
   const left = yearsLeft(profile, now);
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-      <ThemedText type="eyebrow" themeColor="muted">
-        Your phone
-      </ThemedText>
+      <View style={styles.timeRow}>
+        <ThemedText type="eyebrow" themeColor="muted" style={styles.flex}>
+          Your phone
+        </ThemedText>
+        <Stepper value={hours ?? 4} onChange={onChange} step={0.5} max={16} format={(v) => `${v} h`} accessibilityLabel="Hours a day on your phone" />
+      </View>
       {hours != null ? (
         <>
           <RichText
@@ -424,21 +414,13 @@ function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
       ) : (
         <ThemedText>How many hours a day are you on your phone? Your Screen Time or Digital Wellbeing settings show the daily average.</ThemedText>
       )}
-      <Stepper
-        value={hours ?? 4}
-        onChange={(phoneHours) => saveProfile({ ...profile, phoneHours })}
-        step={0.5}
-        max={16}
-        format={(v) => `${v} h`}
-        accessibilityLabel="Hours a day on your phone"
-      />
     </View>
   );
 }
 
 /**
  * What the person's habits do to the estimate, and every change within reach, each linked to its study.
- * The combined gain is what the bronze circles on the calendar show.
+ * Each change can be tried on the calendar with the "What if" switches.
  */
 function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; levers: Lever[] }) {
   const theme = useTheme();
@@ -502,7 +484,7 @@ function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; l
               { text: levers.length > 1 ? 'Together, about ' : 'That is about ' },
               { text: `${gain.toFixed(1)} more years`, strong: true },
               {
-                text: `${gain >= MAX_TOTAL_GAIN ? ' (capped: habit effects overlap)' : ''}. Try them on your calendar under What if.`,
+                text: `${gain >= MAX_TOTAL_GAIN ? ' (capped: habit effects overlap)' : ''}. Try them on the calendar with What if.`,
               },
             ]}
           />
@@ -595,19 +577,43 @@ const styles = StyleSheet.create({
   result: {
     gap: 6,
   },
-  phoneTry: {
-    borderTopWidth: 1,
-    paddingTop: 12,
-    marginTop: 4,
-    gap: 8,
-  },
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
-  legend: {
+  toggles: {
+    borderTopWidth: 1,
+    paddingTop: 10,
     marginBottom: 12,
+    gap: 8,
+  },
+  toggle: {
+    maxWidth: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: Radius.pill,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  toggleText: {
+    fontSize: 11.5,
+    flexShrink: 1,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  triedRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  legend: {
+    marginBottom: 10,
     flexDirection: 'row',
     flexWrap: 'wrap',
     columnGap: 14,
