@@ -118,7 +118,12 @@ function Life({ profile }: { profile: Profile }) {
       <Segmented options={ZOOMS} value={zoom} onChange={setZoom} accessibilityLabel="Zoom" />
 
       <View style={[styles.board, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-        <Legend life={lifeZoom} sleep={lifeZoom && show !== 'all'} phone={lifeZoom && show === 'free' && !!phone} />
+        <Legend
+          life={lifeZoom}
+          dense={!!view.dense}
+          sleep={lifeZoom && show !== 'all'}
+          phone={lifeZoom && show === 'free' && !!phone}
+        />
         {levers.length ? <Toggles levers={levers} tries={tries} onToggle={toggle} /> : null}
         <Animated.View key={zoom} entering={FadeIn.duration(300)}>
           <LifeGrid view={view} reachColors={tried.map((t) => theme[LEVER_COLOR[t.key]])} />
@@ -334,15 +339,16 @@ function Clock({ end }: { end: number }) {
 }
 
 /** What each color means, above the calendar; sleep and phone appear only while they're shown. */
-function Legend({ life, sleep, phone }: { life: boolean; sleep: boolean; phone: boolean }) {
+function Legend({ life, dense, sleep, phone }: { life: boolean; dense: boolean; sleep: boolean; phone: boolean }) {
   const theme = useTheme();
+  // Matches how the grid draws: on the dense Weeks view, likely weeks are dots and "maybe" ones plain rings.
   const items = [
     { label: 'Lived', fill: theme.lived },
     { label: 'Now', fill: theme.accent },
-    { label: 'Likely ahead', stroke: theme.remain },
+    dense ? { label: 'Likely ahead', fill: theme.remain } : { label: 'Likely ahead', stroke: theme.remain },
     ...(sleep ? [{ label: 'Asleep', fill: theme.sleep }] : []),
     ...(phone ? [{ label: 'On your phone', fill: theme.screen }] : []),
-    ...(life ? [{ label: 'If fortune allows', stroke: theme.remain, dashed: true }] : []),
+    ...(life ? [{ label: 'If fortune allows', stroke: theme.remain, dashed: !dense }] : []),
   ];
 
   return (

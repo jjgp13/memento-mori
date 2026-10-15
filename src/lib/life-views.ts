@@ -62,6 +62,8 @@ export type GridView = {
   labelW: number;
   /** How far through the current unit we are, 0–1. */
   frac: number;
+  /** Too many cells for outlines and dashes to read: draw likely weeks as dots, "maybe" ones as hollow rings. */
+  dense?: boolean;
   state: (i: number) => CellState;
   /** For a 'reach' cell: which of `Layers.gains` it belongs to. */
   reachOf?: (i: number) => number;
@@ -126,6 +128,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
     const ahead = splitAhead(w + 1, Math.ceil(med), layers);
     return {
       cols: 52,
+      dense: true,
       count: Math.ceil(Math.max(est.q75, est.med + gain) * WEEKS_PER_YEAR),
       labelW: 22,
       frac: weeksLived - w,
