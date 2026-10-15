@@ -10,6 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
+import { countryName } from '@/lib/country';
 import { HOW_IT_WORKS, WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
 import {
   GOMPERTZ_B,
@@ -49,7 +50,8 @@ function Habits({ profile }: { profile: Profile }) {
           {median.toFixed(1)}
         </Animated.Text>
         <ThemedText type="small" style={styles.flex}>
-          median age for someone living like you. Tap an option to see what it would change.
+          median age for someone living like you{countryName(profile.country) ? ` in ${countryName(profile.country)}` : ''}.
+          Tap an option to see what it would change.
         </ThemedText>
       </View>
 
@@ -111,7 +113,7 @@ function Factor({
       <View style={styles.options}>
         {options.map((o) => {
           const on = profile[habit] === o.value;
-          const delta = on ? 0 : survival(profile.sex, age, hazardMultiplier({ ...profile, [habit]: o.value } as ModelInput)).med - base;
+          const delta = on ? 0 : survival(profile.sex, age, hazardMultiplier({ ...profile, [habit]: o.value } as ModelInput), profile.country).med - base;
           const note = on ? 'you now' : Math.abs(delta) < 0.05 ? 'no change' : `${delta > 0 ? '+' : '−'}${Math.abs(delta).toFixed(1)} yrs`;
           return (
             <Pressable

@@ -33,14 +33,14 @@ export const MAX_TOTAL_GAIN = 14;
 /** Changes smaller than this aren't worth a headline. */
 const MIN_LEVER_YEARS = 0.2;
 
-const medianWith = (p: ModelInput, now: number) => survival(p.sex, ageAt(p.dob, now), hazardMultiplier(p)).med;
+const medianWith = (p: ModelInput, now: number) => survival(p.sex, ageAt(p.dob, now), hazardMultiplier(p), p.country).med;
 
 /**
  * Years your answers add (+) or cost (−) versus the reference answers (hazard ratio 1:
  * non-smoker, some exercise, healthy weight, light drinking, 6–9 h sleep).
  */
 export function habitsEffect(p: ModelInput, now = Date.now()) {
-  return medianWith(p, now) - survival(p.sex, ageAt(p.dob, now), 1).med;
+  return medianWith(p, now) - survival(p.sex, ageAt(p.dob, now), 1, p.country).med;
 }
 
 export type Lever = { key: HabitKey | 'steps'; label: string; years: number };

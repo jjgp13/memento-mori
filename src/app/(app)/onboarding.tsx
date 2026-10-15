@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
 import { Choices } from '@/components/choices';
+import { CountryPicker } from '@/components/country-picker';
 import { DatePicker } from '@/components/date-picker';
 import { AliveTimeline } from '@/components/onboarding/alive-timeline';
 import { CountUp } from '@/components/onboarding/count-up';
@@ -25,6 +26,8 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { countryName, deviceCountry } from '@/lib/country';
+import { LIFE_TABLES } from '@/lib/evidence';
 import { bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
 import { fmt } from '@/lib/life-views';
@@ -47,6 +50,7 @@ type StepKey =
   | 'welcome'
   | 'name'
   | 'dob'
+  | 'country'
   | 'sex'
   | HabitKey
   | 'phone'
@@ -60,6 +64,7 @@ const FIRST_RUN: StepKey[] = [
   'welcome',
   'name',
   'dob',
+  'country',
   'sex',
   ...HABIT_KEYS,
   'phone',
@@ -69,8 +74,8 @@ const FIRST_RUN: StepKey[] = [
   'compute',
   'reveal',
 ];
-/** Editing skips the welcome and the reveal, and saves after the last question. */
-const EDIT: StepKey[] = ['name', 'dob', 'sex', ...HABIT_KEYS, 'phone', 'values', 'people', 'activities'];
+/** Editing skips the welcome and the reveal, and saves after the last question (or the one in `?only=`). */
+const EDIT: StepKey[] = ['name', 'dob', 'country', 'sex', ...HABIT_KEYS, 'phone', 'values', 'people', 'activities'];
 
 type Draft = Partial<Profile> & { name: string; dob: string; values: ValueKey[]; loves: Love[] };
 
@@ -94,13 +99,17 @@ export default function OnboardingScreen() {
   const theme = useTheme();
   const reduced = useReducedMotion();
   const existing = useProfile();
-  const editing = useLocalSearchParams<{ edit?: string }>().edit === '1';
-  const steps = editing ? EDIT : FIRST_RUN;
+  const params = useLocalSearchParams<{ edit?: string; only?: string }>();
+  const editing = params.edit === '1';
+  const only = EDIT.find((s) => s === params.only);
+  const steps = editing ? (only ? [only] : EDIT) : FIRST_RUN;
 
   const [draft, setDraft] = useState<Draft>(() => ({
     name: '',
     dob: '',
     ...existing,
+    // Suggest the device's region; profiles saved before countries existed get it when they next edit.
+    country: existing?.country ?? deviceCountry(),
     values: existing?.values ?? [],
     loves: existing?.loves ?? [],
   }));
@@ -145,7 +154,7 @@ export default function OnboardingScreen() {
   // Progress bar.
   const progress = useSharedValue(0);
   useEffect(() => {
-    progress.set(withTiming((index / (steps.length - 1)) * 100, { duration: 500, easing: ease }));
+    progress.set(withTiming(steps.length > 1 ? (index / (steps.length - 1)) * 100 : 100, { duration: 500, easing: ease }));
   }, [index, steps.length, progress]);
   const barStyle = useAnimatedStyle(() => ({ width: `${progress.get()}%` }));
 
@@ -209,6 +218,22 @@ export default function OnboardingScreen() {
       <AliveTimeline key="a" dob={draft.dob} />,
     ];
     footer = continueButton('Continue', !draft.dob);
+  } else if (step === 'country') {
+    body = [
+      <ThemedText key="e" type="eyebrow">
+        {number} · Place
+      </ThemedText>,
+      <ThemedText key="t" type="subtitle">
+        Where do you live?
+      </ThemedText>,
+      <ThemedText key="w" type="small" style={styles.why}>
+        Where you live shapes how long people live, by 30 years or more between countries. We start from your
+        country&apos;s life tables.
+      </ThemedText>,
+      <CountryPicker key="c" value={draft.country} onChange={(country) => set({ country })} />,
+      <SourceLink key="s" source={LIFE_TABLES.source} prefix="Life tables" />,
+    ];
+    footer = continueButton(draft.country ? 'Continue' : 'Skip');
   } else if (step === 'sex') {
     body = [
       <ThemedText key="e" type="eyebrow">
@@ -505,8 +530,9 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
 
   lines.push(
     <ThemedText key="r" type="small">
-      This is a range, not a date: half of people living like you reach {Math.round(est.med)}, and most land between{' '}
-      {Math.round(est.q25)} and {Math.round(est.q75)}. Not medical advice.
+      This is a range, not a date: half of people living like you
+      {countryName(me.country) ? ` in ${countryName(me.country)}` : ''} reach {Math.round(est.med)}, and most land
+      between {Math.round(est.q25)} and {Math.round(est.q75)}. Not medical advice.
     </ThemedText>,
     <Button key="b" title="See your life" onPress={onDone} />,
   );
