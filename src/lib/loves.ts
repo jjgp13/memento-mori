@@ -3,6 +3,7 @@
  * Ported from loveCount() in prototype/index.html.
  */
 import { YEAR_MS, WEEKS_PER_YEAR, ageAt, estimate, survival, type ModelInput } from '@/lib/model';
+import type { Plan } from '@/lib/plans';
 
 export type Per = 'day' | 'week' | 'month' | 'year';
 export type Species = 'dog' | 'cat';
@@ -23,6 +24,8 @@ export type Love = {
   phone?: string;
   /** People: when they last talked or met, logged with "We talked" (most recent first, capped). */
   contacts?: number[];
+  /** People: when they mean to reach out ("Sundays after lunch, I will call Mom"). */
+  plan?: Plan;
   addedAt: number;
 };
 

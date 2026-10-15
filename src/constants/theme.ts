@@ -15,6 +15,9 @@ export const Colors = {
     remain: '#A9B2AB',
     maybe: '#D3D9D2',
     danger: '#9A3B2E',
+    /** Calendar layers: time likely spent asleep, and on the phone. */
+    sleep: '#AFBBC8',
+    screen: '#D2AFA4',
   },
   dark: {
     bg: '#131715',
@@ -28,6 +31,8 @@ export const Colors = {
     remain: '#56605A',
     maybe: '#2F3632',
     danger: '#D98A7E',
+    sleep: '#3A4A5A',
+    screen: '#5E4039',
   },
 } as const;
 

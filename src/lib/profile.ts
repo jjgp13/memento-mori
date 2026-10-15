@@ -5,6 +5,7 @@ import { useSyncExternalStore } from 'react';
 
 import type { Love } from '@/lib/loves';
 import type { ModelInput } from '@/lib/model';
+import type { Focus, HabitPlan } from '@/lib/plans';
 import type { ValueKey } from '@/lib/values';
 
 /**
@@ -19,6 +20,10 @@ export type Profile = ModelInput & {
   loves?: Love[];
   /** Average hours a day on their phone, self-reported (from Screen Time / Digital Wellbeing) for now. */
   phoneHours?: number;
+  /** One small habit plan at a time ("after dinner, a 10-minute walk"). People's plans live on their Love. */
+  habitPlan?: HabitPlan;
+  /** "One thing" picked at the latest fresh start (Monday, the 1st, a birthday). */
+  focus?: Focus;
 };
 
 const KEY = 'mm.profile.v1';
