@@ -18,6 +18,7 @@ A free app that estimates how much life a person likely has left and helps them 
 - Science brief: `docs/science.md` (what drives lifespan/healthspan, meaning, time use; proposals). Its ranked list lives in-app in `src/lib/evidence.ts` (Habits screen); keep the two in step.
 - Oct 14: Habits screen (options with years ±, steps math, "What matters most" with evidence badges and sources, how the estimate works); phone time (self-reported in onboarding and on Life, turned into years of what's left and a swap with a love, `src/lib/time-use.ts`); reach out to people (Message via share sheet/sms, Call if a phone number is saved, "We talked" log) on Loves and on the Today screen, which picks who to reach out to.
 - Screen time from the OS: Android UsageStatsManager ("Usage access") and iOS Screen Time API (Family Controls entitlement, data stays in a report extension) both need the native app; self-report until then.
+- Sounds: synthesized clock tick/tock (`assets/sounds`, regenerate with `scripts/make-clock-sounds.py`) via `useClockTick`; 15 ticks when the birth-date seconds start (on by default, mutable), optional on the Life countdown (off by default). Prefs in `src/lib/prefs.ts`.
 - Behavior-change brief: `docs/nudges.md` (if-then plans, well-timed few prompts, fresh starts, welcome-backs, death reminders always paired with one doable action, "could" not "should").
 - Next: plans + 1–2 local reminders a week (needs native build for notifications); diet/strength/purpose as model factors; native build for health data and screen time; healthy-years estimate.
 

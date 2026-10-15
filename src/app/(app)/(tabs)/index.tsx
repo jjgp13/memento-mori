@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -8,14 +9,17 @@ import { RichText } from '@/components/rich-text';
 import { Screen } from '@/components/screen';
 import { Segmented } from '@/components/segmented';
 import { SourceLink } from '@/components/source-link';
+import { SoundToggle } from '@/components/sound-toggle';
 import { Stepper } from '@/components/stepper';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
+import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { MAX_TOTAL_GAIN, allLevers, combinedGain, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
 import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
 import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, type ModelInput } from '@/lib/model';
+import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 import { SWAP_HOURS, shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 
@@ -40,6 +44,10 @@ function Life({ profile }: { profile: Profile }) {
   // pin "time left" to a constant. Anchor it to when the screen opened so the clock really counts down.
   const [anchor] = useState(() => Date.now());
   const end = birthTime(profile.dob) + estimate(profile, anchor).med * YEAR_MS;
+  // Optional ticking (off by default), only while this tab is on screen.
+  const { tickLife } = usePrefs();
+  const focused = useIsFocused();
+  useClockTick(tickLife && focused);
 
   return (
     <>
@@ -66,9 +74,12 @@ function Life({ profile }: { profile: Profile }) {
       <PhoneCard profile={profile} now={now} />
 
       <View>
-        <ThemedText type="eyebrow" themeColor="muted">
-          Likely time left
-        </ThemedText>
+        <View style={styles.clockHead}>
+          <ThemedText type="eyebrow" themeColor="muted">
+            Likely time left
+          </ThemedText>
+          <SoundToggle on={tickLife} onChange={(on) => setPref('tickLife', on)} />
+        </View>
         <Clock end={end} />
       </View>
 
@@ -276,6 +287,11 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
     fontSize: 20,
     lineHeight: 28,
+  },
+  clockHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   board: {
     borderWidth: 1,
