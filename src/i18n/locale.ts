@@ -4,7 +4,7 @@ import { getPrefs } from '@/lib/prefs';
 
 /**
  * Languages the app speaks, most spoken first (total speakers). Each `locale` sets number and date
- * formats; Spanish uses Mexico's. Arabic and Urdu wait for right-to-left layout support.
+ * formats; Spanish uses Mexico's, and Bengali uses Latin digits to match its catalog. Arabic and Urdu wait for right-to-left layout support.
  */
 export const LANGUAGES = [
   { code: 'en', name: 'English', locale: 'en-US' },
@@ -12,7 +12,7 @@ export const LANGUAGES = [
   { code: 'hi', name: 'हिन्दी', locale: 'hi-IN' },
   { code: 'es', name: 'Español', locale: 'es-MX' },
   { code: 'fr', name: 'Français', locale: 'fr-FR' },
-  { code: 'bn', name: 'বাংলা', locale: 'bn-BD' },
+  { code: 'bn', name: 'বাংলা', locale: 'bn-BD-u-nu-latn' },
   { code: 'pt', name: 'Português', locale: 'pt-BR' },
   { code: 'ru', name: 'Русский', locale: 'ru-RU' },
   { code: 'id', name: 'Bahasa Indonesia', locale: 'id-ID' },

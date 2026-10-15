@@ -20,11 +20,13 @@ A free app that estimates how much life a person likely has left and helps them 
 - Screen time from the OS: Android UsageStatsManager ("Usage access") and iOS Screen Time API (Family Controls entitlement, data stays in a report extension) both need the native app; self-report until then.
 - Sounds: synthesized clock tick/tock (`assets/sounds`, regenerate with `scripts/make-clock-sounds.py`) via `useClockTick`; 15 ticks when the birth-date seconds start (on by default, mutable), optional on the Life countdown (off by default). Prefs in `src/lib/prefs.ts`.
 - Behavior-change brief: `docs/nudges.md` (if-then plans, well-timed few prompts, fresh starts, welcome-backs, death reminders always paired with one doable action, "could" not "should").
+- Oct 15: languages. All UI text lives in typed catalogs in `src/i18n/strings/` (English, 中文, हिन्दी, Español for Mexico, Français, বাংলা, Português, Русский, Bahasa Indonesia, Deutsch, 日本語). The app follows the device language (`expo-localization`); a picker on the welcome screen and the You screen overrides it (`language` in prefs). Translations other than Spanish are first drafts that need a native speaker's review. Arabic and Urdu wait for right-to-left layout.
 - Next: plans + 1–2 local reminders a week (needs native build for notifications); diet/strength/purpose as model factors; native build for health data and screen time; healthy-years estimate.
 
 ## Working in this repo
 - Follow @AGENTS.md for Expo conventions (versioned docs, `npx expo install`, no hand-edited `ios/`/`android/`).
-- Run `npx tsc --noEmit` and `npx expo lint` before calling work done. `.claude/launch.json` has an `expo-web` preview config.
+- Run `npx tsc --noEmit` and `npx expo lint` before calling work done.
+- No user-facing text in components or `src/lib`: add it to `src/i18n/strings/en.ts`, then to every other catalog (the typecheck lists any language that is missing it). Components read strings with `useT()`; lib helpers that build sentences take `t` as a parameter, so React Compiler rebuilds them when the language changes. Format numbers with `fmt`/`dec1`/`num` from `@/i18n/format`. `.claude/launch.json` has an `expo-web` preview config.
 
 ## Product decisions so far
 - **Flow on every open:** impact card ("~150 more movies") → Stoic quote + question → life calendar. First open after onboarding starts with a "weeks remaining" reveal. One tap to move on; skippable.
