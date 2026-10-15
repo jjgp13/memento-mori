@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { Choices } from '@/components/choices';
 import { DatePicker } from '@/components/date-picker';
+import { AliveTimeline } from '@/components/onboarding/alive-timeline';
 import { CountUp } from '@/components/onboarding/count-up';
 import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Stagger } from '@/components/onboarding/stagger';
@@ -23,19 +24,16 @@ import { Stepper } from '@/components/stepper';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
-import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
 import { fmt } from '@/lib/life-views';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
-  DAY_MS,
   HABITS,
   HABIT_KEYS,
   WEEKS_PER_YEAR,
   ageAt,
-  birthTime,
   estimate,
   type HabitKey,
   type ModelInput,
@@ -208,7 +206,7 @@ export default function OnboardingScreen() {
         When were you born?
       </ThemedText>,
       <DatePicker key="d" value={draft.dob} onChange={(dob) => set({ dob })} />,
-      <AliveFor key="a" dob={draft.dob} />,
+      <AliveTimeline key="a" dob={draft.dob} />,
     ];
     footer = continueButton('Continue', !draft.dob);
   } else if (step === 'sex') {
@@ -387,22 +385,6 @@ export default function OnboardingScreen() {
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  );
-}
-
-function AliveFor({ dob }: { dob: string }) {
-  const now = useNow(60_000);
-  if (!dob) return null;
-  return (
-    <Animated.View key={dob} entering={FadeIn.duration(600)}>
-      <ThemedText style={styles.alive}>
-        You have been alive for{' '}
-        <ThemedText style={[styles.alive, styles.num]} themeColor="accent">
-          {fmt((now - birthTime(dob)) / DAY_MS)}
-        </ThemedText>{' '}
-        days.
-      </ThemedText>
-    </Animated.View>
   );
 }
 
@@ -587,9 +569,6 @@ const styles = StyleSheet.create({
   },
   why: {
     fontStyle: 'italic',
-  },
-  alive: {
-    fontSize: 18,
   },
   num: {
     fontFamily: Fonts.monoMedium,
