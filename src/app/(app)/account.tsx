@@ -4,11 +4,15 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { ReminderSettings } from '@/components/reminder-settings';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { signOut } from '@/lib/auth';
-import { clearProfile } from '@/lib/profile';
+import { cancelReminders, remindersSupported } from '@/lib/notifications';
+import { setPref } from '@/lib/prefs';
+import { clearProfile, useProfile } from '@/lib/profile';
+import { DEFAULT_REMINDERS } from '@/lib/reminders';
 import { useAuth } from '@/providers/auth-provider';
 
 /**
@@ -18,6 +22,7 @@ import { useAuth } from '@/providers/auth-provider';
 export default function YouScreen() {
   const theme = useTheme();
   const { session } = useAuth();
+  const profile = useProfile();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,6 +34,9 @@ export default function YouScreen() {
       setError(e instanceof Error ? e.message : 'Could not sign out.');
       return;
     }
+    // Reminders name the people they love, so they go too.
+    setPref('reminders', DEFAULT_REMINDERS);
+    await cancelReminders().catch(() => {});
     // With no answers left, the app guard sends them back to onboarding.
     clearProfile();
   }
@@ -46,6 +54,8 @@ export default function YouScreen() {
           variant="ghost"
           onPress={() => router.push({ pathname: '/onboarding', params: { edit: '1' } })}
         />
+
+        {remindersSupported && profile ? <ReminderSettings profile={profile} /> : null}
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <ThemedText type="heading">YOUR DATA</ThemedText>

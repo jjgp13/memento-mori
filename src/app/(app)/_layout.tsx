@@ -11,6 +11,7 @@ export default function AppLayout() {
       <Stack.Protected guard={!!profile}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="account" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="person/[id]" options={{ presentation: 'modal' }} />
       </Stack.Protected>
       <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
     </Stack>

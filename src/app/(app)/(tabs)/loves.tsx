@@ -8,6 +8,7 @@ import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Screen } from '@/components/screen';
 import { ReachOut } from '@/components/reach-out';
 import { Segmented } from '@/components/segmented';
+import { SlotPicker } from '@/components/slot-picker';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
@@ -16,6 +17,7 @@ import { fmt } from '@/lib/life-views';
 import { loveCount, loveCountLabel, loveCountReason, type Love } from '@/lib/loves';
 import { ageAt, estimate } from '@/lib/model';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
+import { DEFAULT_REMINDERS, slotLabel, type Slot } from '@/lib/reminders';
 
 const GROUPS: { key: 'who' | 'what'; label: string }[] = [
   { key: 'who', label: 'Who loves you' },
@@ -109,7 +111,57 @@ function LoveCard({
         <Button title="Remove" variant="link" accessibilityLabel={`Remove ${love.name}`} onPress={onRemove} />
       </View>
       {love.kind === 'person' ? <ReachOut love={love} onChange={onChange} /> : null}
+      {love.kind === 'person' ? <Plan love={love} onChange={onChange} /> : null}
     </Animated.View>
+  );
+}
+
+/** "When will you reach out?": an if-then plan (docs/nudges.md §1a). Reminders use it when they're on. */
+function Plan({ love, onChange }: { love: Love; onChange: (next: Love) => void }) {
+  const [draft, setDraft] = useState<Slot | null>(null);
+
+  if (!draft) {
+    return (
+      <View style={styles.planRow}>
+        <ThemedText type="small" style={styles.text}>
+          {love.plan ? `Your plan: ${slotLabel(love.plan)}.` : 'When will you reach out? A set time makes it more likely.'}
+        </ThemedText>
+        <Button
+          title={love.plan ? 'Change' : 'Plan it'}
+          variant="link"
+          accessibilityLabel={`Plan when to reach out to ${love.name}`}
+          onPress={() => setDraft(love.plan ?? DEFAULT_REMINDERS.slots[0])}
+        />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.plan}>
+      <ThemedText type="small">When will you reach out to {love.name}?</ThemedText>
+      <SlotPicker value={draft} onChange={setDraft} label={`Plan for ${love.name}`} />
+      <View style={styles.planRow}>
+        <Button
+          title="Save plan"
+          variant="ghost"
+          onPress={() => {
+            onChange({ ...love, plan: draft });
+            setDraft(null);
+          }}
+        />
+        {love.plan ? (
+          <Button
+            title="No plan"
+            variant="link"
+            onPress={() => {
+              onChange({ ...love, plan: undefined });
+              setDraft(null);
+            }}
+          />
+        ) : null}
+        <Button title="Cancel" variant="link" onPress={() => setDraft(null)} />
+      </View>
+    </View>
   );
 }
 
@@ -159,6 +211,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 36,
     fontVariant: ['tabular-nums'],
+  },
+  plan: {
+    gap: 10,
+  },
+  planRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   add: {
     gap: 12,

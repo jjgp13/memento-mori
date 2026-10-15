@@ -39,7 +39,10 @@ import {
   type ModelInput,
   type Sex,
 } from '@/lib/model';
+import { askReminderPermission, remindersSupported } from '@/lib/notifications';
+import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
+import { DEFAULT_REMINDERS, planReminders, slotLabel } from '@/lib/reminders';
 import { shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 import { MAX_VALUES, VALUES, type ValueKey } from '@/lib/values';
 
@@ -54,7 +57,8 @@ type StepKey =
   | 'people'
   | 'activities'
   | 'compute'
-  | 'reveal';
+  | 'reveal'
+  | 'reminders';
 
 const FIRST_RUN: StepKey[] = [
   'welcome',
@@ -68,6 +72,8 @@ const FIRST_RUN: StepKey[] = [
   'activities',
   'compute',
   'reveal',
+  // Native only: after the reveal is the gentle moment to ask, with the reason in view.
+  ...(remindersSupported ? (['reminders'] as const) : []),
 ];
 /** Editing skips the welcome and the reveal, and saves after the last question. */
 const EDIT: StepKey[] = ['name', 'dob', 'sex', ...HABIT_KEYS, 'phone', 'values', 'people', 'activities'];
@@ -115,6 +121,8 @@ export default function OnboardingScreen() {
   };
   const next = () => go(1);
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
+  const prefs = usePrefs();
+  const [asking, setAsking] = useState(false);
   const finish = () => {
     // They just saw the reveal; don't follow it with the opening sequence.
     markIntroSeen();
@@ -149,7 +157,7 @@ export default function OnboardingScreen() {
   }, [index, steps.length, progress]);
   const barStyle = useAnimatedStyle(() => ({ width: `${progress.get()}%` }));
 
-  const showBack = index > 0 && step !== 'compute' && step !== 'reveal';
+  const showBack = index > 0 && step !== 'compute' && step !== 'reveal' && step !== 'reminders';
   const number = FIRST_RUN.indexOf(step);
   const me = modelInput(draft);
 
@@ -353,7 +361,45 @@ export default function OnboardingScreen() {
   } else if (step === 'compute') {
     body = [<Computing key="c" />];
   } else if (step === 'reveal' && me) {
-    body = [<Reveal key="r" draft={draft} me={me} onDone={finish} />];
+    body = [<Reveal key="r" draft={draft} me={me} onDone={remindersSupported ? next : finish} />];
+  } else if (step === 'reminders') {
+    const example = planReminders(draft as Profile, DEFAULT_REMINDERS)[0];
+    body = [
+      <ThemedText key="e" type="eyebrow">
+        One more thing
+      </ThemedText>,
+      <ThemedText key="t" type="subtitle">
+        A gentle reminder, once a week?
+      </ThemedText>,
+      <ThemedText key="p">
+        Knowing the count helps most when it turns into a call or a visit. Plans and well-timed nudges make that more
+        likely, so we could remind you once a week ({slotLabel(DEFAULT_REMINDERS.slots[0])}), naming one person or one small
+        thing.
+      </ThemedText>,
+      <View key="x" style={[styles.example, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+        <ThemedText style={styles.exampleTitle}>{example.title}</ThemedText>
+        <ThemedText type="small">{example.body}</ThemedText>
+      </View>,
+      <ThemedText key="m" type="small">
+        Scheduled on this phone only: no server, no account, nothing sent anywhere. Change the day, time and how many
+        (one or two a week) in You, or turn them off.
+      </ThemedText>,
+    ];
+    footer = (
+      <View style={styles.choices}>
+        <Button
+          title="Yes, remind me"
+          loading={asking}
+          onPress={async () => {
+            setAsking(true);
+            const granted = await askReminderPermission().catch(() => false);
+            if (granted) setPref('reminders', { ...prefs.reminders, on: true });
+            finish();
+          }}
+        />
+        <Button title="Not now" variant="link" onPress={finish} />
+      </View>
+    );
   }
 
   return (
@@ -525,6 +571,18 @@ const listJoin = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0,
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  example: {
+    borderWidth: 1,
+    borderRadius: Radius.card,
+    padding: 14,
+    gap: 4,
+  },
+  exampleTitle: {
+    fontFamily: Fonts.bodyBold,
+  },
+  choices: {
+    gap: 6,
   },
   top: {
     width: '100%',

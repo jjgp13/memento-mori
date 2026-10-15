@@ -3,16 +3,20 @@ import 'expo-sqlite/localStorage/install';
 
 import { useSyncExternalStore } from 'react';
 
+import { DEFAULT_REMINDERS, type ReminderPrefs } from '@/lib/reminders';
+
 /** Small device-only settings, separate from the person's answers. */
 export type Prefs = {
   /** Tick-tock while the seconds count up in onboarding. On unless turned off. */
   tickOnboarding: boolean;
   /** Tick-tock with the Life screen countdown. Off unless turned on (CLAUDE.md). */
   tickLife: boolean;
+  /** Weekly local reminders (native only). Off until they say yes. */
+  reminders: ReminderPrefs;
 };
 
 const KEY = 'mm.prefs.v1';
-const DEFAULTS: Prefs = { tickOnboarding: true, tickLife: false };
+const DEFAULTS: Prefs = { tickOnboarding: true, tickLife: false, reminders: DEFAULT_REMINDERS };
 const listeners = new Set<() => void>();
 let current: Prefs = read();
 

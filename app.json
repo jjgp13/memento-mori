@@ -12,6 +12,8 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.jjgp13.mementomori",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#ECEEEA",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,12 +40,23 @@
         }
       ],
       "expo-sqlite",
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#8C6230",
+          "defaultChannel": "reminders"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true,
       "baseUrl": "/memento-mori"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

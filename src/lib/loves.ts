@@ -3,6 +3,7 @@
  * Ported from loveCount() in prototype/index.html.
  */
 import { YEAR_MS, WEEKS_PER_YEAR, ageAt, estimate, survival, type ModelInput } from '@/lib/model';
+import type { Slot } from '@/lib/reminders';
 
 export type Per = 'day' | 'week' | 'month' | 'year';
 export type Species = 'dog' | 'cat';
@@ -23,6 +24,8 @@ export type Love = {
   phone?: string;
   /** People: when they last talked or met, logged with "We talked" (most recent first, capped). */
   contacts?: number[];
+  /** People: "when will you reach out?", an if-then plan (docs/nudges.md §1a). Reminders fire then. */
+  plan?: Slot;
   addedAt: number;
 };
 
