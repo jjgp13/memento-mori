@@ -5,20 +5,30 @@ import { evidenceFor } from '@/lib/evidence';
 
 /**
  * "Source: Holt-Lunstad et al. 2015 ↗" under any claim. `of` is a habit, lever or evidence key
- * (see evidenceFor). Renders nothing if there's no source on file, so claims never link to the wrong paper.
+ * (see evidenceFor), or pass `source` directly. Renders nothing if there's no source on file, so claims
+ * never link to the wrong paper.
  */
-export function SourceLink({ of, prefix = 'Source' }: { of: string; prefix?: string }) {
-  const evidence = evidenceFor(of);
-  if (!evidence) return null;
+export function SourceLink({
+  of,
+  source,
+  prefix = 'Source',
+}: {
+  of?: string;
+  /** A source not in the ranked list (e.g. a behavior finding). */
+  source?: { label: string; url: string };
+  prefix?: string;
+}) {
+  const found = source ?? (of ? evidenceFor(of)?.source : undefined);
+  if (!found) return null;
 
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={`${prefix}: ${evidence.source.label}, opens in browser`}
-      onPress={() => Linking.openURL(evidence.source.url)}
+      accessibilityLabel={`${prefix}: ${found.label}, opens in browser`}
+      onPress={() => Linking.openURL(found.url)}
       hitSlop={6}>
       <ThemedText type="small" themeColor="accent" style={styles.link}>
-        {prefix}: {evidence.source.label} ↗
+        {prefix}: {found.label} ↗
       </ThemedText>
     </Pressable>
   );

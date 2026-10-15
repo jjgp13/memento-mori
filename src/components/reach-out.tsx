@@ -3,7 +3,9 @@ import { Linking, Share, StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
+import { SourceLink } from '@/components/source-link';
 import { dayOfYear } from '@/lib/daily';
+import { REACHING_OUT } from '@/lib/evidence';
 import { OPENERS, lastContact, sinceLabel, withContact, type Love } from '@/lib/loves';
 
 /** Opens their messages app with a gentle opener; without a number, the share sheet picks the app. */
@@ -32,6 +34,8 @@ export function ReachOut({ love, onChange }: { love: Love; onChange: (next: Love
       <ThemedText type="small">
         {last ? `Last time you talked or met: ${sinceLabel(last)}.` : 'Tap "We talked" after a call or visit to keep track.'}
       </ThemedText>
+      <ThemedText type="small">{REACHING_OUT.claim}</ThemedText>
+      <SourceLink source={REACHING_OUT.source} />
       <View style={styles.row}>
         <Button title="Message" variant="ghost" onPress={() => message(love, opener)} style={styles.flex} />
         {love.phone ? (

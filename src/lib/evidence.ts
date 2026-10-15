@@ -122,6 +122,12 @@ export const WHAT_MATTERS: Evidence[] = [
   },
 ];
 
+/** Behavior findings used in copy (see docs/nudges.md), not ranked as health factors. */
+export const REACHING_OUT = {
+  claim: 'People appreciate being reached out to more than we expect, especially after a while.',
+  source: { label: 'Liu et al., J Pers Soc Psychol 2023', url: 'https://www.apa.org/news/press/releases/2022/07/friends-enjoy-being-reached' },
+};
+
 /** Which evidence backs each habit, lever or claim, so every number in the app can link to its source. */
 const EVIDENCE_FOR: Record<string, string> = {
   smoke: 'smoking',
