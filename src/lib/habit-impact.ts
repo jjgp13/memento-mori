@@ -11,6 +11,7 @@ const BEST: { [K in HabitKey]: ModelInput[K] } = {
   bmi: 'normal',
   alcohol: 'moderate',
   sleep: 'ok',
+  connection: 'often',
 };
 
 const LEVER_LABEL: Record<HabitKey | 'steps', string> = {
@@ -19,8 +20,15 @@ const LEVER_LABEL: Record<HabitKey | 'steps', string> = {
   bmi: 'Reaching a healthy weight',
   alcohol: 'Drinking less',
   sleep: 'Sleeping 6–9 hours',
+  connection: 'Seeing the people you love every week',
   steps: 'Walking 10,000 steps a day',
 };
+
+/**
+ * Combined gains are capped: habit effects overlap, so stacking every multiplier overstates them. 14 years is
+ * the largest all-habits difference in Li et al. 2018 (women, 5 vs 0 healthy factors at 50).
+ */
+export const MAX_TOTAL_GAIN = 14;
 
 /** Changes smaller than this aren't worth a headline. */
 const MIN_LEVER_YEARS = 0.2;
@@ -37,13 +45,13 @@ export function habitsEffect(p: ModelInput, now = Date.now()) {
 
 export type Lever = { key: HabitKey | 'steps'; label: string; years: number };
 
-/** The one habit change with the biggest gain in median age, if it's worth mentioning. */
-export function bestLever(p: ModelInput, now = Date.now()): Lever | null {
+/** Each single habit change that would add time, biggest first (only those worth mentioning). */
+export function allLevers(p: ModelInput, now = Date.now()): Lever[] {
   const base = medianWith(p, now);
-  let best: Lever | null = null;
+  const levers: Lever[] = [];
   const consider = (key: Lever['key'], changed: ModelInput) => {
     const years = medianWith(changed, now) - base;
-    if (!best || years > best.years) best = { key, label: LEVER_LABEL[key], years };
+    if (years >= MIN_LEVER_YEARS) levers.push({ key, label: LEVER_LABEL[key], years });
   };
 
   for (const k of HABIT_KEYS) {
@@ -53,9 +61,27 @@ export function bestLever(p: ModelInput, now = Date.now()): Lever | null {
     }
     if (p[k] !== BEST[k]) consider(k, { ...p, [k]: BEST[k] });
   }
+  return levers.sort((x, y) => y.years - x.years);
+}
 
-  const found = best as Lever | null;
-  return found && found.years >= MIN_LEVER_YEARS ? found : null;
+/** The one habit change with the biggest gain in median age, if it's worth mentioning. */
+export function bestLever(p: ModelInput, now = Date.now()): Lever | null {
+  return allLevers(p, now)[0] ?? null;
+}
+
+/**
+ * Years all the changes together would likely add, capped at MAX_TOTAL_GAIN. Less than the sum of the
+ * single changes, since the model multiplies risks rather than adding years.
+ */
+export function combinedGain(p: ModelInput, now = Date.now()) {
+  const levers = allLevers(p, now);
+  if (!levers.length) return 0;
+  const best = { ...p };
+  for (const l of levers) {
+    if (l.key === 'steps') best.steps = 10000;
+    else Object.assign(best, { [l.key]: BEST[l.key] });
+  }
+  return Math.min(MAX_TOTAL_GAIN, medianWith(best, now) - medianWith(p, now));
 }
 
 /** The answer for each habit that carries no extra risk (hazard ratio 1). */
@@ -65,6 +91,7 @@ const NEUTRAL: { [K in HabitKey]: ModelInput[K] } = {
   bmi: 'normal',
   alcohol: 'none',
   sleep: 'ok',
+  connection: 'often',
 };
 
 export type HabitEffect = { key: HabitKey; label: string; answer: string; years: number };

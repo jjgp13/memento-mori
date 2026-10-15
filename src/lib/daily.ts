@@ -89,5 +89,5 @@ export function impactAgency(p: Profile, impact: Impact, now = Date.now()) {
   if (impact.back || impact.capped || !impact.rate) return null;
   const lever = bestLever(p, now);
   if (!lever) return null;
-  return { label: lever.label, years: lever.years, more: lever.years * impact.rate };
+  return { key: lever.key, label: lever.label, years: lever.years, more: lever.years * impact.rate };
 }

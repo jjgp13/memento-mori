@@ -37,10 +37,10 @@ A free app that estimates how much life a person likely has left and helps them 
 ## Model
 - Gompertz–Makeham hazard h(x) = (A + B·e^(b·x)) × habit multiplier, b = 0.085.
   - Male A=0.0012, B=6.0e-5 (~75 at birth). Female A=0.0007, B=4.2e-5 (~81 at birth). Approximation of US period life tables — replace with real SSA tables.
-- Habit hazard ratios: smoking former 1.3 / current 2.2; exercise rarely 1.3 / 3+×wk 0.85; BMI under 1.4 / over 1.05 / obese 1.35; heavy alcohol 1.4; sleep <6h 1.15.
+- Habit hazard ratios: smoking former 1.3 / current 2.2; exercise rarely 1.3 / 3+×wk 0.85; BMI under 1.4 / over 1.05 / obese 1.35; heavy alcohol 1.4; sleep <6h 1.15; connection (seeing close people) a few times a month 1.1 (interpolated) / rarely 1.29 (Holt-Lunstad 2015; model `gm-approx-2026.10b`).
 - Steps: HR = exp(−0.072 × (min(steps,10000) − 6000)/1000). Steps replace the exercise answer (never double count).
 - Shortcut: years gained ≈ ln(1/HR) ÷ 0.085.
-- Output: median, middle-50% range, P(reach 80). Cap total gains; associations are not causation.
+- Output: median, middle-50% range, P(reach 80). Combined gains capped at 14 years (`MAX_TOTAL_GAIN`, Li 2018); associations are not causation. Every claim in the UI links its source via `SourceLink` / `evidenceFor()` in `src/lib/evidence.ts`.
 
 ## Planned architecture
 - Client: React Native + Expo (iOS, Android, web from one codebase). Native modules later for HealthKit, Health Connect, home-screen widget, notifications. Android Studio only needed for emulator/widget work; test early builds with Expo Go on a phone.

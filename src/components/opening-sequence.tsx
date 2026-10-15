@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { CountUp } from '@/components/onboarding/count-up';
 import { Stagger } from '@/components/onboarding/stagger';
+import { SourceLink } from '@/components/source-link';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
@@ -46,6 +47,7 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
             </ThemedText>{' '}
             {impact.what}.
           </ThemedText>
+          <SourceLink of={agency.key} />
         </View>
       ) : null}
     </Stagger>,
@@ -147,6 +149,7 @@ const styles = StyleSheet.create({
   agency: {
     borderTopWidth: 1,
     paddingTop: 14,
+    gap: 6,
   },
   num: {
     fontFamily: Fonts.monoMedium,

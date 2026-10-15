@@ -7,7 +7,8 @@
  */
 
 /** Stored alongside any saved estimate so results can be traced to the model that produced them. */
-export const MODEL_VERSION = 'gm-approx-2026.10';
+export const MODEL_VERSION = 'gm-approx-2026.10b';
+// 2026.10b: adds social connection (Holt-Lunstad 2015). Everything else matches the prototype.
 
 export const GOMPERTZ_B = 0.085;
 
@@ -70,6 +71,21 @@ export const HABITS = {
     options: [
       { value: 'short', label: 'Under 6 hours', hr: 1.15 },
       { value: 'ok', label: '6–9 hours', hr: 1 },
+    ],
+  },
+  /**
+   * Holt-Lunstad et al. 2015 (70 studies, 3.4 M people): social isolation OR 1.29, loneliness 1.26, living
+   * alone 1.32. Odds ratios used as hazard ratios, an approximation. "A few times a month" (1.1) is an
+   * interpolation, not a measured level.
+   */
+  connection: {
+    question: 'How often do you spend time with people you are close to?',
+    short: 'Connection',
+    why: 'In person or a real conversation. Close relationships are one of the strongest predictors of a long life.',
+    options: [
+      { value: 'often', label: 'Every week', hr: 1 },
+      { value: 'sometimes', label: 'A few times a month', hr: 1.1 },
+      { value: 'rarely', label: 'Rarely; I often feel alone', hr: 1.29 },
     ],
   },
 } as const satisfies Record<string, { question: string; short: string; why: string; options: readonly Option<string>[] }>;

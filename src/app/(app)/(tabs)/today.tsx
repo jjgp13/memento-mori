@@ -4,17 +4,27 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
 import { ReachOut } from '@/components/reach-out';
+import { SourceLink } from '@/components/source-link';
 import { Screen } from '@/components/screen';
 import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { todaysQuestion, todaysQuote } from '@/lib/daily';
+import { allLevers } from '@/lib/habit-impact';
 import { fmt } from '@/lib/life-views';
 import { loveCount, whoToReachOut, type Love } from '@/lib/loves';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 
 const MONTH_MS = 30 * 864e5;
+
+/** For them specifically: what seeing people every week is worth in their estimate, or that they already do. */
+function connectionLine(profile: Profile, now: number) {
+  const lever = allLevers(profile, now).find((l) => l.key === 'connection');
+  if (lever) return `For you, seeing the people you love every week could add about ${lever.years.toFixed(1)} years.`;
+  if (profile.connection === 'often') return 'Seeing people every week is already part of your estimate. Keep it up.';
+  return '';
+}
 
 export default function TodayScreen() {
   const profile = useProfile();
@@ -68,6 +78,11 @@ function Today({ profile }: { profile: Profile }) {
               current pace. A message takes a minute.
             </ThemedText>
             <ReachOut key={person.id} love={person} onChange={setLove} />
+            <ThemedText type="small">
+              People who stay close to others live longer: isolation and loneliness are linked to about 26–32% higher
+              risk of dying early. {connectionLine(profile, now)}
+            </ThemedText>
+            <SourceLink of="connection" />
           </>
         ) : (
           <>

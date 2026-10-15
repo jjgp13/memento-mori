@@ -39,11 +39,11 @@ export const WHAT_MATTERS: Evidence[] = [
     key: 'relationships',
     title: 'Close relationships',
     strength: 'strong',
-    summary: 'Strong ties go with about 1.5× the odds of survival, on par with not smoking.',
+    summary: 'Isolation and loneliness are linked to about 26–32% higher risk of dying early, on par with smoking or obesity.',
     detail:
-      'Across 148 studies (308,849 people), people with stronger social relationships were more likely to survive. Loneliness is linked to about 30% higher risk of early death. In an 85-year Harvard study, relationship satisfaction at 50 predicted health at 80 better than cholesterol.',
-    source: { label: 'Holt-Lunstad et al., PLoS Medicine 2010', url: 'https://doaj.org/article/c9833ba608474b048444b92ae7ee48ad' },
-    inEstimate: false,
+      'Across 70 studies (3.4 million people), social isolation, loneliness and living alone each raised the odds of early death by about a quarter to a third. An earlier review of 148 studies found strong ties went with about 1.5× the odds of survival. In an 85-year Harvard study, relationship satisfaction at 50 predicted health at 80 better than cholesterol.',
+    source: { label: 'Holt-Lunstad et al., Perspectives on Psychological Science 2015', url: 'https://scholarsarchive.byu.edu/facpub/7516' },
+    inEstimate: true,
   },
   {
     key: 'diet',
@@ -122,10 +122,28 @@ export const WHAT_MATTERS: Evidence[] = [
   },
 ];
 
+/** Which evidence backs each habit, lever or claim, so every number in the app can link to its source. */
+const EVIDENCE_FOR: Record<string, string> = {
+  smoke: 'smoking',
+  exercise: 'moving',
+  steps: 'moving',
+  bmi: 'weight',
+  alcohol: 'alcohol',
+  sleep: 'sleep',
+  connection: 'relationships',
+  phone: 'scrolling',
+};
+
+export function evidenceFor(key: string): Evidence | undefined {
+  const k = EVIDENCE_FOR[key] ?? key;
+  return WHAT_MATTERS.find((e) => e.key === k);
+}
+
 export const HOW_IT_WORKS = [
   'Everyone’s yearly risk of dying rises with age, roughly doubling every 8 years. We start from that curve for your sex, an approximation of US life tables.',
-  'Your habits multiply that risk: smoking ×2.2, exercising 3+ times a week ×0.85, under 6 hours of sleep ×1.15, and so on.',
+  'Your habits multiply that risk: smoking ×2.2, exercising 3+ times a week ×0.85, under 6 hours of sleep ×1.15, rarely seeing people you are close to ×1.29, and so on.',
   'We follow that risk month by month from your age today. The age by which half of people like you have died is your median; the 25% and 75% marks give your range.',
   'Rule of thumb: years ≈ ln(risk multiplier) ÷ 0.085. That is why doubling your risk costs about 8 years, and why quitting smoking can give back about 9.',
+  'Several changes together add less than their sum, and we cap the total at 14 years, the largest all-habits difference found in a major US study.',
   'These are associations from population studies, not causes, and not medical advice.',
 ];

@@ -7,12 +7,13 @@ import { LifeGrid } from '@/components/life-grid';
 import { RichText } from '@/components/rich-text';
 import { Screen } from '@/components/screen';
 import { Segmented } from '@/components/segmented';
+import { SourceLink } from '@/components/source-link';
 import { Stepper } from '@/components/stepper';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { bestLever, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
+import { MAX_TOTAL_GAIN, allLevers, combinedGain, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
 import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
 import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, type ModelInput } from '@/lib/model';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
@@ -32,8 +33,9 @@ function Life({ profile }: { profile: Profile }) {
   const now = useNow(60_000);
   const est = estimate(profile, now);
   const age = ageAt(profile.dob, now);
-  const lever = bestLever(profile, now);
-  const view = lifeView(zoom, profile.dob, est, now, lever?.years ?? 0);
+  const levers = allLevers(profile, now);
+  const gain = combinedGain(profile, now);
+  const view = lifeView(zoom, profile.dob, est, now, gain);
   // The median is found in monthly steps from the current age, so re-estimating every tick would
   // pin "time left" to a constant. Anchor it to when the screen opened so the clock really counts down.
   const [anchor] = useState(() => Date.now());
@@ -60,7 +62,7 @@ function Life({ profile }: { profile: Profile }) {
         </ThemedText>
       </View>
 
-      <HabitsCard profile={profile} now={now} lever={lever} />
+      <HabitsCard profile={profile} now={now} levers={levers} gain={gain} />
       <PhoneCard profile={profile} now={now} />
 
       <View>
@@ -79,7 +81,7 @@ function Life({ profile }: { profile: Profile }) {
       </View>
 
       <RichText style={styles.caption} parts={view.caption} />
-      <Legend lever={lever} />
+      <Legend reach={gain > 0} />
 
       <ThemedText type="small">
         Estimates come from population averages and broad risk ratios. They show direction and rough size, not a
@@ -108,13 +110,13 @@ function Clock({ end }: { end: number }) {
   );
 }
 
-function Legend({ lever }: { lever: Lever | null }) {
+function Legend({ reach }: { reach: boolean }) {
   const theme = useTheme();
   const items = [
     { label: 'Lived', fill: theme.lived },
     { label: 'Now', fill: theme.accent },
     { label: 'Likely ahead', stroke: theme.remain },
-    ...(lever ? [{ label: 'Within reach', fill: theme.accentSoft, stroke: theme.accent }] : []),
+    ...(reach ? [{ label: 'Within reach', fill: theme.accentSoft, stroke: theme.accent }] : []),
     { label: 'If fortune allows', stroke: theme.remain, dashed: true },
   ];
 
@@ -164,9 +166,11 @@ function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
           />
           {hours >= SWAP_HOURS ? (
             <ThemedText type="small">
-              Half an hour less a day could become {swapSuggestion(profile, profile.loves ?? [], now)}.
+              Half an hour less a day could become {swapSuggestion(profile, profile.loves ?? [], now)}. In experiments,
+              cutting back on social media meant more time with family and friends and less loneliness.
             </ThemedText>
           ) : null}
+          <SourceLink of="phone" />
         </>
       ) : (
         <ThemedText>How many hours a day are you on your phone? Your Screen Time or Digital Wellbeing settings show the daily average.</ThemedText>
@@ -183,8 +187,11 @@ function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
   );
 }
 
-/** What the person's habits do to the estimate, and the one change that would help most. */
-function HabitsCard({ profile, now, lever }: { profile: ModelInput; now: number; lever: Lever | null }) {
+/**
+ * What the person's habits do to the estimate, and every change within reach, each linked to its study.
+ * The combined gain is what the bronze circles on the calendar show.
+ */
+function HabitsCard({ profile, now, levers, gain }: { profile: ModelInput; now: number; levers: Lever[]; gain: number }) {
   const theme = useTheme();
   const total = habitsEffect(profile, now);
   const items = habitBreakdown(profile, now);
@@ -208,25 +215,50 @@ function HabitsCard({ profile, now, lever }: { profile: ModelInput; now: number;
       />
       {items.map((it) => (
         <View key={it.key} style={styles.habitRow}>
-          <ThemedText type="small" style={styles.flex}>
-            {it.label} · {it.answer}
-          </ThemedText>
+          <View style={styles.flex}>
+            <ThemedText type="small">
+              {it.label} · {it.answer}
+            </ThemedText>
+            <SourceLink of={it.key} prefix="Why" />
+          </View>
           <ThemedText type="mono" themeColor={it.years > 0 ? 'accent' : 'muted'}>
             {signed(it.years)} yrs
           </ThemedText>
         </View>
       ))}
-      {lever ? (
+
+      {levers.length ? (
         <View style={[styles.lever, { borderTopColor: theme.line }]}>
+          <ThemedText type="eyebrow" themeColor="muted">
+            Within reach
+          </ThemedText>
+          {levers.map((l) => (
+            <View key={l.key} style={styles.habitRow}>
+              <View style={styles.flex}>
+                <ThemedText>{l.label}</ThemedText>
+                <ThemedText type="small">about {fmt(l.years * WEEKS_PER_YEAR)} more weekends</ThemedText>
+                <SourceLink of={l.key} />
+              </View>
+              <ThemedText type="mono" themeColor="accent">
+                {signed(l.years)} yrs
+              </ThemedText>
+            </View>
+          ))}
           <RichText
             parts={[
-              { text: `${lever.label} could add about ` },
-              { text: `${lever.years.toFixed(1)} years`, strong: true },
-              { text: `, roughly ${fmt(lever.years * WEEKS_PER_YEAR)} more weekends. They're the bronze circles below.` },
+              { text: levers.length > 1 ? 'Together, about ' : 'That is about ' },
+              { text: `${gain.toFixed(1)} more years`, strong: true },
+              {
+                text: `${gain >= MAX_TOTAL_GAIN ? ' (capped: habit effects overlap)' : ''}. They are the bronze circles below.`,
+              },
             ]}
           />
         </View>
-      ) : null}
+      ) : (
+        <ThemedText type="small">
+          You are already doing the things that add the most time. Keep them, and keep your people close.
+        </ThemedText>
+      )}
     </View>
   );
 }
@@ -284,7 +316,8 @@ const styles = StyleSheet.create({
   },
   lever: {
     borderTopWidth: 1,
-    paddingTop: 10,
+    paddingTop: 12,
     marginTop: 4,
+    gap: 10,
   },
 });

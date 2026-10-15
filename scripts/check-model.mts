@@ -25,7 +25,8 @@ for (const sex of ['m', 'f'] as const)
           for (const alcohol of values('alcohol'))
             for (const sleep of values('sleep'))
               for (const steps of [undefined, 3000, 8000, 12000]) {
-                const p = { sex, dob, smoke, exercise, bmi, alcohol, sleep, steps } as M.ModelInput;
+                // The prototype has no connection factor; 'often' (×1) keeps the two comparable.
+                const p = { sex, dob, smoke, exercise, bmi, alcohol, sleep, connection: 'often', steps } as M.ModelInput;
                 const t = Date.now();
                 const a = M.estimate(p, t);
                 const b = proto.est(p);

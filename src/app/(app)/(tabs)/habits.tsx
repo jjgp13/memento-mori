@@ -4,6 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
+import { SourceLink } from '@/components/source-link';
 import { Stepper } from '@/components/stepper';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
@@ -103,7 +104,10 @@ function Factor({
   const age = ageAt(profile.dob, now);
   return (
     <View style={[styles.factor, { borderBottomColor: theme.line }]}>
-      <ThemedText type="heading">{h.short.toUpperCase()}</ThemedText>
+      <View style={styles.rowBetween}>
+        <ThemedText type="heading">{h.short.toUpperCase()}</ThemedText>
+        <SourceLink of={habit} prefix="Why" />
+      </View>
       <View style={styles.options}>
         {options.map((o) => {
           const on = profile[habit] === o.value;
@@ -168,6 +172,7 @@ function Steps({ profile, onChange }: { profile: Profile; onChange: (patch: Part
             </ThemedText>
           </ThemedText>
           <ThemedText type="mono">4 · Replaces your exercise answer; benefit levels off at 10,000.</ThemedText>
+          <SourceLink of="steps" />
           <Button title="Use my exercise answer instead" variant="link" onPress={() => onChange({ steps: undefined })} />
         </View>
       ) : (

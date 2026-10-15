@@ -18,6 +18,7 @@ import { DatePicker } from '@/components/date-picker';
 import { CountUp } from '@/components/onboarding/count-up';
 import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Stagger } from '@/components/onboarding/stagger';
+import { SourceLink } from '@/components/source-link';
 import { Stepper } from '@/components/stepper';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -237,6 +238,7 @@ export default function OnboardingScreen() {
         {h.why}
       </ThemedText>,
       <Choices key="c" options={h.options} value={draft[k]} onChange={(v) => answerAndAdvance({ [k]: v })} />,
+      <SourceLink key="s" of={k} prefix="The science" />,
     ];
   } else if (step === 'phone') {
     const hours = draft.phoneHours ?? DEFAULT_PHONE_HOURS;
@@ -506,6 +508,7 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
           </>
         ) : null}
       </ThemedText>
+      {lever ? <SourceLink of={lever.key} /> : null}
     </View>,
   );
 
