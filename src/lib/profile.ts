@@ -17,6 +17,8 @@ export type Profile = ModelInput & {
   values?: ValueKey[];
   /** People and activities they love. */
   loves?: Love[];
+  /** Average hours a day on their phone, self-reported (from Screen Time / Digital Wellbeing) for now. */
+  phoneHours?: number;
 };
 
 const KEY = 'mm.profile.v1';

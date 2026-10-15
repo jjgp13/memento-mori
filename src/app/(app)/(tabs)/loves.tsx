@@ -6,6 +6,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { Button } from '@/components/button';
 import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Screen } from '@/components/screen';
+import { ReachOut } from '@/components/reach-out';
 import { Segmented } from '@/components/segmented';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
@@ -52,6 +53,7 @@ function Loves({ profile }: { profile: Profile }) {
               now={now}
               yearsLeft={yearsLeft}
               onRemove={() => setLoves(loves.filter((x) => x.id !== l.id))}
+              onChange={(next) => setLoves(loves.map((x) => (x.id === next.id ? next : x)))}
             />
           ))}
         </View>
@@ -75,6 +77,7 @@ function LoveCard({
   now,
   yearsLeft,
   onRemove,
+  onChange,
 }: {
   love: Love;
   index: number;
@@ -82,6 +85,7 @@ function LoveCard({
   now: number;
   yearsLeft: number;
   onRemove: () => void;
+  onChange: (next: Love) => void;
 }) {
   const theme = useTheme();
   const { times, years } = loveCount(love, profile, now);
@@ -92,16 +96,19 @@ function LoveCard({
       entering={FadeInDown.delay(index * 70).duration(500)}
       exiting={FadeOut.duration(200)}
       layout={LinearTransition}
-      accessible
-      accessibilityLabel={`About ${fmt(times)} ${label}. ${loveCountReason(love)}.`}
       style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-      <Ring fraction={Math.min(1, years / yearsLeft)} />
-      <View style={styles.text}>
-        <ThemedText style={styles.n}>{fmt(times)}</ThemedText>
-        <ThemedText>{label}</ThemedText>
-        <ThemedText type="small">{loveCountReason(love)}</ThemedText>
+      <View style={styles.top}>
+        <View accessible accessibilityLabel={`About ${fmt(times)} ${label}. ${loveCountReason(love)}.`} style={styles.top}>
+          <Ring fraction={Math.min(1, years / yearsLeft)} />
+          <View style={styles.text}>
+            <ThemedText style={styles.n}>{fmt(times)}</ThemedText>
+            <ThemedText>{label}</ThemedText>
+            <ThemedText type="small">{loveCountReason(love)}</ThemedText>
+          </View>
+        </View>
+        <Button title="Remove" variant="link" accessibilityLabel={`Remove ${love.name}`} onPress={onRemove} />
       </View>
-      <Button title="Remove" variant="link" accessibilityLabel={`Remove ${love.name}`} onPress={onRemove} />
+      {love.kind === 'person' ? <ReachOut love={love} onChange={onChange} /> : null}
     </Animated.View>
   );
 }
@@ -132,12 +139,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
+    gap: 12,
     borderWidth: 1,
     borderRadius: Radius.card,
     padding: 16,
+  },
+  top: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
   },
   text: {
     flex: 1,

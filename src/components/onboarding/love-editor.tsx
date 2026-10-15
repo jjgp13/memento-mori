@@ -45,6 +45,7 @@ type Form = {
   per: Per;
   until: string;
   theirAge: string;
+  phone: string;
 };
 
 /**
@@ -74,6 +75,7 @@ export function LoveEditor({
     per: 'month',
     until: '',
     theirAge: '',
+    phone: '',
   };
   const [form, setForm] = useState<Form>(empty);
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
@@ -96,6 +98,7 @@ export function LoveEditor({
       until: form.kind === 'activity' ? toNumber(form.until) : undefined,
       theirAge: form.kind === 'activity' ? undefined : toNumber(form.theirAge),
       species: pet ? form.species : undefined,
+      phone: form.kind === 'person' && form.phone.trim() ? form.phone.trim() : undefined,
       addedAt: Date.now(),
     };
     onChange([...loves, love]);
@@ -120,6 +123,7 @@ export function LoveEditor({
                   per: s.per,
                   until: s.until ? String(s.until) : '',
                   theirAge: s.theirAge ? String(s.theirAge) : '',
+                  phone: '',
                 })
               }
               style={[styles.chip, { backgroundColor: theme.surface, borderColor: theme.line }]}>
@@ -184,6 +188,18 @@ export function LoveEditor({
           }}
           style={{ backgroundColor: theme.bg }}
         />
+
+        {form.kind === 'person' ? (
+          <TextField
+            accessibilityLabel="Phone (optional)"
+            placeholder="Phone (optional, for Call and Message)"
+            keyboardType="phone-pad"
+            autoComplete="tel"
+            value={form.phone}
+            onChangeText={(phone) => set({ phone })}
+            style={{ backgroundColor: theme.bg }}
+          />
+        ) : null}
 
         <Button title="Add" variant="ghost" disabled={!form.name.trim()} onPress={add} />
       </View>

@@ -18,6 +18,7 @@ import { DatePicker } from '@/components/date-picker';
 import { CountUp } from '@/components/onboarding/count-up';
 import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Stagger } from '@/components/onboarding/stagger';
+import { Stepper } from '@/components/stepper';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
@@ -40,13 +41,37 @@ import {
   type Sex,
 } from '@/lib/model';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
+import { shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 import { MAX_VALUES, VALUES, type ValueKey } from '@/lib/values';
 
-type StepKey = 'welcome' | 'name' | 'dob' | 'sex' | HabitKey | 'values' | 'people' | 'activities' | 'compute' | 'reveal';
+type StepKey =
+  | 'welcome'
+  | 'name'
+  | 'dob'
+  | 'sex'
+  | HabitKey
+  | 'phone'
+  | 'values'
+  | 'people'
+  | 'activities'
+  | 'compute'
+  | 'reveal';
 
-const FIRST_RUN: StepKey[] = ['welcome', 'name', 'dob', 'sex', ...HABIT_KEYS, 'values', 'people', 'activities', 'compute', 'reveal'];
+const FIRST_RUN: StepKey[] = [
+  'welcome',
+  'name',
+  'dob',
+  'sex',
+  ...HABIT_KEYS,
+  'phone',
+  'values',
+  'people',
+  'activities',
+  'compute',
+  'reveal',
+];
 /** Editing skips the welcome and the reveal, and saves after the last question. */
-const EDIT: StepKey[] = ['name', 'dob', 'sex', ...HABIT_KEYS, 'values', 'people', 'activities'];
+const EDIT: StepKey[] = ['name', 'dob', 'sex', ...HABIT_KEYS, 'phone', 'values', 'people', 'activities'];
 
 type Draft = Partial<Profile> & { name: string; dob: string; values: ValueKey[]; loves: Love[] };
 
@@ -56,6 +81,8 @@ const SEX_OPTIONS = [
 ] as const;
 
 const ease = Easing.bezier(0.2, 0.7, 0.2, 1);
+/** Starting point for the phone question: roughly the US adult average. */
+const DEFAULT_PHONE_HOURS = 4;
 
 /** Model inputs once every answer the model needs is in. */
 function modelInput(d: Draft): ModelInput | null {
@@ -211,6 +238,54 @@ export default function OnboardingScreen() {
       </ThemedText>,
       <Choices key="c" options={h.options} value={draft[k]} onChange={(v) => answerAndAdvance({ [k]: v })} />,
     ];
+  } else if (step === 'phone') {
+    const hours = draft.phoneHours ?? DEFAULT_PHONE_HOURS;
+    const where =
+      Platform.OS === 'ios'
+        ? 'Your iPhone already knows: Settings → Screen Time → See All App & Website Activity. Use the daily average.'
+        : Platform.OS === 'android'
+          ? 'Your phone already knows: Settings → Digital Wellbeing. Use the daily average.'
+          : 'Your phone already knows. iPhone: Settings → Screen Time. Android: Settings → Digital Wellbeing. Use the daily average.';
+    body = [
+      <ThemedText key="e" type="eyebrow">
+        {number} · Your time
+      </ThemedText>,
+      <ThemedText key="t" type="subtitle">
+        How many hours a day are you on your phone?
+      </ThemedText>,
+      <ThemedText key="w" type="small" style={styles.why}>
+        {where}
+      </ThemedText>,
+      <Stepper
+        key="s"
+        value={hours}
+        onChange={(phoneHours) => set({ phoneHours })}
+        step={0.5}
+        min={0}
+        max={16}
+        format={(v) => `${v} h`}
+        accessibilityLabel="Hours a day on your phone"
+      />,
+      me ? (
+        <ThemedText key="i">
+          Over the time you likely have left, that is about{' '}
+          <ThemedText themeColor="accent" style={styles.num}>
+            {yearsOfHours(hours, yearsLeft(me)).toFixed(1)} years
+          </ThemedText>
+          , {shareOfWaking(hours)} of your waking hours.
+        </ThemedText>
+      ) : null,
+    ];
+    footer = (
+      <Button
+        title="Continue"
+        onPress={() => {
+          if (draft.phoneHours == null) set({ phoneHours: hours });
+          if (editing && index === steps.length - 1) finish();
+          else next();
+        }}
+      />
+    );
   } else if (step === 'values') {
     const full = draft.values.length >= MAX_VALUES;
     body = [
@@ -390,6 +465,18 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
           {fmt(loveCount(person, me, now).times)}
         </ThemedText>{' '}
         {loveCountLabel(person)}.
+      </ThemedText>,
+    );
+  }
+
+  if (draft.phoneHours) {
+    lines.push(
+      <ThemedText key="ph">
+        Your phone takes about{' '}
+        <ThemedText themeColor="accent" style={styles.num}>
+          {yearsOfHours(draft.phoneHours, est.med - age).toFixed(1)} years
+        </ThemedText>{' '}
+        of that. Half an hour less a day could become {swapSuggestion(me, draft.loves, now)}.
       </ThemedText>,
     );
   }

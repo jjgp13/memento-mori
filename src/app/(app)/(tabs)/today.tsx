@@ -1,14 +1,115 @@
-import { Placeholder } from '@/components/placeholder';
+import { router } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
+import { Button } from '@/components/button';
+import { ReachOut } from '@/components/reach-out';
 import { Screen } from '@/components/screen';
+import { ThemedText } from '@/components/themed-text';
+import { Radius } from '@/constants/theme';
+import { useNow } from '@/hooks/use-now';
+import { useTheme } from '@/hooks/use-theme';
+import { todaysQuestion, todaysQuote } from '@/lib/daily';
+import { fmt } from '@/lib/life-views';
+import { loveCount, whoToReachOut, type Love } from '@/lib/loves';
+import { saveProfile, useProfile, type Profile } from '@/lib/profile';
+
+const MONTH_MS = 30 * 864e5;
 
 export default function TodayScreen() {
+  const profile = useProfile();
+  return <Screen>{profile ? <Today profile={profile} /> : null}</Screen>;
+}
+
+function Today({ profile }: { profile: Profile }) {
+  const theme = useTheme();
+  const now = useNow(60_000);
+  const quote = todaysQuote(now);
+  const loves = profile.loves ?? [];
+  const person = whoToReachOut(loves);
+  const setLove = (next: Love) => saveProfile({ ...profile, loves: loves.map((l) => (l.id === next.id ? next : l)) });
+  const peopleThisMonth = loves.filter((l) => l.kind === 'person' && (l.contacts ?? []).some((t) => now - t < MONTH_MS)).length;
+
+  const enter = (i: number) => FadeInDown.delay(150 + i * 250).duration(700);
+
   return (
-    <Screen>
-      <Placeholder
-        eyebrow="Today"
-        title="Quote, question, review"
-        body="Port from the prototype: the daily Stoic quote and question, and the evening-review journal (entries encrypted before they reach Supabase)."
-      />
-    </Screen>
+    <>
+      <Animated.View entering={enter(0)}>
+        <ThemedText type="eyebrow">
+          {new Date(now).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+        </ThemedText>
+      </Animated.View>
+
+      <Animated.View entering={enter(1)} style={[styles.quote, { borderLeftColor: theme.accent }]}>
+        <ThemedText type="quote">{quote.text}</ThemedText>
+        <ThemedText type="eyebrow" themeColor="muted">
+          {quote.source}
+        </ThemedText>
+      </Animated.View>
+
+      <Animated.View entering={enter(2)}>
+        <ThemedText type="subtitle" style={styles.question}>
+          {todaysQuestion(now)}
+        </ThemedText>
+      </Animated.View>
+
+      <Animated.View entering={enter(3)} style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+        <ThemedText type="eyebrow" themeColor="muted">
+          Reach out today
+        </ThemedText>
+        {person ? (
+          <>
+            <ThemedText type="subtitle" style={styles.name}>
+              {person.name}
+            </ThemedText>
+            <ThemedText>
+              About{' '}
+              <ThemedText themeColor="accent">{fmt(loveCount(person, profile, now).times)}</ThemedText> more visits at your
+              current pace. A message takes a minute.
+            </ThemedText>
+            <ReachOut key={person.id} love={person} onChange={setLove} />
+          </>
+        ) : (
+          <>
+            <ThemedText>
+              Close relationships are one of the strongest predictors of a long, healthy life. Who would you like to see
+              more of?
+            </ThemedText>
+            <Button title="Add someone who loves you" variant="ghost" onPress={() => router.push('/loves')} />
+          </>
+        )}
+      </Animated.View>
+
+      {person ? (
+        <Animated.View entering={enter(4)}>
+          <ThemedText type="small">
+            {peopleThisMonth === 0
+              ? 'No calls or visits logged in the last 30 days yet.'
+              : `In the last 30 days you talked with or saw ${peopleThisMonth} of the people you love.`}
+          </ThemedText>
+        </Animated.View>
+      ) : null}
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  quote: {
+    borderLeftWidth: 2,
+    paddingLeft: 18,
+    gap: 12,
+  },
+  question: {
+    fontSize: 21,
+    lineHeight: 28,
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: Radius.card,
+    padding: 16,
+    gap: 10,
+  },
+  name: {
+    fontSize: 22,
+  },
+});

@@ -7,6 +7,7 @@ import { LifeGrid } from '@/components/life-grid';
 import { RichText } from '@/components/rich-text';
 import { Screen } from '@/components/screen';
 import { Segmented } from '@/components/segmented';
+import { Stepper } from '@/components/stepper';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
@@ -14,7 +15,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { bestLever, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
 import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
 import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, type ModelInput } from '@/lib/model';
-import { useProfile, type Profile } from '@/lib/profile';
+import { saveProfile, useProfile, type Profile } from '@/lib/profile';
+import { SWAP_HOURS, shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 
 export default function LifeScreen() {
   const profile = useProfile();
@@ -59,6 +61,7 @@ function Life({ profile }: { profile: Profile }) {
       </View>
 
       <HabitsCard profile={profile} now={now} lever={lever} />
+      <PhoneCard profile={profile} now={now} />
 
       <View>
         <ThemedText type="eyebrow" themeColor="muted">
@@ -135,6 +138,47 @@ function Legend({ lever }: { lever: Lever | null }) {
           </ThemedText>
         </View>
       ))}
+    </View>
+  );
+}
+
+/** Daily phone time in time-left terms, and what half an hour of it could become. */
+function PhoneCard({ profile, now }: { profile: Profile; now: number }) {
+  const theme = useTheme();
+  const hours = profile.phoneHours;
+  const left = yearsLeft(profile, now);
+
+  return (
+    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+      <ThemedText type="eyebrow" themeColor="muted">
+        Your phone
+      </ThemedText>
+      {hours != null ? (
+        <>
+          <RichText
+            parts={[
+              { text: `${hours} hours a day is about ` },
+              { text: `${yearsOfHours(hours, left).toFixed(1)} years`, strong: true },
+              { text: ` of the time you likely have left: ${shareOfWaking(hours)} of your waking hours.` },
+            ]}
+          />
+          {hours >= SWAP_HOURS ? (
+            <ThemedText type="small">
+              Half an hour less a day could become {swapSuggestion(profile, profile.loves ?? [], now)}.
+            </ThemedText>
+          ) : null}
+        </>
+      ) : (
+        <ThemedText>How many hours a day are you on your phone? Your Screen Time or Digital Wellbeing settings show the daily average.</ThemedText>
+      )}
+      <Stepper
+        value={hours ?? 4}
+        onChange={(phoneHours) => saveProfile({ ...profile, phoneHours })}
+        step={0.5}
+        max={16}
+        format={(v) => `${v} h`}
+        accessibilityLabel="Hours a day on your phone"
+      />
     </View>
   );
 }

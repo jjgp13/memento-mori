@@ -19,6 +19,10 @@ export type Love = {
   /** People and pets: their age when added; it advances from `addedAt`. */
   theirAge?: number;
   species?: Species;
+  /** People: optional, for the Call and Message buttons. Stays on the device. */
+  phone?: string;
+  /** People: when they last talked or met, logged with "We talked" (most recent first, capped). */
+  contacts?: number[];
   addedAt: number;
 };
 
@@ -99,3 +103,41 @@ export function loveCountLabel(love: Love) {
   if (love.kind === 'activity') return `more times: ${love.name.toLowerCase()}`;
   return `more ${loveUnit(love)} with ${love.name}`;
 }
+
+/** Most contact moments kept per person; enough for "last time" and a monthly tally. */
+const MAX_CONTACTS = 60;
+
+/** Logs "we talked / we met" now. */
+export function withContact(love: Love, at = Date.now()): Love {
+  return { ...love, contacts: [at, ...(love.contacts ?? [])].slice(0, MAX_CONTACTS) };
+}
+
+export const lastContact = (love: Love) => love.contacts?.[0] ?? null;
+
+/** "today", "yesterday", "12 days ago", "3 months ago" */
+export function sinceLabel(at: number, now = Date.now()) {
+  const days = Math.floor((now - at) / 864e5);
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 60) return `${days} days ago`;
+  return `${Math.round(days / 30.4)} months ago`;
+}
+
+/**
+ * The person most worth reaching out to: never logged first (oldest added), then the longest since
+ * last contact. Pets and activities aren't people you message.
+ */
+export function whoToReachOut(loves: Love[]): Love | null {
+  const people = loves.filter((l) => l.kind === 'person');
+  if (!people.length) return null;
+  return [...people].sort((a, b) => (lastContact(a) ?? a.addedAt - 1e13) - (lastContact(b) ?? b.addedAt - 1e13))[0];
+}
+
+/** Gentle openers for the Message button, rotated by day. */
+export const OPENERS = [
+  'Thinking of you. Free for dinner this week?',
+  "Hey! It's been too long. Call this weekend?",
+  'Just wanted to say I love you.',
+  'Remembered something funny about us today. When can we catch up?',
+  "Let's not let another month go by. Coffee soon?",
+];
