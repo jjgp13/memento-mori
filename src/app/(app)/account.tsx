@@ -7,91 +7,81 @@ import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { SIGN_IN_METHODS, linkGoogle, signOut } from '@/lib/auth';
+import { signOut } from '@/lib/auth';
+import { clearProfile } from '@/lib/profile';
 import { useAuth } from '@/providers/auth-provider';
 
-export default function AccountScreen() {
+/**
+ * "You": the person's answers and data. The app is local-first, so there is no account to manage
+ * unless they signed in earlier (guest sessions from the first test round).
+ */
+export default function YouScreen() {
   const theme = useTheme();
   const { session } = useAuth();
-  const [busy, setBusy] = useState<'link' | 'signout' | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const user = session?.user;
-  const provider = user?.app_metadata.provider;
-
-  async function run(kind: 'link' | 'signout', action: () => Promise<void>) {
-    setBusy(kind);
+  async function deleteEverything() {
     setError(null);
     try {
-      // After sign-out the root guard swaps to sign-in; after linking, the session refreshes.
-      await action();
+      if (session) await signOut();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong. Try again.');
-    } finally {
-      setBusy(null);
+      setError(e instanceof Error ? e.message : 'Could not sign out.');
+      return;
     }
+    // With no answers left, the app guard sends them back to onboarding.
+    clearProfile();
   }
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.head}>
-          <ThemedText type="eyebrow">Account</ThemedText>
+          <ThemedText type="eyebrow">You</ThemedText>
           <Button title="Done" variant="link" onPress={() => router.back()} />
         </View>
 
-        {user ? (
-          <>
-            {user.is_anonymous ? (
-              <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-                <ThemedText type="heading">GUEST</ThemedText>
-                <ThemedText type="small">
-                  This guest account lives in this browser. Signing out or clearing site data ends it for good.
-                  {SIGN_IN_METHODS.google ? ' Link Google to keep it and use it on other devices.' : ''}
-                </ThemedText>
-              </View>
-            ) : (
-              <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-                <ThemedText type="heading">SIGNED IN AS</ThemedText>
-                <ThemedText>{user.email ?? 'Unknown'}</ThemedText>
-                {provider ? <ThemedText type="small">via {provider}</ThemedText> : null}
-              </View>
-            )}
+        <Button
+          title="Edit your answers"
+          variant="ghost"
+          onPress={() => router.push({ pathname: '/onboarding', params: { edit: '1' } })}
+        />
 
-            {user.is_anonymous && SIGN_IN_METHODS.google ? (
-              <Button
-                title="Link Google"
-                loading={busy === 'link'}
-                disabled={busy !== null && busy !== 'link'}
-                onPress={() => run('link', linkGoogle)}
-              />
-            ) : null}
-            <Button
-              title={user.is_anonymous ? 'Leave guest account' : 'Sign out'}
-              variant="ghost"
-              loading={busy === 'signout'}
-              disabled={busy !== null && busy !== 'signout'}
-              onPress={() => run('signout', signOut)}
-            />
-            {error ? (
-              <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
-                {error}
-              </ThemedText>
-            ) : null}
-          </>
-        ) : (
-          <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-            <ThemedText type="heading">NOT SIGNED IN</ThemedText>
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <ThemedText type="heading">YOUR DATA</ThemedText>
+          <ThemedText type="small" themeColor="fg">
+            Everything you enter stays on this device. There is no account, no ads and no tracking. Your estimate is
+            worked out right here, on your phone or in your browser.
+          </ThemedText>
+          {session ? (
             <ThemedText type="small">
-              Sign-in is off until Supabase is configured. Nothing you do here is saved to an account yet.
+              You also have a {session.user.is_anonymous ? 'guest account' : 'signed-in account'} from an earlier test.
+              It holds nothing but an empty profile; deleting below signs it out.
             </ThemedText>
-          </View>
-        )}
+          ) : null}
+        </View>
 
-        <Button title="Edit your details" variant="ghost" onPress={() => router.push({ pathname: '/onboarding', params: { edit: '1' } })} />
+        {confirming ? (
+          <View style={styles.confirm}>
+            <ThemedText type="small" themeColor="fg">
+              This erases your answers, the people and things you love, and everything else on this device. It
+              can&apos;t be undone.
+            </ThemedText>
+            <Button title="Yes, delete everything" onPress={deleteEverything} style={{ backgroundColor: theme.danger }} />
+            <Button title="Keep my data" variant="link" onPress={() => setConfirming(false)} />
+          </View>
+        ) : (
+          <Button title="Delete everything on this device" variant="ghost" onPress={() => setConfirming(true)} />
+        )}
+        {error ? (
+          <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
+            {error}
+          </ThemedText>
+        ) : null}
 
         <ThemedText type="small">
-          Data export and account deletion will live here (GDPR / CCPA / Washington My Health My Data Act).
+          Estimates come from population studies. They show direction and rough size, not a promise, and are not
+          medical advice.
         </ThemedText>
       </ScrollView>
     </SafeAreaView>
@@ -118,6 +108,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: Radius.card,
     padding: 16,
-    gap: 6,
+    gap: 8,
+  },
+  confirm: {
+    gap: 10,
   },
 });

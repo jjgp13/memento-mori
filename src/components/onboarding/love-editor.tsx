@@ -14,38 +14,72 @@ import {
   PERSON_SUGGESTIONS,
   PER_LABEL,
   loveCount,
+  loveUnit,
   type Love,
   type Per,
+  type Species,
 } from '@/lib/loves';
 import type { ModelInput } from '@/lib/model';
 
 const PERS: { key: Per; label: string }[] = [
+  { key: 'day', label: 'a day' },
   { key: 'week', label: 'a week' },
   { key: 'month', label: 'a month' },
   { key: 'year', label: 'a year' },
 ];
 
-type Form = { name: string; count: number; per: Per; until: string; theirAge: string };
-const EMPTY: Form = { name: '', count: 1, per: 'month', until: '', theirAge: '' };
+const WHO_KINDS: { key: 'person' | 'pet'; label: string }[] = [
+  { key: 'person', label: 'Person' },
+  { key: 'pet', label: 'Pet' },
+];
+const SPECIES: { key: Species; label: string }[] = [
+  { key: 'dog', label: 'Dog' },
+  { key: 'cat', label: 'Cat' },
+];
 
-/** Add people or activities, each with how often; shows how many more times are likely left. */
+type Form = {
+  kind: Love['kind'];
+  species: Species;
+  name: string;
+  count: number;
+  per: Per;
+  until: string;
+  theirAge: string;
+};
+
+/**
+ * Add who loves you (people and pets) or what you love doing, each with how often; shows how many more
+ * times are likely left. Turn `showList` off when the caller lists the loves itself (the Loves tab).
+ */
 export function LoveEditor({
-  kind,
+  group,
   loves,
   onChange,
   me,
+  showList = true,
 }: {
-  kind: Love['kind'];
+  group: 'who' | 'what';
   loves: Love[];
   onChange: (loves: Love[]) => void;
   me: ModelInput | null;
+  showList?: boolean;
 }) {
   const theme = useTheme();
-  const [form, setForm] = useState<Form>(EMPTY);
+  const who = group === 'who';
+  const empty: Form = {
+    kind: who ? 'person' : 'activity',
+    species: 'dog',
+    name: '',
+    count: 1,
+    per: 'month',
+    until: '',
+    theirAge: '',
+  };
+  const [form, setForm] = useState<Form>(empty);
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
-  const person = kind === 'person';
-  const mine = loves.filter((l) => l.kind === kind);
-  const suggestions = (person ? PERSON_SUGGESTIONS : ACTIVITY_SUGGESTIONS).filter(
+  const pet = form.kind === 'pet';
+  const mine = loves.filter((l) => (who ? l.kind !== 'activity' : l.kind === 'activity'));
+  const suggestions = (who ? PERSON_SUGGESTIONS : ACTIVITY_SUGGESTIONS).filter(
     (s) => !mine.some((l) => l.name === s.name),
   );
 
@@ -55,16 +89,17 @@ export function LoveEditor({
     const toNumber = (s: string) => (s.trim() ? Number(s) : undefined);
     const love: Love = {
       id: `${Date.now()}`,
-      kind,
+      kind: form.kind,
       name,
       count: form.count,
       per: form.per,
-      until: person ? undefined : toNumber(form.until),
-      theirAge: person ? toNumber(form.theirAge) : undefined,
+      until: form.kind === 'activity' ? toNumber(form.until) : undefined,
+      theirAge: form.kind === 'activity' ? undefined : toNumber(form.theirAge),
+      species: pet ? form.species : undefined,
       addedAt: Date.now(),
     };
     onChange([...loves, love]);
-    setForm(EMPTY);
+    setForm({ ...empty, kind: form.kind });
   };
 
   return (
@@ -78,6 +113,8 @@ export function LoveEditor({
               accessibilityLabel={`Use suggestion: ${s.name}`}
               onPress={() =>
                 setForm({
+                  kind: s.kind,
+                  species: s.species ?? 'dog',
                   name: s.name,
                   count: s.count,
                   per: s.per,
@@ -95,9 +132,25 @@ export function LoveEditor({
       ) : null}
 
       <View style={[styles.form, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+        {who ? (
+          <Segmented
+            options={WHO_KINDS}
+            value={pet ? 'pet' : 'person'}
+            onChange={(kind) => set({ kind })}
+            accessibilityLabel="Person or pet"
+          />
+        ) : null}
+        {pet ? (
+          <Segmented
+            options={SPECIES}
+            value={form.species}
+            onChange={(species) => set({ species })}
+            accessibilityLabel="Kind of pet"
+          />
+        ) : null}
         <TextField
-          accessibilityLabel={person ? 'Who' : 'What'}
-          placeholder={person ? 'Mom, my partner, Sam…' : 'Play soccer, read, travel…'}
+          accessibilityLabel={who ? 'Who' : 'What'}
+          placeholder={pet ? 'Max, Luna…' : who ? 'Mom, my partner, Sam…' : 'Play soccer, read, travel…'}
           value={form.name}
           onChangeText={(name) => set({ name })}
           onSubmitEditing={add}
@@ -106,7 +159,7 @@ export function LoveEditor({
         />
 
         <ThemedText type="eyebrow" themeColor="muted">
-          {person ? 'How often you see them' : 'How often you do it'}
+          {who ? 'How often you see them' : 'How often you do it'}
         </ThemedText>
         <View style={styles.row}>
           <View style={[styles.stepper, { borderColor: theme.line }]}>
@@ -116,19 +169,18 @@ export function LoveEditor({
             </Text>
             <StepButton label="+" onPress={() => set({ count: Math.min(99, form.count + 1) })} accessibilityLabel="More" />
           </View>
-          <View style={styles.flex}>
-            <Segmented options={PERS} value={form.per} onChange={(per) => set({ per })} accessibilityLabel="Per" />
-          </View>
+          <ThemedText type="small">{form.count === 1 ? 'time' : 'times'}</ThemedText>
         </View>
+        <Segmented options={PERS} value={form.per} onChange={(per) => set({ per })} accessibilityLabel="Per" />
 
         <TextField
-          accessibilityLabel={person ? 'Their age (optional)' : 'Until what age? (optional)'}
-          placeholder={person ? 'Their age (optional)' : 'Until what age? (optional)'}
+          accessibilityLabel={who ? 'Their age (optional)' : 'Until what age? (optional)'}
+          placeholder={who ? (pet ? 'Their age in years (optional)' : 'Their age (optional)') : 'Until what age? (optional)'}
           keyboardType="number-pad"
-          value={person ? form.theirAge : form.until}
+          value={who ? form.theirAge : form.until}
           onChangeText={(t) => {
             const v = t.replace(/\D/g, '').slice(0, 3);
-            set(person ? { theirAge: v } : { until: v });
+            set(who ? { theirAge: v } : { until: v });
           }}
           style={{ backgroundColor: theme.bg }}
         />
@@ -136,7 +188,7 @@ export function LoveEditor({
         <Button title="Add" variant="ghost" disabled={!form.name.trim()} onPress={add} />
       </View>
 
-      {mine.map((l) => {
+      {(showList ? mine : []).map((l) => {
         const n = me ? loveCount(l, me).times : null;
         return (
           <Animated.View
@@ -155,7 +207,7 @@ export function LoveEditor({
                     <ThemedText type="small" themeColor="accent">
                       {fmt(n)}
                     </ThemedText>
-                    {person ? ' more visits' : ' more times'}
+                    {` more ${loveUnit(l)}`}
                   </>
                 ) : null}
               </ThemedText>

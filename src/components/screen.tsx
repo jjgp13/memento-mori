@@ -18,7 +18,7 @@ export function Screen({ children }: PropsWithChildren) {
         <ThemedText style={styles.brand}>MEMENTO MORI</ThemedText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Account"
+          accessibilityLabel="You"
           onPress={() => router.push('/account')}
           style={[styles.icon, { borderColor: theme.line, backgroundColor: theme.surface }]}>
           <SymbolView name={{ ios: 'person', android: 'person', web: 'person' }} size={18} tintColor={theme.fg} />

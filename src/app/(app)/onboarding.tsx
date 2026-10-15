@@ -24,8 +24,9 @@ import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { bestLever, habitsEffect } from '@/lib/habit-impact';
+import { markIntroSeen } from '@/lib/intro';
 import { fmt } from '@/lib/life-views';
-import { loveCount, type Love } from '@/lib/loves';
+import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
   DAY_MS,
   HABITS,
@@ -89,6 +90,8 @@ export default function OnboardingScreen() {
   const next = () => go(1);
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
   const finish = () => {
+    // They just saw the reveal; don't follow it with the opening sequence.
+    markIntroSeen();
     saveProfile({ ...draft } as Profile);
     if (editing) close();
     else router.replace('/');
@@ -249,7 +252,7 @@ export default function OnboardingScreen() {
     footer = continueButton(draft.values.length ? 'Continue' : 'Skip for now');
   } else if (step === 'people' || step === 'activities') {
     const people = step === 'people';
-    const any = draft.loves.some((l) => l.kind === (people ? 'person' : 'activity'));
+    const any = draft.loves.some((l) => (people ? l.kind !== 'activity' : l.kind === 'activity'));
     body = [
       <ThemedText key="e" type="eyebrow">
         {number} · {people ? 'Who loves you' : 'What you love'}
@@ -259,12 +262,12 @@ export default function OnboardingScreen() {
       </ThemedText>,
       <ThemedText key="w" type="small" style={styles.why}>
         {people
-          ? "Add the people you'd most regret not seeing enough. We'll count how many more times you're likely to see them."
+          ? "The people (and pets) you'd most regret not seeing enough. We'll count how many more times you're likely to see them."
           : "We'll count how many more times you get to do it."}
       </ThemedText>,
       <LoveEditor
         key={step}
-        kind={people ? 'person' : 'activity'}
+        group={people ? 'who' : 'what'}
         loves={draft.loves}
         onChange={(loves) => set({ loves })}
         me={me}
@@ -361,7 +364,7 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
   const weeksLeft = (est.med - age) * WEEKS_PER_YEAR;
   const effect = habitsEffect(me, now);
   const lever = bestLever(me, now);
-  const person = draft.loves.find((l) => l.kind === 'person');
+  const person = draft.loves.find((l) => l.kind !== 'activity');
   const values = VALUES.filter((v) => draft.values.includes(v.key)).map((v) => v.label.toLowerCase());
 
   const lines: ReactNode[] = [
@@ -386,7 +389,7 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
         <ThemedText themeColor="accent" style={styles.num}>
           {fmt(loveCount(person, me, now).times)}
         </ThemedText>{' '}
-        more visits with {person.name}.
+        {loveCountLabel(person)}.
       </ThemedText>,
     );
   }

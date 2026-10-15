@@ -13,8 +13,7 @@ import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { isSupabaseConfigured } from '@/lib/supabase';
-import { AuthProvider, useAuth } from '@/providers/auth-provider';
+import { AuthProvider } from '@/providers/auth-provider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,7 +36,6 @@ export default function RootLayout() {
 }
 
 function RootNavigator({ ready }: { ready: boolean }) {
-  const { session, isLoading } = useAuth();
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const colors = Colors[scheme];
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
@@ -46,10 +44,9 @@ function RootNavigator({ ready }: { ready: boolean }) {
     colors: { ...base.colors, background: colors.bg, card: colors.bg, text: colors.fg, primary: colors.accent, border: colors.line },
   };
 
-  // Sign-in turns on once Supabase is configured; until then anyone can try the app (e.g. on GitHub Pages).
-  const canEnter = !!session || !isSupabaseConfigured;
-
-  const done = ready && !isLoading;
+  // Local-first: the whole app works without an account, and nothing waits on the network.
+  // Sign-in is only offered where it unlocks something (backup and sync, sharing), from the You screen.
+  const done = ready;
   useEffect(() => {
     if (done) SplashScreen.hideAsync();
   }, [done]);
@@ -60,12 +57,8 @@ function RootNavigator({ ready }: { ready: boolean }) {
     <ThemeProvider value={theme}>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={canEnter}>
-          <Stack.Screen name="(app)" />
-        </Stack.Protected>
-        <Stack.Protected guard={!canEnter}>
-          <Stack.Screen name="sign-in" />
-        </Stack.Protected>
+        <Stack.Screen name="(app)" />
+        <Stack.Screen name="sign-in" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

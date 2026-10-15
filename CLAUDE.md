@@ -2,13 +2,20 @@
 
 A free app that estimates how much life a person likely has left and helps them spend it on what matters. Stoic in spirit: the point is presence and gratitude, not fear.
 
+## Principles (Oct 14 2026)
+- A tool, not a business: free, no ads, no tracking, no selling data. Ask for money (e.g. donations) only if hosting costs ever require it.
+- Local-first: everything works without an account and stays on the device. The estimate runs on device.
+- Ask people to sign in only when it gives them something more: backup/sync across devices, diary entries, sharing stories. Health data (Apple Health / Health Connect) is read on device, so it does NOT need sign-in.
+- The core is the person's loves: who loves them (people and pets) and what they love doing, shown as "N more times", so the time left points at what matters.
+
 ## Status
 - `prototype/index.html` is a working single-file web prototype (built in a claude.ai chat, Oct 2026). Open it in a browser to see the intended flow and feel. Treat it as the design and logic reference for the real app.
 - Oct 13 2026: Expo app scaffolded (SDK 57, Expo Router, routes in `src/app/`) with Supabase auth (Apple, Google, email OTP) and placeholder Life / Habits / Loves / Today tabs. See README.md for setup and layout.
 - Live web build: https://jjgp13.github.io/memento-mori/ (GitHub Pages, deploys on push to main).
 - Supabase project `memento-mori` (ref `apncolizrozdjjwrqtzr`, us-west-1, free tier, org J^2). Migrations in `supabase/migrations/` are applied. Sign-in methods are switched in `SIGN_IN_METHODS` (`src/lib/auth.ts`): guest (anonymous) is on; Google is off until its provider is configured; email needs custom SMTP; Apple needs a paid developer account.
 - Done: model ported to `src/lib/model.ts` (parity with prototype checked by `npm run check:model`); Life screen with all four zoom levels, a habits card (years each habit adds/costs, best single change) and "within reach" circles for that change; one-question-per-screen onboarding (`src/app/(app)/onboarding.tsx`: name, birth, sex, 5 habits, up to 3 values, people who love them, activities, then a weeks-remaining reveal), reused with `?edit=1` for editing; profile stored on device only (`src/lib/profile.ts`).
-- Next: finish Google provider setup; daily phrases + 1–2 notifications a week (design discussion pending); how science updates change the model; Habits and Loves screens; opening sequence; health-data consent before syncing profile answers.
+- Oct 14: local-first (no sign-in at startup; "You" screen with delete-everything); pets in loves (dog/cat typical lifespans); Loves tab with "N more times" counters; opening sequence on each launch (today's count, often a love → Stoic quote + question), content bundled in `src/lib/daily.ts`.
+- Next: science brief on healthspan/lifespan/meaning/time use (`docs/science.md`); daily phrases + 1–2 local notifications a week; Habits screen; health data (needs a native build); time-use ("where your hours go") feature.
 
 ## Working in this repo
 - Follow @AGENTS.md for Expo conventions (versioned docs, `npx expo install`, no hand-edited `ios/`/`android/`).
@@ -35,7 +42,7 @@ A free app that estimates how much life a person likely has left and helps them 
 ## Planned architecture
 - Client: React Native + Expo (iOS, Android, web from one codebase). Native modules later for HealthKit, Health Connect, home-screen widget, notifications. Android Studio only needed for emulator/widget work; test early builds with Expo Go on a phone.
 - Backend: Supabase (Postgres + auth + storage). Free tier to start, Pro ($25/mo) at launch.
-- Auth: Sign in with Apple, Google, email.
+- Auth: optional and deferred (see Principles). Code for guest, Google, email, Apple sign-in exists but the app no longer asks at startup.
 - Tables: users, profiles, loves, journal_entries, health_snapshots, notification_prefs, daily_content, science_cards, stories (later).
 - Life-expectancy calculation runs on device; store the model/table version used.
 - Weekly science job: pull PubMed/medRxiv → summarize with Claude API (Batch) → human review → publish cards. Only change the model on meta-analyses, versioned. Keep AI out of per-user daily features to stay free.

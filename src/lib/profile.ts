@@ -50,3 +50,14 @@ function subscribe(listener: () => void) {
 export function useProfile() {
   return useSyncExternalStore(subscribe, () => current, () => current);
 }
+
+/** Forgets every answer stored on this device. */
+export function clearProfile() {
+  current = null;
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    // Nothing stored, or storage unavailable.
+  }
+  listeners.forEach((l) => l());
+}

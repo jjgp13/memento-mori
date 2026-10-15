@@ -1,0 +1,168 @@
+import { useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { FadeOut } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button } from '@/components/button';
+import { CountUp } from '@/components/onboarding/count-up';
+import { Stagger } from '@/components/onboarding/stagger';
+import { ThemedText } from '@/components/themed-text';
+import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+import { impactAgency, todaysImpact, todaysQuestion, todaysQuote } from '@/lib/daily';
+import { fmt } from '@/lib/life-views';
+import type { Profile } from '@/lib/profile';
+
+/**
+ * Every open: today's count (often someone they love), then a Stoic quote and question, then the
+ * calendar. One tap moves on; Skip closes it.
+ */
+export function OpeningSequence({ profile, onClose }: { profile: Profile; onClose: () => void }) {
+  const theme = useTheme();
+  const [now] = useState(() => Date.now());
+  const [index, setIndex] = useState(0);
+
+  const impact = todaysImpact(profile, now);
+  const agency = impactAgency(profile, impact, now);
+  const quote = todaysQuote(now);
+  const question = todaysQuestion(now);
+
+  const cards = [
+    <Stagger key="impact">
+      <ThemedText type="eyebrow">{impact.back ? 'Look back' : "Today's count"}</ThemedText>
+      <CountUp to={impact.n} style={styles.huge} themeColor="accent" />
+      <ThemedText style={styles.what}>{impact.what}</ThemedText>
+      <ThemedText type="small">{impact.sub}</ThemedText>
+      {agency ? (
+        <View style={[styles.agency, { borderTopColor: theme.line }]}>
+          <ThemedText>
+            {agency.label} could add about{' '}
+            <ThemedText themeColor="accent" style={styles.num}>
+              {agency.years.toFixed(1)} years
+            </ThemedText>
+            . That&apos;s about{' '}
+            <ThemedText themeColor="accent" style={styles.num}>
+              {fmt(agency.more)}
+            </ThemedText>{' '}
+            {impact.what}.
+          </ThemedText>
+        </View>
+      ) : null}
+    </Stagger>,
+    <Stagger key="quote">
+      <ThemedText type="eyebrow">Today</ThemedText>
+      <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
+        <ThemedText type="quote">{quote.text}</ThemedText>
+        <ThemedText type="eyebrow" themeColor="muted" style={styles.cite}>
+          {quote.source}
+        </ThemedText>
+      </View>
+      <ThemedText style={styles.question}>{question}</ThemedText>
+      <ThemedText type="eyebrow" themeColor="muted">
+        Tap to see your life
+      </ThemedText>
+    </Stagger>,
+  ];
+  const last = index === cards.length - 1;
+
+  return (
+    <Animated.View exiting={FadeOut.duration(400)} style={[StyleSheet.absoluteFill, styles.overlay, { backgroundColor: theme.bg }]}>
+      <SafeAreaView style={styles.root}>
+        <View style={styles.top}>
+          <View style={styles.dots} accessibilityLabel={`Card ${index + 1} of ${cards.length}`}>
+            {cards.map((_, k) => (
+              <View
+                key={k}
+                style={[styles.dot, k === index && styles.dotOn, { backgroundColor: k === index ? theme.accent : theme.line }]}
+              />
+            ))}
+          </View>
+          <Button title="Skip" variant="link" onPress={onClose} />
+        </View>
+        <Pressable
+          style={styles.root}
+          accessibilityRole="button"
+          accessibilityLabel={last ? 'See your life' : 'Next'}
+          onPress={() => (last ? onClose() : setIndex(index + 1))}>
+          <Animated.View key={index} exiting={FadeOut.duration(200)} style={[StyleSheet.absoluteFill, styles.stage]}>
+            {cards[index]}
+          </Animated.View>
+        </Pressable>
+      </SafeAreaView>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    zIndex: 30,
+  },
+  root: {
+    flex: 1,
+  },
+  top: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.two,
+  },
+  dots: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dotOn: {
+    width: 18,
+  },
+  stage: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three,
+    paddingBottom: 40,
+    gap: 16,
+  },
+  huge: {
+    fontFamily: Fonts.monoMedium,
+    fontSize: 72,
+    lineHeight: 80,
+    letterSpacing: -1,
+    fontVariant: ['tabular-nums'],
+  },
+  what: {
+    fontFamily: Fonts.display,
+    fontSize: 26,
+    lineHeight: 32,
+    letterSpacing: 1,
+  },
+  agency: {
+    borderTopWidth: 1,
+    paddingTop: 14,
+  },
+  num: {
+    fontFamily: Fonts.monoMedium,
+  },
+  quote: {
+    borderLeftWidth: 2,
+    paddingLeft: 18,
+    gap: 12,
+  },
+  cite: {
+    letterSpacing: 0.8,
+  },
+  question: {
+    fontFamily: Fonts.display,
+    fontSize: 21,
+    lineHeight: 28,
+    letterSpacing: 0.6,
+  },
+});
