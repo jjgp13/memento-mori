@@ -29,7 +29,7 @@ const isLayer = (st: CellState): st is Layer => st === 'reach' || st === 'sleep'
  * Circles: lived, now (fills like a pie), likely ahead, and "if fortune allows". Layers (within reach,
  * sleep, phone) are drawn on their own and fade in whenever they change, so a "what if" shows up live.
  */
-export function LifeGrid({ view }: { view: GridView }) {
+export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColors?: string[] }) {
   const theme = useTheme();
   const [width, setWidth] = useState(0);
 
@@ -41,6 +41,8 @@ export function LifeGrid({ view }: { view: GridView }) {
 
   const paths: Record<Base, string[]> = { lived: [], likely: [], maybe: [] };
   const layers: Record<Layer, string[]> = { reach: [], sleep: [], phone: [] };
+  // One path per change being tried, so each shows in its own color.
+  const reach: string[][] = reachColors.map(() => []);
   const labels: { x: number; y: number; text: string; onLived: boolean }[] = [];
   let nowCell: { cx: number; cy: number } | null = null;
 
@@ -52,7 +54,8 @@ export function LifeGrid({ view }: { view: GridView }) {
       const cy = Math.floor(i / view.cols) * cell + cell / 2;
       if (st === 'now') nowCell = { cx, cy };
       else if (isLayer(st)) {
-        layers[st].push(ring(cx, cy, r));
+        if (st === 'reach' && reach.length) reach[Math.min(reach.length - 1, view.reachOf?.(i) ?? 0)].push(ring(cx, cy, r));
+        else layers[st].push(ring(cx, cy, r));
         paths[UNDER[st]!].push(ring(cx, cy, r));
       } else paths[st].push(ring(cx, cy, r));
       const text = view.label && r >= 11 && st !== 'now' ? view.label(i) : '';
@@ -67,7 +70,7 @@ export function LifeGrid({ view }: { view: GridView }) {
   const w = view.labelW + cell * view.cols;
   const h = rows * cell;
   // Changes whenever a layer grows or shrinks, so the new layer fades in.
-  const layerKey = `${layers.reach.length}-${layers.sleep.length}-${layers.phone.length}-${cell}`;
+  const layerKey = `${reach.map((p) => p.length).join('.')}-${layers.reach.length}-${layers.sleep.length}-${layers.phone.length}-${cell}`;
 
   return (
     <View
@@ -105,12 +108,18 @@ export function LifeGrid({ view }: { view: GridView }) {
                   <Path d={layers.sleep.join('')} fill={theme.sleep} />
                   <Path d={layers.phone.join('')} fill={theme.screen} />
                   <Path d={layers.reach.join('')} fill={theme.accent} opacity={0.55} />
+                  {reach.map((p, k) => (
+                    <Path key={k} d={p.join('')} fill={reachColors[k]} />
+                  ))}
                 </>
               ) : (
                 <>
                   <Path d={layers.sleep.join('')} fill={theme.sleep} stroke={theme.sleep} strokeWidth={stroke} />
                   <Path d={layers.phone.join('')} fill={theme.screen} stroke={theme.screen} strokeWidth={stroke} />
                   <Path d={layers.reach.join('')} fill={theme.accentSoft} stroke={theme.accent} strokeWidth={stroke} />
+                  {reach.map((p, k) => (
+                    <Path key={k} d={p.join('')} fill={reachColors[k]} fillOpacity={0.45} stroke={reachColors[k]} strokeWidth={stroke} />
+                  ))}
                 </>
               )}
             </Svg>
