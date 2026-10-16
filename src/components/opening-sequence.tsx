@@ -6,57 +6,49 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components/button';
 import { CountUp } from '@/components/onboarding/count-up';
 import { Stagger } from '@/components/onboarding/stagger';
+import { RichText } from '@/components/rich-text';
 import { SourceLink } from '@/components/source-link';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { WisdomCard } from '@/components/wisdom-card';
+import { useT } from '@/i18n';
+import { dec1, fmt } from '@/i18n/format';
+import { TodaysWords } from '@/components/wisdom-card';
 import { impactAgency, todaysImpact } from '@/lib/daily';
-import { fmt } from '@/lib/life-views';
 import type { Profile } from '@/lib/profile';
-import { useTodaysWisdom } from '@/lib/wisdom';
 
 /**
  * Every open: today's count (often someone they love), then words from someone who lived before us
- * with a question (src/lib/wisdom.ts), then the calendar. One tap moves on; Skip closes it.
+ * and a question (src/lib/wisdom.ts), then the
+ * calendar. One tap moves on; Skip closes it.
  */
 export function OpeningSequence({ profile, onClose }: { profile: Profile; onClose: () => void }) {
   const theme = useTheme();
+  const t = useT();
   const [now] = useState(() => Date.now());
   const [index, setIndex] = useState(0);
 
-  const impact = todaysImpact(profile, now);
+  const impact = todaysImpact(profile, t, now);
   const agency = impactAgency(profile, impact, now);
-  const wisdom = useTodaysWisdom(profile, now, impact.love);
 
   const cards = [
     <Stagger key="impact">
-      <ThemedText type="eyebrow">{impact.back ? 'Look back' : "Today's count"}</ThemedText>
+      <ThemedText type="eyebrow">{impact.back ? t.opening.lookBack : t.opening.todaysCount}</ThemedText>
       <CountUp to={impact.n} style={styles.huge} themeColor="accent" />
       <ThemedText style={styles.what}>{impact.what}</ThemedText>
       <ThemedText type="small">{impact.sub}</ThemedText>
       {agency ? (
         <View style={[styles.agency, { borderTopColor: theme.line }]}>
-          <ThemedText>
-            {agency.label} could add about{' '}
-            <ThemedText themeColor="accent" style={styles.num}>
-              {agency.years.toFixed(1)} years
-            </ThemedText>
-            . That&apos;s about{' '}
-            <ThemedText themeColor="accent" style={styles.num}>
-              {fmt(agency.more)}
-            </ThemedText>{' '}
-            {impact.what}.
-          </ThemedText>
+          <RichText parts={t.opening.agency(t.levers[agency.key], dec1(agency.years), fmt(agency.more), impact.what)} />
           <SourceLink of={agency.key} />
         </View>
       ) : null}
     </Stagger>,
     <Stagger key="quote">
-      <ThemedText type="eyebrow">Today</ThemedText>
-      <WisdomCard entry={wisdom} profile={profile} now={now} love={impact.love} questionStyle={styles.question} />
+      <ThemedText type="eyebrow">{t.opening.today}</ThemedText>
+      <TodaysWords profile={profile} now={now} love={impact.love} questionStyle={styles.question} />
       <ThemedText type="eyebrow" themeColor="muted">
-        Tap to see your life
+        {t.opening.tapToSee}
       </ThemedText>
     </Stagger>,
   ];
@@ -66,7 +58,7 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
     <Animated.View exiting={FadeOut.duration(400)} style={[StyleSheet.absoluteFill, styles.overlay, { backgroundColor: theme.bg }]}>
       <SafeAreaView style={styles.root}>
         <View style={styles.top}>
-          <View style={styles.dots} accessibilityLabel={`Card ${index + 1} of ${cards.length}`}>
+          <View style={styles.dots} accessibilityLabel={t.opening.cardOf(index + 1, cards.length)}>
             {cards.map((_, k) => (
               <View
                 key={k}
@@ -74,12 +66,12 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
               />
             ))}
           </View>
-          <Button title="Skip" variant="link" onPress={onClose} />
+          <Button title={t.common.skip} variant="link" onPress={onClose} />
         </View>
         <Pressable
           style={styles.root}
           accessibilityRole="button"
-          accessibilityLabel={last ? 'See your life' : 'Next'}
+          accessibilityLabel={last ? t.opening.seeLife : t.opening.next}
           onPress={() => (last ? onClose() : setIndex(index + 1))}>
           <Animated.View key={index} exiting={FadeOut.duration(200)} style={[StyleSheet.absoluteFill, styles.stage]}>
             {cards[index]}
@@ -145,9 +137,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingTop: 14,
     gap: 6,
-  },
-  num: {
-    fontFamily: Fonts.monoMedium,
   },
   question: {
     fontFamily: Fonts.display,

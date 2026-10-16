@@ -9,7 +9,7 @@ import { VALUES } from '../src/lib/values.ts';
 const problems: string[] = [];
 const fail = (id: string, why: string) => problems.push(`${id}: ${why}`);
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
-const valueKeys = new Set<string>(VALUES.map((v) => v.key));
+const valueKeys = new Set<string>(VALUES);
 const ids = new Set<string>();
 
 for (const w of W.WISDOM) {

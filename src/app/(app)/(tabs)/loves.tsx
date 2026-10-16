@@ -13,15 +13,13 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { fmt } from '@/lib/life-views';
+import { useT } from '@/i18n';
+import { fmt } from '@/i18n/format';
 import { loveCount, loveCountLabel, loveCountReason, type Love } from '@/lib/loves';
 import { ageAt, estimate } from '@/lib/model';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 
-const GROUPS: { key: 'who' | 'what'; label: string }[] = [
-  { key: 'who', label: 'Who loves you' },
-  { key: 'what', label: 'What you love' },
-];
+const GROUPS = ['who', 'what'] as const;
 
 export default function LovesScreen() {
   const profile = useProfile();
@@ -29,6 +27,7 @@ export default function LovesScreen() {
 }
 
 function Loves({ profile }: { profile: Profile }) {
+  const t = useT();
   const now = useNow(60_000);
   const [group, setGroup] = useState<'who' | 'what'>('who');
   const loves = profile.loves ?? [];
@@ -38,9 +37,9 @@ function Loves({ profile }: { profile: Profile }) {
   return (
     <>
       <View style={styles.head}>
-        <ThemedText type="eyebrow">What you love</ThemedText>
-        <ThemedText type="subtitle">How many more times?</ThemedText>
-        <ThemedText type="small">At your current pace, over the life you likely have left.</ThemedText>
+        <ThemedText type="eyebrow">{t.loves.eyebrow}</ThemedText>
+        <ThemedText type="subtitle">{t.loves.title}</ThemedText>
+        <ThemedText type="small">{t.loves.sub}</ThemedText>
       </View>
 
       {loves.length ? (
@@ -59,12 +58,17 @@ function Loves({ profile }: { profile: Profile }) {
           ))}
         </View>
       ) : (
-        <ThemedText>Nothing here yet. Add someone who loves you, or something you love doing.</ThemedText>
+        <ThemedText>{t.loves.empty}</ThemedText>
       )}
 
       <View style={styles.add}>
-        <ThemedText type="heading">ADD</ThemedText>
-        <Segmented options={GROUPS} value={group} onChange={setGroup} accessibilityLabel="Add to" />
+        <ThemedText type="heading">{t.loves.addHeading}</ThemedText>
+        <Segmented
+          options={GROUPS.map((key) => ({ key, label: t.loves.groups[key] }))}
+          value={group}
+          onChange={setGroup}
+          accessibilityLabel={t.loves.addToA11y}
+        />
         <LoveEditor key={group} group={group} loves={loves} onChange={setLoves} me={profile} showList={false} />
       </View>
     </>
@@ -89,8 +93,10 @@ function LoveCard({
   onChange: (next: Love) => void;
 }) {
   const theme = useTheme();
+  const t = useT();
   const { times, years } = loveCount(love, profile, now);
-  const label = loveCountLabel(love);
+  const label = loveCountLabel(love, t);
+  const reason = loveCountReason(love, t);
 
   return (
     <Animated.View
@@ -99,15 +105,15 @@ function LoveCard({
       layout={LinearTransition}
       style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <View style={styles.top}>
-        <View accessible accessibilityLabel={`About ${fmt(times)} ${label}. ${loveCountReason(love)}.`} style={styles.top}>
+        <View accessible accessibilityLabel={t.loves.cardA11y(fmt(times), label, reason)} style={styles.top}>
           <Ring fraction={Math.min(1, years / yearsLeft)} />
           <View style={styles.text}>
             <ThemedText style={styles.n}>{fmt(times)}</ThemedText>
             <ThemedText>{label}</ThemedText>
-            <ThemedText type="small">{loveCountReason(love)}</ThemedText>
+            <ThemedText type="small">{reason}</ThemedText>
           </View>
         </View>
-        <Button title="Remove" variant="link" accessibilityLabel={`Remove ${love.name}`} onPress={onRemove} />
+        <Button title={t.common.remove} variant="link" accessibilityLabel={t.common.removeA11y(love.name)} onPress={onRemove} />
       </View>
       {love.kind === 'person' ? (
         <>

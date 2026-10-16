@@ -5,6 +5,7 @@
  */
 import { useEffect } from 'react';
 
+import type { Lang, Strings } from '@/i18n';
 import { whoToReachOut, type Love } from '@/lib/loves';
 import { freshStart } from '@/lib/plans';
 import { setPrefs, usePrefs } from '@/lib/prefs';
@@ -13,8 +14,12 @@ import { AUTHORS, SOURCES, WISDOM, type Theme, type Wisdom } from '@/lib/wisdom-
 
 export { AUTHORS, SOURCES, WISDOM, type Wisdom };
 
-/** Entries shown this recently can't come back: about three-quarters of the library, so months. */
-export const REPEAT_GAP = Math.floor(WISDOM.length * 0.75);
+/**
+ * The library in each language. Entries quote English public-domain translations, so only English has
+ * it for now; other languages show the short quote list in their catalog until entries are translated
+ * (docs/wisdom.md §5).
+ */
+export const LIBRARY: Partial<Record<Lang, Wisdom[]>> = { en: WISDOM };
 const SEEN_MAX = 300;
 
 /** Local calendar day, so the entry changes at the person's midnight, not UTC's. */
@@ -24,6 +29,8 @@ export function dayKey(now = Date.now()) {
 }
 
 export type WisdomContext = {
+  /** The entries to pick from (one language's library). Defaults to the English library. */
+  library?: Wisdom[];
   profile: Profile;
   now: number;
   /** Ids already shown, most recent first. */
@@ -60,9 +67,11 @@ function seeded(seed: string) {
 }
 
 export function pickWisdom(ctx: WisdomContext): Wisdom {
-  const recent = new Set(ctx.seen.slice(0, REPEAT_GAP));
-  const fresh = WISDOM.filter((w) => !recent.has(w.id));
-  const pool = fresh.length ? fresh : WISDOM.filter((w) => w.id !== ctx.seen[0]);
+  const library = ctx.library ?? WISDOM;
+  // Entries shown this recently can't come back: three-quarters of the library, so months.
+  const recent = new Set(ctx.seen.slice(0, Math.floor(library.length * 0.75)));
+  const fresh = library.filter((w) => !recent.has(w.id));
+  const pool = fresh.length ? fresh : library.filter((w) => w.id !== ctx.seen[0]);
   const weights = pool.map((w) => wisdomWeight(w, ctx));
   let r = seeded(`${dayKey(ctx.now)}|${ctx.profile.dob}`)() * weights.reduce((a, b) => a + b, 0);
   for (let i = 0; i < pool.length; i++) {
@@ -73,23 +82,24 @@ export function pickWisdom(ctx: WisdomContext): Wisdom {
 }
 
 /**
- * Today's entry. Picked once a day and remembered, so the opening sequence and the Today screen agree
- * and it doesn't change if they edit their answers mid-day.
+ * Today's entry, or null in a language without the library yet. Picked once a day and remembered, so
+ * the opening sequence and the Today screen agree and it doesn't change if they edit their answers.
  */
-export function useTodaysWisdom(profile: Profile, now: number, love?: Love): Wisdom {
+export function useTodaysWisdom(profile: Profile, now: number, lang: Lang, love?: Love): Wisdom | null {
   const { wisdomDay, wisdomId, wisdomSeen } = usePrefs();
+  const library = LIBRARY[lang];
   const day = dayKey(now);
-  const stored = wisdomDay === day ? WISDOM.find((w) => w.id === wisdomId) : undefined;
-  const entry = stored ?? pickWisdom({ profile, now, seen: wisdomSeen, love });
+  const stored = wisdomDay === day ? library?.find((w) => w.id === wisdomId) : undefined;
+  const entry = library ? (stored ?? pickWisdom({ library, profile, now, seen: wisdomSeen, love })) : null;
 
   useEffect(() => {
-    if (stored) return;
+    if (stored || !entry) return;
     setPrefs({
       wisdomDay: day,
       wisdomId: entry.id,
       wisdomSeen: [entry.id, ...wisdomSeen.filter((id) => id !== entry.id)].slice(0, SEEN_MAX),
     });
-  }, [stored, day, entry.id, wisdomSeen]);
+  }, [stored, day, entry, wisdomSeen]);
 
   return entry;
 }
@@ -105,7 +115,7 @@ export function wisdomCite(w: Wisdom) {
 }
 
 /** Where to read it in full: the exact letter or chapter when the source is split that way. */
-export function wisdomSource(w: Wisdom) {
+export function wisdomSource(w: Wisdom, t: Strings) {
   const s = SOURCES[w.source];
   let url = s.url;
   if (w.source === 'gummere-letters') url = `${s.url}/Letter_${parseInt(w.locus, 10)}`;
@@ -113,13 +123,13 @@ export function wisdomSource(w: Wisdom) {
     const [book, chapter] = w.locus.split('.');
     url = `${s.url}/Book_${['I', 'II', 'III', 'IV'].indexOf(book) + 1}/Chapter_${parseInt(chapter, 10)}`;
   }
-  const label = w.licence === 'own-words' ? `Read it in ${s.translator}'s translation` : `${s.translator}, ${s.year}`;
+  const label = w.licence === 'own-words' ? t.wisdom.readIn(s.translator) : `${s.translator}, ${s.year}`;
   return { label, url };
 }
 
 /** Fills in `{day}` and `{person}`: today's person if the count is about one, else whoever is due a hello. */
-export function personalize(text: string, profile: Profile, now: number, love?: Love) {
+export function personalize(text: string, profile: Profile, now: number, t: Strings, love?: Love) {
   const person = love?.kind === 'person' ? love : whoToReachOut(profile.loves ?? []);
-  const weekday = new Date(now).toLocaleDateString('en-US', { weekday: 'long' });
-  return text.replace(/\{day\}/g, weekday).replace(/\{person\}/g, person?.name ?? 'someone you love');
+  const weekday = t.date.weekdays[new Date(now).getDay()];
+  return text.replace(/\{day\}/g, weekday).replace(/\{person\}/g, person?.name ?? t.wisdom.someoneYouLove);
 }

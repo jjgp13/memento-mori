@@ -16,6 +16,7 @@
     "expo-glass-effect": "~57.0.4",
     "expo-image": "~57.0.5",
     "expo-linking": "~57.0.12",
+    "expo-localization": "~57.0.2",
     "expo-router": "~57.0.26",
     "expo-splash-screen": "~57.0.10",
     "expo-sqlite": "~57.0.4",
@@ -47,7 +48,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "check:model": "node scripts/check-model.mts",
-    "check:wisdom": "node scripts/check-wisdom.mts"
+    "check:wisdom": "node scripts/check-wisdom.mts",
+    "fit:countries": "node scripts/fit-country-tables.mts"
   },
   "private": true
 }

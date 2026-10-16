@@ -22,6 +22,21 @@ the time feels meaningful — and what that means for the app. Researched Octobe
 **For the app:** the count of years left should be paired with an estimate of *healthy* years left.
 That's the more honest and more motivating number.
 
+- **Where you live.** In 2023 the median age at death, from birth, ran from about **59** to over **90**
+  across 237 countries and areas: a gap larger than any habit. Men in Russia reach a median of about 70,
+  women in Japan about 90. (UN World Population Prospects 2024)
+
+**In the app:** the baseline is the person's own country, by sex, from the UN WPP 2024 single-age life
+tables (2023 estimates, CC BY 3.0 IGO). `scripts/fit-country-tables.mts` fits the same curve the model
+uses, a Gompertz–Makeham hazard A + B·e^(b·x), to each table's death rates at ages 30–100 (weighted by
+deaths), plus two constant early-life terms (before 15, and 15–29) so survival to those ages matches the
+table exactly. Across all 474 country–sex tables, the model's median and quartile ages at death land a
+median of 0.1–0.3 years from the table's (from birth, 20, 40 or 70), and never more than 1.4 years; the
+median from birth is always within 0.8 years. Habit hazard ratios multiply on top, unchanged. Profiles
+without a country keep the original approximation of US tables. Income and education also predict
+lifespan within countries, but they are left out on purpose: they aren't something a person can act on
+here, and they read like a verdict.
+
 ---
 
 ## 2. What matters most for a long, healthy life
@@ -118,6 +133,7 @@ Proposals, roughly in order of value for effort.
 ## Sources
 
 Lifespan, healthspan and habits
+- United Nations, Department of Economic and Social Affairs, Population Division. *World Population Prospects 2024*, single-age life tables by sex, estimates 1950–2023. CC BY 3.0 IGO. — [population.un.org/wpp](https://population.un.org/wpp/)
 - Li Y. et al. Impact of healthy lifestyle factors on life expectancies in the US population. *Circulation* 2018. — [AHA summary](https://www.heart.org/en/news/2018/05/03/americans-could-live-up-to-14-years-longer-by-doing-five-things), [Harvard release](https://www.hsph.harvard.edu/news/press-releases/five-healthy-lifestyle-habits/)
 - Li Y. et al. Healthy lifestyle and life expectancy free of cancer, cardiovascular disease, and type 2 diabetes. *BMJ* 2020;368:l6669. — [BMJ](https://www.bmj.com/content/368/bmj.l6669), [Harvard release](https://www.hsph.harvard.edu/news/press-releases/healthy-lifestyle-in-middle-age-increases-years-free-of-chronic-diseases/)
 - Garmany A. et al. Global healthspan-lifespan gaps among 183 WHO member states. *JAMA Netw Open* 2024. — [PubMed](https://pubmed.ncbi.nlm.nih.gov/39661386/), [Mayo Clinic](https://newsnetwork.mayoclinic.org/discussion/the-global-divide-between-longer-life-and-good-health/)

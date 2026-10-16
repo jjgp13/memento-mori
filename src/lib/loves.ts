@@ -2,6 +2,7 @@
  * Things and people someone loves, and how many more times they likely get to enjoy them.
  * Ported from loveCount() in prototype/index.html.
  */
+import type { Strings } from '@/i18n/strings/en';
 import { YEAR_MS, WEEKS_PER_YEAR, ageAt, estimate, survival, type ModelInput } from '@/lib/model';
 import type { Plan } from '@/lib/plans';
 
@@ -30,7 +31,6 @@ export type Love = {
 };
 
 export const PER_YEAR: Record<Per, number> = { day: 365.2425, week: WEEKS_PER_YEAR, month: 12, year: 1 };
-export const PER_LABEL: Record<Per, string> = { day: 'a day', week: 'a week', month: 'a month', year: 'a year' };
 
 /**
  * Typical lifespans (median age at death) from UK primary-care records: dogs about 12.5 years
@@ -40,26 +40,36 @@ export const PET_LIFESPAN: Record<Species, number> = { dog: 12.5, cat: 14 };
 /** An older pet still likely has some time; never count below half a year. */
 const MIN_PET_YEARS = 0.5;
 
-export const PERSON_SUGGESTIONS: Omit<Love, 'id' | 'addedAt'>[] = [
-  { kind: 'person', name: 'Mom', count: 4, per: 'year', theirAge: 62 },
-  { kind: 'person', name: 'Dad', count: 4, per: 'year', theirAge: 64 },
-  { kind: 'person', name: 'My best friend', count: 2, per: 'month' },
-  { kind: 'person', name: 'My grandmother', count: 2, per: 'year', theirAge: 85 },
-  { kind: 'pet', name: 'My dog', species: 'dog', count: 1, per: 'day', theirAge: 4 },
-  { kind: 'pet', name: 'My cat', species: 'cat', count: 1, per: 'day', theirAge: 6 },
-];
+type Suggestion = Omit<Love, 'id' | 'addedAt'>;
 
-export const ACTIVITY_SUGGESTIONS: Omit<Love, 'id' | 'addedAt'>[] = [
-  { kind: 'activity', name: 'Play soccer', count: 2, per: 'week', until: 65 },
-  { kind: 'activity', name: 'Go to the movies', count: 2, per: 'month' },
-  { kind: 'activity', name: 'Read a book', count: 1, per: 'month' },
-  { kind: 'activity', name: 'Travel somewhere new', count: 1, per: 'year' },
-  { kind: 'activity', name: 'Cook for friends', count: 2, per: 'month' },
-];
+/** Starting points for "who loves you", named in the current language. */
+export function personSuggestions(t: Strings): Suggestion[] {
+  const n = t.loves.suggestPeople;
+  return [
+    { kind: 'person', name: n.mom, count: 4, per: 'year', theirAge: 62 },
+    { kind: 'person', name: n.dad, count: 4, per: 'year', theirAge: 64 },
+    { kind: 'person', name: n.friend, count: 2, per: 'month' },
+    { kind: 'person', name: n.grandma, count: 2, per: 'year', theirAge: 85 },
+    { kind: 'pet', name: n.dog, species: 'dog', count: 1, per: 'day', theirAge: 4 },
+    { kind: 'pet', name: n.cat, species: 'cat', count: 1, per: 'day', theirAge: 6 },
+  ];
+}
+
+/** Starting points for "what you love doing". */
+export function activitySuggestions(t: Strings): Suggestion[] {
+  const n = t.loves.suggestActivities;
+  return [
+    { kind: 'activity', name: n.soccer, count: 2, per: 'week', until: 65 },
+    { kind: 'activity', name: n.movies, count: 2, per: 'month' },
+    { kind: 'activity', name: n.read, count: 1, per: 'month' },
+    { kind: 'activity', name: n.travel, count: 1, per: 'year' },
+    { kind: 'activity', name: n.cook, count: 2, per: 'month' },
+  ];
+}
 
 /**
  * Years left to share = from now until the earliest of: your median age, your "until" age,
- * a person's own median age (averaged over sexes, since we don't ask theirs), or a pet's typical lifespan.
+ * a person's own median age (averaged over sexes, since we don't ask theirs; assumed to live where you do), or a pet's typical lifespan.
  */
 export function loveCount(love: Love, me: ModelInput, now = Date.now()) {
   const age = ageAt(me.dob, now);
@@ -69,7 +79,7 @@ export function loveCount(love: Love, me: ModelInput, now = Date.now()) {
 
   if (love.kind === 'person' && love.theirAge != null) {
     const theirs = love.theirAge + (now - love.addedAt) / YEAR_MS;
-    const theirMedian = (survival('m', theirs, 1).med + survival('f', theirs, 1).med) / 2;
+    const theirMedian = (survival('m', theirs, 1, me.country).med + survival('f', theirs, 1, me.country).med) / 2;
     years = Math.min(years, theirMedian - theirs);
   }
 
@@ -83,28 +93,26 @@ export function loveCount(love: Love, me: ModelInput, now = Date.now()) {
 }
 
 /** "4 a year, over the years you both likely have" */
-export function loveCountReason(love: Love) {
-  const pace = `${love.count} ${PER_LABEL[love.per]}`;
-  if ((love.kind === 'person' && love.theirAge != null) || love.kind === 'pet') {
-    return `${pace}, over the years you both likely have`;
-  }
-  if (love.until) return `${pace}, until you're ${love.until}`;
-  return `${pace}, for the rest of your life`;
+export function loveCountReason(love: Love, t: Strings) {
+  const pace = t.loves.pace(love.count, love.per);
+  if ((love.kind === 'person' && love.theirAge != null) || love.kind === 'pet') return t.loves.reasonBoth(pace);
+  if (love.until) return t.loves.reasonUntil(pace, love.until);
+  return t.loves.reasonLife(pace);
 }
 
 export const weeksFromYears = (years: number) => years * WEEKS_PER_YEAR;
 
 /** What one count means: a visit with a person, a day with a pet you live with, or a time doing something. */
-export function loveUnit(love: Love) {
+export function loveUnit(love: Love): 'visits' | 'days' | 'times' {
   if (love.kind === 'person') return 'visits';
   if (love.kind === 'pet' && love.per === 'day' && love.count === 1) return 'days';
   return 'times';
 }
 
 /** "more visits with Mom" · "more days with Max" · "more times: play soccer" */
-export function loveCountLabel(love: Love) {
-  if (love.kind === 'activity') return `more times: ${love.name.toLowerCase()}`;
-  return `more ${loveUnit(love)} with ${love.name}`;
+export function loveCountLabel(love: Love, t: Strings) {
+  if (love.kind === 'activity') return t.loves.moreTimes(love.name);
+  return t.loves.moreWith(loveUnit(love), love.name);
 }
 
 /** Most contact moments kept per person; enough for "last time" and a monthly tally. */
@@ -118,12 +126,12 @@ export function withContact(love: Love, at = Date.now()): Love {
 export const lastContact = (love: Love) => love.contacts?.[0] ?? null;
 
 /** "today", "yesterday", "12 days ago", "3 months ago" */
-export function sinceLabel(at: number, now = Date.now()) {
+export function sinceLabel(at: number, t: Strings, now = Date.now()) {
   const days = Math.floor((now - at) / 864e5);
-  if (days <= 0) return 'today';
-  if (days === 1) return 'yesterday';
-  if (days < 60) return `${days} days ago`;
-  return `${Math.round(days / 30.4)} months ago`;
+  if (days <= 0) return t.loves.since.today;
+  if (days === 1) return t.loves.since.yesterday;
+  if (days < 60) return t.loves.since.days(days);
+  return t.loves.since.months(Math.round(days / 30.4));
 }
 
 /**
@@ -135,12 +143,3 @@ export function whoToReachOut(loves: Love[]): Love | null {
   if (!people.length) return null;
   return [...people].sort((a, b) => (lastContact(a) ?? a.addedAt - 1e13) - (lastContact(b) ?? b.addedAt - 1e13))[0];
 }
-
-/** Gentle openers for the Message button, rotated by day. */
-export const OPENERS = [
-  'Thinking of you. Free for dinner this week?',
-  "Hey! It's been too long. Call this weekend?",
-  'Just wanted to say I love you.',
-  'Remembered something funny about us today. When can we catch up?',
-  "Let's not let another month go by. Coffee soon?",
-];

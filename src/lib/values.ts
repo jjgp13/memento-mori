@@ -1,19 +1,22 @@
-/** What someone says matters most. Used to point reminders and daily content at what they care about. */
+/**
+ * What someone says matters most. Used to point reminders and daily content at what they care about.
+ * Labels are in the language catalogs (src/i18n), under `values`.
+ */
 export const VALUES = [
-  { key: 'family', label: 'Family' },
-  { key: 'partner', label: 'My partner' },
-  { key: 'friends', label: 'Friends' },
-  { key: 'health', label: 'Health' },
-  { key: 'craft', label: 'Work and craft' },
-  { key: 'learning', label: 'Learning' },
-  { key: 'creating', label: 'Creating' },
-  { key: 'faith', label: 'Faith and spirit' },
-  { key: 'nature', label: 'Nature' },
-  { key: 'adventure', label: 'Adventure' },
-  { key: 'service', label: 'Helping others' },
-  { key: 'peace', label: 'Peace of mind' },
+  'family',
+  'partner',
+  'friends',
+  'health',
+  'craft',
+  'learning',
+  'creating',
+  'faith',
+  'nature',
+  'adventure',
+  'service',
+  'peace',
 ] as const;
 
-export type ValueKey = (typeof VALUES)[number]['key'];
+export type ValueKey = (typeof VALUES)[number];
 
 export const MAX_VALUES = 3;

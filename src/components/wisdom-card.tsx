@@ -2,43 +2,61 @@ import { Linking, Pressable, StyleSheet, View, type StyleProp, type TextStyle } 
 
 import { ThemedText, type ThemedTextProps } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
+import { useLang, useT } from '@/i18n';
+import { todaysQuestion, todaysQuote } from '@/lib/daily';
 import type { Love } from '@/lib/loves';
 import type { Profile } from '@/lib/profile';
-import { personalize, wisdomCite, wisdomSource, wisdomText, type Wisdom } from '@/lib/wisdom';
+import { personalize, useTodaysWisdom, wisdomCite, wisdomSource, wisdomText } from '@/lib/wisdom';
 
-/**
- * Today's words from someone who lived before us: the quote (or a story retold), who said it and where,
- * a question to sit with, and, when there is one, a small thing they could do. The citation opens the
- * full text, so every line can be checked.
- */
-export function WisdomCard({
-  entry,
-  profile,
-  now,
-  love,
-  questionType = 'default',
-  questionStyle,
-}: {
-  entry: Wisdom;
+type Props = {
   profile: Profile;
   now: number;
   /** Today's count is about them; `{person}` in the action means them. */
   love?: Love;
   questionType?: ThemedTextProps['type'];
   questionStyle?: StyleProp<TextStyle>;
-}) {
+};
+
+/**
+ * Today's words from someone who lived before us: the quote (or a story retold), who said it and where,
+ * a question to sit with and, when there is one, a small thing they could do. The citation opens the
+ * full text, so every line can be checked. Languages without the library yet show their catalog's quote.
+ */
+export function TodaysWords({ profile, now, love, questionType = 'default', questionStyle }: Props) {
   const theme = useTheme();
+  const t = useT();
+  const lang = useLang();
+  const entry = useTodaysWisdom(profile, now, lang, love);
+
+  if (!entry) {
+    const quote = todaysQuote(t, now);
+    return (
+      <View style={styles.root}>
+        <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
+          <ThemedText type="quote">{quote.text}</ThemedText>
+          <ThemedText type="eyebrow" themeColor="muted" style={styles.citeText}>
+            {quote.source}
+          </ThemedText>
+        </View>
+        <ThemedText type={questionType} style={questionStyle}>
+          {todaysQuestion(t, now)}
+        </ThemedText>
+      </View>
+    );
+  }
+
+  const w = t.wisdom;
   const retold = entry.licence === 'own-words';
-  const source = wisdomSource(entry);
-  const cite = wisdomCite(entry);
-  const fill = (text: string) => personalize(text, profile, now, love);
+  const source = wisdomSource(entry, t);
+  const cite = retold ? w.retoldFrom(wisdomCite(entry)) : wisdomCite(entry);
+  const fill = (text: string) => personalize(text, profile, now, t, love);
 
   return (
     <View style={styles.root}>
       <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
         {entry.type !== 'quote' ? (
           <ThemedText type="eyebrow" themeColor="muted">
-            {entry.type === 'story' ? 'A story' : 'A practice'}
+            {entry.type === 'story' ? w.story : w.practice}
           </ThemedText>
         ) : null}
         <ThemedText type={retold ? 'default' : 'quote'} style={retold ? styles.story : undefined}>
@@ -46,12 +64,11 @@ export function WisdomCard({
         </ThemedText>
         <Pressable
           accessibilityRole="link"
-          accessibilityLabel={`${retold ? 'Retold from ' : ''}${cite}. ${source.label}, opens in browser`}
+          accessibilityLabel={t.common.sourceA11y(cite, source.label)}
           onPress={() => Linking.openURL(source.url)}
           hitSlop={6}
           style={styles.cite}>
           <ThemedText type="eyebrow" themeColor="muted" style={styles.citeText}>
-            {retold ? 'Retold from ' : ''}
             {cite}
           </ThemedText>
           <ThemedText type="small" themeColor="muted" style={styles.translation}>
@@ -64,7 +81,7 @@ export function WisdomCard({
       </ThemedText>
       {entry.action ? (
         <ThemedText>
-          <ThemedText themeColor="accent">You could </ThemedText>
+          <ThemedText themeColor="accent">{w.youCould} </ThemedText>
           {fill(entry.action)}
         </ThemedText>
       ) : null}

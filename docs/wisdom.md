@@ -6,9 +6,15 @@ of that library: what an entry is, where the words come from, how the app choose
 grow later without an account or a server knowing anything about the person.
 
 Code: entries in [`src/lib/wisdom-data.ts`](../src/lib/wisdom-data.ts), selection in
-[`src/lib/wisdom.ts`](../src/lib/wisdom.ts), shown by [`WisdomCard`](../src/components/wisdom-card.tsx) in
+[`src/lib/wisdom.ts`](../src/lib/wisdom.ts), shown by [`TodaysWords`](../src/components/wisdom-card.tsx) in
 the opening sequence and on Today. October 2026 starter set: **114 entries**, every one checked against
 its source.
+
+**Languages.** The entries quote English translations, so the library is English only for now
+(`LIBRARY = { en: WISDOM }`). In the other ten languages the app keeps showing the short quote and
+question lists in each catalog (`daily.quotes`, `daily.questions` in `src/i18n/strings/`) until entries
+are translated (§5). The card's own labels ("A story", "You could", "Retold from …") are in every
+catalog, under `wisdom`.
 
 ---
 
@@ -129,7 +135,17 @@ passage (`ANCHORS` in the script). The October 2026 set: 114 entries, 0 problems
 4. For a story or practice in your own words, add an anchor phrase to `ANCHORS`.
 5. Run the three commands above.
 
-## 5. Later: updates without accounts
+## 5. Later: other languages, and updates without accounts
+
+**Translating the library.** The originals are Greek, Latin, Hebrew, Pali, Classical Chinese and old
+French, so the honest path per language is: use a public-domain translation in that language where one
+exists (Reina-Valera 1909 for Ecclesiastes in Spanish, Luther 1912 in German, older French translations
+of Marc Aurèle and Sénèque…), checked the same way as the English; otherwise translate the English entry
+ourselves and mark it as our translation (licence `own-words`, citing the same place). Questions and
+actions are ours and can be translated freely. An entry would then carry per-language text
+(`text`, `question`, `action` by language), and `LIBRARY` gains that language; the catalog's
+`daily.quotes` list for it can be retired. The old catalog lists still hold three lines flagged in §2
+as unverified, so translating them out is worth doing first.
 
 CLAUDE.md plans a Supabase `daily_content` table. The entry shape here is already that row:
 
