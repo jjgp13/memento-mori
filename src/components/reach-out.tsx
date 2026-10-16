@@ -25,7 +25,7 @@ async function message(love: Love, text: string) {
  * Message, call, and "we talked" for one person. Logging contact keeps "last time" honest and lets the
  * app suggest who to reach out to next.
  */
-export function ReachOut({ love, onChange }: { love: Love; onChange: (next: Love) => void }) {
+export function ReachOut({ love, onChange, compact }: { love: Love; onChange: (next: Love) => void; compact?: boolean }) {
   const t = useT();
   const [logged, setLogged] = useState(false);
   const last = lastContact(love);
@@ -33,11 +33,13 @@ export function ReachOut({ love, onChange }: { love: Love; onChange: (next: Love
 
   return (
     <View style={styles.wrap}>
-      <ThemedText type="small">
-        {last ? t.reach.lastTime(sinceLabel(last, t)) : t.reach.hint}
-      </ThemedText>
-      <ThemedText type="small">{t.reach.claim}</ThemedText>
-      <SourceLink source={REACHING_OUT.source} />
+      {compact ? null : (
+        <>
+          <ThemedText type="small">{last ? t.reach.lastTime(sinceLabel(last, t)) : t.reach.hint}</ThemedText>
+          <ThemedText type="small">{t.reach.claim}</ThemedText>
+          <SourceLink source={REACHING_OUT.source} />
+        </>
+      )}
       <View style={styles.row}>
         <Button title={t.reach.message} variant="ghost" onPress={() => message(love, opener)} style={styles.flex} />
         {love.phone ? (

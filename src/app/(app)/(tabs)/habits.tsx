@@ -13,6 +13,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { dec1, num } from '@/i18n/format';
 import { habitOptions } from '@/i18n/labels';
+import { countryName } from '@/lib/country';
 import { WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
 import {
   GOMPERTZ_B,
@@ -53,7 +54,7 @@ function Habits({ profile }: { profile: Profile }) {
           {dec1(median)}
         </Animated.Text>
         <ThemedText type="small" style={styles.flex}>
-          {h.median}
+          {h.median(countryName(profile.country) ?? null)}
         </ThemedText>
       </View>
 
@@ -114,7 +115,7 @@ function Factor({
       <View style={styles.options}>
         {options.map((o) => {
           const on = profile[habit] === o.value;
-          const delta = on ? 0 : survival(profile.sex, age, hazardMultiplier({ ...profile, [habit]: o.value } as ModelInput)).med - base;
+          const delta = on ? 0 : survival(profile.sex, age, hazardMultiplier({ ...profile, [habit]: o.value } as ModelInput), profile.country).med - base;
           const note = on
             ? t.habitsScreen.youNow
             : Math.abs(delta) < 0.05

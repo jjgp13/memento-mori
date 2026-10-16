@@ -30,6 +30,7 @@ export const id: Strings = {
     source: 'Sumber',
     why: 'Mengapa',
     theScience: 'Kata sains',
+    lifeTables: 'Tabel kehidupan',
     sourceA11y: (prefix, label) => `${prefix}: ${label}, terbuka di browser`,
     tickingSound: 'Suara detak',
     clockTicking: 'Detak jam',
@@ -55,6 +56,7 @@ export const id: Strings = {
     monthInitials: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
     weekdayInitials: ['M', 'S', 'S', 'R', 'K', 'J', 'S'],
     weekdays: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
+    weekdaysShort: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
     year: 'Tahun',
     month: 'Bulan',
     day: 'Hari',
@@ -135,6 +137,7 @@ export const id: Strings = {
     step: {
       you: 'Kamu',
       birth: 'Kelahiran',
+      place: 'Tempat',
       body: 'Tubuh',
       habits: 'Kebiasaan',
       time: 'Waktumu',
@@ -146,6 +149,12 @@ export const id: Strings = {
     nameA11y: 'Nama depan',
     namePlaceholder: 'Nama depanmu',
     dobQuestion: 'Kapan kamu lahir?',
+    countryQuestion: 'Kamu tinggal di mana?',
+    countryWhy:
+      'Tempat tinggal memengaruhi berapa lama orang hidup, bisa berbeda 30 tahun atau lebih antarnegara. Kami mulai dari tabel kehidupan negaramu.',
+    countrySearch: 'Cari negara',
+    countrySearchAgain: 'Di tempat lain? Cari',
+    countryNone: 'Tidak ada negara dengan nama itu di tabel PBB.',
     sexQuestion: 'Apa jenis kelaminmu saat lahir?',
     sexWhy: 'Rata-rata, perempuan hidup sekitar lima tahun lebih lama daripada laki-laki.',
     sex: { m: 'Laki-laki', f: 'Perempuan' },
@@ -191,8 +200,8 @@ export const id: Strings = {
     ],
     values: (vals) =>
       `Kamu bilang ${list(vals.map((v) => v.toLowerCase()))} paling penting bagimu. Kami akan terus mengarahkanmu kembali ke sana.`,
-    range: (med, q25, q75) =>
-      `Ini rentang, bukan tanggal: separuh orang yang hidup sepertimu mencapai usia ${med}, dan kebanyakan berada di antara ${q25} dan ${q75}. Bukan nasihat medis.`,
+    range: (med, q25, q75, country) =>
+      `Ini rentang, bukan tanggal: separuh orang yang hidup sepertimu${country ? ` di ${country}` : ''} mencapai usia ${med}, dan kebanyakan berada di antara ${q25} dan ${q75}. Bukan nasihat medis.`,
     seeLife: 'Lihat hidupmu',
   },
 
@@ -211,7 +220,7 @@ export const id: Strings = {
   },
 
   life: {
-    eyebrow: (name) => (name ? `${name}, hari ini` : 'Hari ini'),
+    eyebrow: (name) => (name ? `${name} · kemungkinan sisa waktu` : 'Kemungkinan sisa waktu'),
     verdict: (age, med, left) => [
       s('Usiamu '),
       b(age),
@@ -258,8 +267,49 @@ export const id: Strings = {
         b(hours),
         s(' jam. Gunakan dengan sengaja.'),
       ],
+      layers: (unit, sleep, phone, free) => [
+        s(' Jika dijumlahkan, sekitar '),
+        b(sleep),
+        s(` dari ${unit === 'years' ? 'tahun-tahun' : 'minggu-minggu'} itu adalah tidur (waktu yang terpakai dengan baik)`),
+        ...(phone ? [s(' dan '), b(phone), s(' di ponsel')] : []),
+        s(', menyisakan sekitar '),
+        b(free),
+        s(phone ? ' saat terjaga dan jauh dari ponsel.' : ' saat terjaga.'),
+      ],
     },
-    legend: { lived: 'Sudah dijalani', now: 'Sekarang', likely: 'Kemungkinan di depan', reach: 'Dalam jangkauan', maybe: 'Jika nasib mengizinkan' },
+    legend: {
+      lived: 'Sudah dijalani',
+      now: 'Sekarang',
+      likely: 'Kemungkinan di depan',
+      reach: 'Dalam jangkauan',
+      maybe: 'Jika nasib mengizinkan',
+      asleep: 'Tidur',
+      phone: 'Di ponsel',
+    },
+    shows: { all: 'Semua', awake: 'Terjaga', free: 'Tanpa ponsel' },
+    showA11y: 'Tampilkan waktu ke depan',
+    whatIf: 'Bagaimana jika… ketuk untuk mencoba',
+    whatIfA11y: (label, years) => `Bagaimana jika: ${label}, sekitar ${years} tahun`,
+    whatIfYears: (years) => `+${years} thn`,
+    weeksAhead: 'Minggu-minggumu ke depan',
+    weeksUnit: 'minggu',
+    bar: { free: 'terjaga, tanpa ponsel', phone: 'di ponsel', sleep: 'tidur' },
+    barLever: (label) => label.toLowerCase(),
+    triedTotal: (several, weeks, years, capped) => [
+      s(several ? 'Bersama-sama, sekitar ' : 'Sekitar '),
+      b(`${weeks} minggu lagi`),
+      s(` (${years} tahun)`),
+      s(several ? `: kurang dari jumlahnya, karena efek kebiasaan saling tumpang tindih${capped ? ', dan dibatasi' : ''}.` : '.'),
+    ],
+    triedOne: (label, years) => `${label}: sekitar ${years} tahun jika sendiri`,
+    tapWhatIf: 'Ketuk “Bagaimana jika” di kalender untuk melihat apa yang bisa ditambahkan sebuah perubahan.',
+    makePlan: 'Buat rencana kecil',
+    makePlanA11y: (label) => `Buat rencana kecil untuk: ${label}`,
+    onePlanAtATime: (sentence) => `Satu rencana kecil dalam satu waktu: ini akan menggantikan “${sentence}”`,
+    tablesFor: (country) => `Berawal dari tabel kehidupan ${country}.`,
+    tablesUS: 'Berawal dari perkiraan tabel kehidupan AS.',
+    changeCountry: 'Ganti negara',
+    setCountry: 'Pilih negaramu',
     phoneTitle: 'Ponselmu',
     phoneLine: (hours, years, share) => [
       s(`${hours} jam sehari adalah sekitar `),
@@ -278,7 +328,7 @@ export const id: Strings = {
     together: (several, gain, capped) => [
       s(several ? 'Bersama-sama, sekitar ' : 'Itu sekitar '),
       b(`${gain} tahun lagi`),
-      s(`${capped ? ' (dibatasi: efek kebiasaan saling tumpang tindih)' : ''}. Itulah lingkaran perunggu di bawah.`),
+      s(`${capped ? ' (dibatasi: efek kebiasaan saling tumpang tindih)' : ''}. Coba di kalender dengan “Bagaimana jika”.`),
     ],
     allGood: 'Kamu sudah melakukan hal-hal yang paling menambah waktu. Pertahankan, dan jaga orang-orang tercintamu tetap dekat.',
   },
@@ -299,7 +349,8 @@ export const id: Strings = {
   habitsScreen: {
     eyebrow: 'Yang ada dalam kendalimu',
     title: 'Ubah satu kebiasaan, ubah hitungannya',
-    median: 'usia median bagi orang yang hidup sepertimu. Ketuk satu pilihan untuk melihat apa yang berubah.',
+    median: (country) =>
+      `usia median bagi orang yang hidup sepertimu${country ? ` di ${country}` : ''}. Ketuk satu pilihan untuk melihat apa yang berubah.`,
     whatMatters: 'YANG PALING PENTING',
     ranked: 'Diurutkan menurut besar dan kuatnya bukti. Ketuk satu untuk melihat angka dan sumbernya.',
     exerciseReplaced: 'Digantikan oleh langkah harianmu di atas, agar tidak ada yang dihitung dua kali.',
@@ -386,13 +437,141 @@ export const id: Strings = {
   },
 
   howItWorks: [
-    'Risiko kematian tahunan setiap orang naik seiring usia, kira-kira berlipat dua setiap 8 tahun. Kami mulai dari kurva itu untuk jenis kelaminmu, perkiraan dari tabel kehidupan AS.',
+    'Risiko kematian tahunan setiap orang naik seiring usia, kira-kira berlipat dua setiap 7 tahun. Kami mulai dari kurva itu untuk jenis kelaminmu di negaramu, disesuaikan dengan tabel kehidupan PBB (World Population Prospects 2024, kematian 2023). Tanpa negara, kami memakai perkiraan tabel AS.',
     'Kebiasaanmu mengalikan risiko itu: merokok ×2,2, olahraga 3+ kali seminggu ×0,85, tidur kurang dari 6 jam ×1,15, jarang bertemu orang terdekat ×1,29, dan seterusnya.',
     'Kami mengikuti risiko itu bulan demi bulan dari usiamu sekarang. Usia saat separuh orang sepertimu telah meninggal adalah median-mu; tanda 25% dan 75% memberi rentangmu.',
     'Aturan praktis: tahun ≈ ln(pengali risiko) ÷ 0,085. Karena itu risiko dua kali lipat mengurangi sekitar 8 tahun, dan berhenti merokok bisa mengembalikan sekitar 9.',
     'Beberapa perubahan sekaligus menambah lebih sedikit dari jumlah masing-masing, dan kami membatasi totalnya 14 tahun, selisih terbesar dari semua kebiasaan dalam sebuah studi besar di AS.',
     'Ini adalah keterkaitan dari studi populasi, bukan sebab-akibat, dan bukan nasihat medis.',
   ],
+
+  claims: {
+    lifeTables: 'Tabel kehidupan untuk 237 negara dan wilayah, menurut jenis kelamin, perkiraan 2023.',
+    plans: 'Menentukan kapan dan di mana kamu akan melakukan sesuatu, dalam bentuk “jika… maka…”, membuatnya jauh lebih mungkin terlaksana (94 studi).',
+    freshStart: 'Orang lebih mungkin memulai tujuan di awal minggu, awal bulan, atau saat ulang tahun: awal yang baru.',
+    comingBack:
+      'Dalam uji coba dorongan olahraga terbesar (61.293 orang), yang paling membantu adalah memberi penghargaan saat kembali setelah melewatkan latihan.',
+    personalNumbers:
+      'Melihat angkamu sendiri bisa membantu: perokok yang diberi tahu “usia paru-paru” mereka sekitar dua kali lebih mungkin berhenti dalam setahun (13,6% vs 6,4%).',
+    walkAfterMeals: 'Berjalan ringan beberapa menit setelah makan menurunkan gula darah sekitar 17% dibanding duduk.',
+  },
+
+  plans: {
+    everyDay: 'Setiap hari',
+    weekdays: 'Hari kerja',
+    weekends: 'Akhir pekan',
+    days: (days) => {
+      const names = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const short = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+      if (days.length === 1) return `Setiap ${names[days[0]]}`;
+      if (days.length === 2) return `Setiap ${names[days[0]]} dan ${names[days[1]]}`;
+      return `Setiap ${list(days.map((d) => short[d]))}`;
+    },
+    time: (h, m) => `${String(h).padStart(2, '0')}.${String(m).padStart(2, '0')}`,
+    cue: (days, anchor, time) => `${days} ${anchor ?? `pukul ${time}`}`,
+    sentence: (cue, action) => `${cue}, aku akan ${action}.`,
+    nameInSentence: (name) => name,
+    today: 'hari ini',
+    tomorrow: 'besok',
+    anchors: {
+      breakfast: 'setelah sarapan',
+      lunch: 'setelah makan siang',
+      work: 'sepulang kerja',
+      dinner: 'setelah makan malam',
+      morning: 'pagi hari',
+      cigarette: 'saat ingin merokok',
+      atLunch: 'saat makan siang',
+    },
+    call: (name) => `menelepon ${name}`,
+    messageOrCall: (name) => `mengirim pesan atau menelepon ${name}`,
+    actions: {
+      walk: 'jalan kaki 10 menit',
+      connect: 'menelepon atau menemui orang yang kucintai',
+      bed: 'menyingkirkan ponsel dan bersiap tidur',
+      smoke: 'jalan kaki 5 menit dulu',
+      drink: 'minum segelas air soda dulu',
+      plate: 'mengisi setengah piring dengan sayuran',
+    },
+    withAnchor: (action, anchor) => `${action} ${anchor}`,
+    capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),
+    periodWeek: 'minggu ini',
+    periodBirthday: 'tahun barumu',
+    calendarNote: 'Terlewat sekali tidak apa-apa: lanjutkan saja lain kali. Dari Memento Mori.',
+    when: 'KAPAN',
+    daysA11y: 'Hari',
+    atSetTime: 'pada jam tertentu',
+    anchorPlaceholder: 'atau dengan kata-katamu: saat aku sampai di rumah',
+    anchorA11y: 'Momen yang mengingatkanmu, dengan kata-katamu',
+    around: 'Sekitar (untuk pengingat)',
+    at: 'Pukul',
+    timeA11y: 'Waktu',
+    iWill: 'AKU AKAN',
+    actionPlaceholder: 'menelepon Ibu',
+    actionA11y: 'Apa yang akan kamu lakukan',
+    save: 'Simpan rencana',
+    cancel: 'Batal',
+    planReachOut: 'Rencanakan kapan menghubungi',
+    planReachOutA11y: (name) => `Rencanakan kapan menghubungi ${name}`,
+    yourPlan: 'Rencanamu',
+    edit: 'Ubah',
+    removeA11y: 'Hapus rencana ini',
+    addToCalendar: 'Tambahkan ke kalenderku',
+    calendarSaved: 'Tersimpan: buka untuk menambahkan ✓',
+    addToCalendarA11y: (title) => `Tambahkan "${title}" ke kalendermu sebagai acara berulang`,
+  },
+
+  thisWeek: {
+    heading: 'Minggu ini',
+    doneToday: 'selesai hari ini ✓',
+    doneThisWeek: 'selesai minggu ini ✓',
+    next: (when) => `berikutnya: ${when}`,
+    welcomeBack: (name) =>
+      `Selamat datang kembali${name ? `, ${name}` : ''}. Rencana bisa terlewat bagi siapa saja, dan itu tidak apa-apa: yang penting memulainya lagi. Minggu ini adalah halaman baru.`,
+    oneThingFor: (period) => `Satu hal untuk ${period}`,
+    doneMark: ' · selesai ✓',
+    did: 'Selesai',
+    didToday: 'Selesai hari ini ✓',
+    moreVisits: (n, name) => `Sekitar ${n} kali bertemu lagi dengan ${name} dengan kebiasaanmu sekarang.`,
+    smallStep: (label, years) => `${label} bisa menambah sekitar ${years} tahun. Ini langkah kecil ke arah itu.`,
+    noPlans:
+      'Belum ada rencana. Rencana adalah “kapan, lalu apa” yang kecil: “Setiap Minggu setelah makan siang, aku akan menelepon Ibu.” Kamu bisa membuatnya untuk siapa saja di Yang Dicinta, atau untuk kebiasaan di Hidup.',
+    suggestHeading: 'Rencana yang bisa kamu coba',
+    suggestPerson: (n, name) =>
+      `Sekitar ${n} kali bertemu lagi dengan ${name} dengan kebiasaanmu sekarang. Rencana membuat pertemuan berikutnya lebih mungkin.`,
+    suggestLever: (label, years) => `${label} bisa menambah sekitar ${years} tahun. Rencana kecil adalah cara untuk memulai.`,
+    whyPlans: 'Mengapa rencana membantu',
+    makeItMine: 'Jadikan rencanaku',
+    changeIt: 'Ubah',
+    notNow: 'Nanti saja',
+  },
+
+  freshStart: {
+    eyebrow: { week: 'Senin · awal yang baru', month: 'Tanggal 1 · awal yang baru', birthday: 'Ulang tahunmu · awal yang baru' },
+    title: (period) => `Satu hal untuk ${period}?`,
+    birthday: (name, weeks) =>
+      `Selamat ulang tahun${name ? `, ${name}` : ''}. Kamu sudah hidup sekitar ${weeks} minggu, sebagian di antaranya indah. Apa satu hal yang bisa kamu lakukan di tahun yang akan datang?`,
+    prompt: (week, month) =>
+      `Apa satu hal yang bisa kamu lakukan ${week ? 'minggu ini' : `di bulan ${month}`} yang akan membuatmu senang telah melakukannya?`,
+    callIdea: (name) => `Menelepon ${name}`,
+    gratitudeIdea: 'Menulis untuk seseorang yang kusyukuri',
+    useIdea: (idea) => `Pakai ide: ${idea}`,
+    ownPlaceholder: 'atau idemu sendiri',
+    a11y: (period) => `Satu hal untuk ${period}`,
+    choose: 'Jadikan satu hal milikku',
+    notToday: 'Tidak hari ini',
+  },
+
+  todaysCount: {
+    pet: 'Jalan-jalan atau waktu tenang bersama hari ini?',
+    activity: 'Bisakah kamu memilih hari untuk berikutnya? Menentukan kapan membuatnya lebih mungkin terjadi.',
+    agency: (label, years, more, what) => [
+      s(`${label} bisa menambah sekitar `),
+      b(`${years} tahun`),
+      s(': sekitar '),
+      b(more),
+      s(` ${what}. Kamu bisa mencobanya di kalender Hidup.`),
+    ],
+  },
 
   loves: {
     per: PER,

@@ -1,10 +1,15 @@
 /**
- * Checks src/lib/model.ts against the prototype's original model code across every combination
- * of answers. Run with `npm run check:model` (Node 22.18+ runs TypeScript directly; excluded from the app typecheck).
+ * Checks src/lib/model.ts:
+ * 1. With no country, it matches the prototype's original model code across every combination of answers
+ *    (so profiles saved before countries existed get the same estimate).
+ * 2. With each country, the fitted median age at death from birth is within a year of that country's
+ *    UN life table (med0, stored by scripts/fit-country-tables.mts).
+ * Run with `npm run check:model` (Node 22.18+ runs TypeScript directly; excluded from the app typecheck).
  * If a deliberate model change makes this fail, bump MODEL_VERSION and update or retire this check.
  */
 import { readFileSync } from 'node:fs';
 
+import { COUNTRY_TABLES } from '../src/lib/country-tables.ts';
 import * as M from '../src/lib/model.ts';
 
 const html = readFileSync(new URL('../prototype/index.html', import.meta.url), 'utf8');
@@ -37,6 +42,22 @@ for (const sex of ['m', 'f'] as const)
               }
 
 // The two sides read the clock a moment apart, so allow a sliver of drift.
-const ok = maxDiff < 1e-4;
-console.log(`${ok ? 'OK' : 'MISMATCH'}: ${profiles} profiles, max difference ${maxDiff.toExponential(2)} years`);
-process.exit(ok ? 0 : 1);
+const parity = maxDiff < 1e-4;
+console.log(`${parity ? 'OK' : 'MISMATCH'}: no country vs prototype, ${profiles} profiles, max difference ${maxDiff.toExponential(2)} years`);
+
+const TOLERANCE = 1;
+const misses: string[] = [];
+let worst = 0;
+for (const c of COUNTRY_TABLES)
+  for (const sex of ['m', 'f'] as const) {
+    const diff = M.survival(sex, 0, 1, c.code).med - c[sex].med0;
+    worst = Math.max(worst, Math.abs(diff));
+    if (Math.abs(diff) > TOLERANCE) misses.push(`${c.name} (${c.code}) ${sex}: ${diff > 0 ? '+' : ''}${diff.toFixed(2)}`);
+  }
+const fits = misses.length === 0 && COUNTRY_TABLES.length > 0;
+console.log(
+  `${fits ? 'OK' : 'MISFIT'}: ${COUNTRY_TABLES.length} countries × 2 sexes, median at birth within ${TOLERANCE} year of the UN table (worst ${worst.toFixed(2)})`,
+);
+for (const m of misses) console.log(`  ${m}`);
+
+process.exit(parity && fits ? 0 : 1);

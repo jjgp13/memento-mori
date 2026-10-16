@@ -95,10 +95,49 @@ export const WHAT_MATTERS: Evidence[] = [
   },
 ];
 
+/** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */
+export const LIFE_TABLES = {
+  /** The claim itself is in the language catalogs, under `claims`. */
+  source: { label: 'UN World Population Prospects 2024', url: 'https://population.un.org/wpp/' },
+};
+
 /** Behavior findings used in copy (see docs/nudges.md), not ranked as health factors. */
 export const REACHING_OUT = {
   /** The claim itself is `t.reach.claim`. */
   source: { label: 'Liu et al., J Pers Soc Psychol 2023', url: 'https://www.apa.org/news/press/releases/2022/07/friends-enjoy-being-reached' },
+};
+
+/** If-then plans (docs/nudges.md §1a). */
+export const PLANS = {
+  /** The claim itself is in the language catalogs, under `claims`. */
+  source: {
+    label: 'Gollwitzer & Sheeran, Adv Exp Soc Psychol 2006',
+    url: 'https://www.socmot.uni-konstanz.de/publications/implementation-intentions-and-goal-achievement-meta-analysis-effects-and-processes',
+  },
+};
+
+/** Fresh starts (docs/nudges.md §1d). */
+export const FRESH_START = {
+  /** The claim itself is in the language catalogs, under `claims`. */
+  source: { label: 'Dai, Milkman & Riis, Management Science 2014', url: 'https://faculty.wharton.upenn.edu/wp-content/uploads/2014/06/Dai_Fresh_Start_2014_Mgmt_Sci.pdf' },
+};
+
+/** Welcome-backs (docs/nudges.md §1e). */
+export const COMING_BACK = {
+  /** The claim itself is in the language catalogs, under `claims`. */
+  source: { label: 'Milkman et al., Nature 2021', url: 'https://authors.library.caltech.edu/records/mys88-cc756' },
+};
+
+/** Personal numbers, like "lung age" (docs/nudges.md §1k). */
+export const PERSONAL_NUMBERS = {
+  /** The claim itself is in the language catalogs, under `claims`. */
+  source: { label: 'Parkes et al., BMJ 2008', url: 'https://www.bmj.com/content/336/7644/598' },
+};
+
+/** Short walks after meals (docs/nudges.md §1j). */
+export const WALK_AFTER_MEALS = {
+  /** The claim itself is in the language catalogs, under `claims`. */
+  source: { label: 'Buffey et al., Sports Med 2022', url: 'https://ktvz.com/health/cnn-health/2023/09/08/just-2-minutes-of-walking-after-eating-can-help-blood-sugar-study-says-2/' },
 };
 
 /** Which evidence backs each habit, lever or claim, so every number in the app can link to its source. */

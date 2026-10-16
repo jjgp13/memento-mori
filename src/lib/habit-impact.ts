@@ -26,14 +26,14 @@ export const MAX_TOTAL_GAIN = 14;
 /** Changes smaller than this aren't worth a headline. */
 const MIN_LEVER_YEARS = 0.2;
 
-const medianWith = (p: ModelInput, now: number) => survival(p.sex, ageAt(p.dob, now), hazardMultiplier(p)).med;
+const medianWith = (p: ModelInput, now: number) => survival(p.sex, ageAt(p.dob, now), hazardMultiplier(p), p.country).med;
 
 /**
  * Years your answers add (+) or cost (−) versus the reference answers (hazard ratio 1:
  * non-smoker, some exercise, healthy weight, light drinking, 6–9 h sleep).
  */
 export function habitsEffect(p: ModelInput, now = Date.now()) {
-  return medianWith(p, now) - survival(p.sex, ageAt(p.dob, now), 1).med;
+  return medianWith(p, now) - survival(p.sex, ageAt(p.dob, now), 1, p.country).med;
 }
 
 /** A single change; its label is `t.levers[key]`. */
@@ -68,14 +68,18 @@ export function bestLever(p: ModelInput, now = Date.now()): Lever | null {
  * single changes, since the model multiplies risks rather than adding years.
  */
 export function combinedGain(p: ModelInput, now = Date.now()) {
-  const levers = allLevers(p, now);
-  if (!levers.length) return 0;
+  return gainFrom(p, allLevers(p, now).map((l) => l.key), now);
+}
+
+/** Years these changes together would likely add ("what if I quit smoking and slept more?"), capped. */
+export function gainFrom(p: ModelInput, keys: Lever['key'][], now = Date.now()) {
+  if (!keys.length) return 0;
   const best = { ...p };
-  for (const l of levers) {
-    if (l.key === 'steps') best.steps = 10000;
-    else Object.assign(best, { [l.key]: BEST[l.key] });
+  for (const k of keys) {
+    if (k === 'steps') best.steps = 10000;
+    else Object.assign(best, { [k]: BEST[k] });
   }
-  return Math.min(MAX_TOTAL_GAIN, medianWith(best, now) - medianWith(p, now));
+  return Math.min(MAX_TOTAL_GAIN, Math.max(0, medianWith(best, now) - medianWith(p, now)));
 }
 
 /** The answer for each habit that carries no extra risk (hazard ratio 1). */

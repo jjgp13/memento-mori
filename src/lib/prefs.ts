@@ -13,10 +13,23 @@ export type Prefs = {
   tickLife: boolean;
   /** Language picked on the You screen; null follows the device. */
   language: Lang | null;
+  /** Last time the Today screen was opened, to welcome people back after a while away. 0 = never. */
+  lastSeen: number;
+  /** When a suggested plan was waved off; no new suggestion for a week after (docs/nudges.md §2). */
+  planNudgeDismissedAt: number;
+  /** When today's fresh-start offer was waved off. */
+  freshStartDismissedAt: number;
 };
 
 const KEY = 'mm.prefs.v1';
-const DEFAULTS: Prefs = { tickOnboarding: true, tickLife: false, language: null };
+const DEFAULTS: Prefs = {
+  tickOnboarding: true,
+  tickLife: false,
+  language: null,
+  lastSeen: 0,
+  planNudgeDismissedAt: 0,
+  freshStartDismissedAt: 0,
+};
 const listeners = new Set<() => void>();
 let current: Prefs = read();
 

@@ -35,6 +35,7 @@ export const en = {
     source: 'Source',
     why: 'Why',
     theScience: 'The science',
+    lifeTables: 'Life tables',
     sourceA11y: (prefix: string, label: string) => `${prefix}: ${label}, opens in browser`,
     tickingSound: 'Ticking sound',
     clockTicking: 'Clock ticking',
@@ -63,6 +64,7 @@ export const en = {
     /** Sunday first. */
     weekdayInitials: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
     weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     year: 'Year',
     month: 'Month',
     day: 'Day',
@@ -146,6 +148,7 @@ export const en = {
     step: {
       you: 'You',
       birth: 'Birth',
+      place: 'Place',
       body: 'Body',
       habits: 'Habits',
       time: 'Your time',
@@ -157,6 +160,12 @@ export const en = {
     nameA11y: 'First name',
     namePlaceholder: 'Your first name',
     dobQuestion: 'When were you born?',
+    countryQuestion: 'Where do you live?',
+    countryWhy:
+      "Where you live shapes how long people live, by 30 years or more between countries. We start from your country's life tables.",
+    countrySearch: 'Search countries',
+    countrySearchAgain: 'Somewhere else? Search',
+    countryNone: 'No country by that name in the UN tables.',
     sexQuestion: 'What was your sex at birth?',
     sexWhy: 'On average women outlive men by about five years.',
     sex: { m: 'Male', f: 'Female' },
@@ -201,8 +210,8 @@ export const en = {
     ],
     values: (vals: string[]) =>
       `You said ${list(vals.map((v) => v.toLowerCase()))} ${plural(vals.length, 'matters', 'matter')} most. We will keep pointing you back to ${plural(vals.length, 'it', 'them')}.`,
-    range: (med: number, q25: number, q75: number) =>
-      `This is a range, not a date: half of people living like you reach ${med}, and most land between ${q25} and ${q75}. Not medical advice.`,
+    range: (med: number, q25: number, q75: number, country: string | null) =>
+      `This is a range, not a date: half of people living like you${country ? ` in ${country}` : ''} reach ${med}, and most land between ${q25} and ${q75}. Not medical advice.`,
     seeLife: 'See your life',
   },
 
@@ -222,7 +231,8 @@ export const en = {
   },
 
   life: {
-    eyebrow: (name: string) => (name ? `${name}, today` : 'Today'),
+    /** Above the countdown. */
+    eyebrow: (name: string) => (name ? `${name} · likely time left` : 'Likely time left'),
     verdict: (age: string, med: number, left: number): Rich => [
       s('You are '),
       b(age),
@@ -269,8 +279,51 @@ export const en = {
         b(hours),
         s(' hours left. Spend them on purpose.'),
       ],
+      /** Added after the Life or Weeks caption when sleep (and phone) are shown. Sleep is time well spent, never "lost". */
+      layers: (unit: 'years' | 'weeks', sleep: string, phone: string | null, free: string): Rich => [
+        s(' Added up, about '),
+        b(sleep),
+        s(` of those ${unit} are sleep (time well spent)`),
+        ...(phone ? [s(' and '), b(phone), s(' on your phone')] : []),
+        s(', leaving about '),
+        b(free),
+        s(phone ? ' awake and off your phone.' : ' awake.'),
+      ],
     },
-    legend: { lived: 'Lived', now: 'Now', likely: 'Likely ahead', reach: 'Within reach', maybe: 'If fortune allows' },
+    shows: { all: 'All', awake: 'Awake', free: 'Off phone' },
+    showA11y: 'Show time ahead',
+    whatIf: 'What if… tap to try',
+    whatIfA11y: (label: string, years: string) => `What if: ${label}, about ${years} years`,
+    whatIfYears: (years: string) => `+${years}y`,
+    weeksAhead: 'Your weeks ahead',
+    weeksUnit: 'weeks',
+    bar: { free: 'awake, off phone', phone: 'on your phone', sleep: 'asleep' },
+    /** A change's name as a bar label: "quitting smoking". */
+    barLever: (label: string) => label.toLowerCase(),
+    triedTotal: (several: boolean, weeks: string, years: string, capped: boolean): Rich => [
+      s(several ? 'Together, about ' : 'About '),
+      b(`${weeks} more weeks`),
+      s(` (${years} years)`),
+      s(several ? `: less than the sum, since habit effects overlap${capped ? ', and capped' : ''}.` : '.'),
+    ],
+    triedOne: (label: string, years: string) => `${label}: about ${years} years on its own`,
+    tapWhatIf: 'Tap a “What if” on the calendar to see what a change could add.',
+    makePlan: 'Make a small plan',
+    makePlanA11y: (label: string) => `Make a small plan for: ${label}`,
+    onePlanAtATime: (sentence: string) => `One small plan at a time: this would take the place of “${sentence}”`,
+    tablesFor: (country: string) => `Starting from life tables for ${country}.`,
+    tablesUS: 'Starting from an approximation of US life tables.',
+    changeCountry: 'Change country',
+    setCountry: 'Set your country',
+    legend: {
+      lived: 'Lived',
+      now: 'Now',
+      likely: 'Likely ahead',
+      reach: 'Within reach',
+      maybe: 'If fortune allows',
+      asleep: 'Asleep',
+      phone: 'On your phone',
+    },
     phoneTitle: 'Your phone',
     phoneLine: (hours: string, years: string, share: string): Rich => [
       s(`${hours} hours a day is about `),
@@ -293,7 +346,7 @@ export const en = {
     together: (several: boolean, gain: string, capped: boolean): Rich => [
       s(several ? 'Together, about ' : 'That is about '),
       b(`${gain} more years`),
-      s(`${capped ? ' (capped: habit effects overlap)' : ''}. They are the bronze circles below.`),
+      s(`${capped ? ' (capped: habit effects overlap)' : ''}. Try them on the calendar with What if.`),
     ],
     allGood: 'You are already doing the things that add the most time. Keep them, and keep your people close.',
   },
@@ -315,7 +368,8 @@ export const en = {
   habitsScreen: {
     eyebrow: 'What is in your control',
     title: 'Change a habit, change the count',
-    median: 'median age for someone living like you. Tap an option to see what it would change.',
+    median: (country: string | null) =>
+      `median age for someone living like you${country ? ` in ${country}` : ''}. Tap an option to see what it would change.`,
     whatMatters: 'WHAT MATTERS MOST',
     ranked: 'Ranked by size and strength of evidence. Tap one to see the numbers and the source.',
     exerciseReplaced: 'Replaced by your daily steps above, so nothing is counted twice.',
@@ -403,13 +457,152 @@ export const en = {
   },
 
   howItWorks: [
-    'Everyone’s yearly risk of dying rises with age, roughly doubling every 8 years. We start from that curve for your sex, an approximation of US life tables.',
+    'Everyone’s yearly risk of dying rises with age, roughly doubling every 7 years. We start from that curve for your sex in your country, fitted to its UN life table (World Population Prospects 2024, deaths in 2023). Without a country, we use an approximation of US tables.',
     'Your habits multiply that risk: smoking ×2.2, exercising 3+ times a week ×0.85, under 6 hours of sleep ×1.15, rarely seeing people you are close to ×1.29, and so on.',
     'We follow that risk month by month from your age today. The age by which half of people like you have died is your median; the 25% and 75% marks give your range.',
     'Rule of thumb: years ≈ ln(risk multiplier) ÷ 0.085. That is why doubling your risk costs about 8 years, and why quitting smoking can give back about 9.',
     'Several changes together add less than their sum, and we cap the total at 14 years, the largest all-habits difference found in a major US study.',
     'These are associations from population studies, not causes, and not medical advice.',
   ],
+
+  /** Findings quoted next to their sources (lib/evidence.ts holds the links). */
+  claims: {
+    lifeTables: 'Life tables for 237 countries and areas, by sex, estimates for 2023.',
+    plans:
+      'Deciding when and where you will do something, as an if-then, makes following through much more likely (94 studies).',
+    freshStart: 'People are more likely to start on a goal at a new week, a new month or a birthday: a fresh start.',
+    comingBack:
+      'In the largest test of exercise nudges (61,293 people), what helped most was rewarding a return after a missed workout.',
+    personalNumbers:
+      'Seeing your own numbers can help: smokers told their "lung age" were about twice as likely to quit within a year (13.6% vs 6.4%).',
+    walkAfterMeals: 'A few minutes of light walking after a meal lowered blood sugar by about 17% compared with sitting.',
+  },
+
+  /** If-then plans (lib/plans.ts). Plans keep the words they were made with, so defaults are only a start. */
+  plans: {
+    everyDay: 'Every day',
+    weekdays: 'Weekdays',
+    weekends: 'Weekends',
+    /** Days in week order (Monday first, 0 = Sunday): "Sundays", "Mondays and Thursdays", "Mon, Wed and Fri". */
+    days: (days: number[]) => {
+      const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const short = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      if (days.length === 1) return `${names[days[0]]}s`;
+      if (days.length === 2) return `${names[days[0]]}s and ${names[days[1]]}s`;
+      return list(days.map((d) => short[d]));
+    },
+    /** "12:30 pm" */
+    time: (h: number, m: number) => `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`,
+    /** The "when": "Sundays after lunch", "Weekdays at 8:00 am". */
+    cue: (days: string, anchor: string | null, time: string) => `${days} ${anchor ?? `at ${time}`}`,
+    /** "Sundays after lunch, I will call Mom." */
+    sentence: (cue: string, action: string) => `${cue}, I will ${action}.`,
+    /** "call my best friend", not "call My best friend". */
+    nameInSentence: (name: string) => name.replace(/^My /, 'my '),
+    today: 'today',
+    tomorrow: 'tomorrow',
+    anchors: {
+      breakfast: 'after breakfast',
+      lunch: 'after lunch',
+      work: 'after work',
+      dinner: 'after dinner',
+      morning: 'in the morning',
+      cigarette: 'when I want a cigarette',
+      atLunch: 'at lunch',
+    },
+    call: (name: string) => `call ${name}`,
+    messageOrCall: (name: string) => `message or call ${name}`,
+    actions: {
+      walk: 'go for a 10-minute walk',
+      connect: 'call or see someone I love',
+      bed: 'put my phone away and get ready for bed',
+      smoke: 'take a 5-minute walk first',
+      drink: 'have a glass of sparkling water first',
+      plate: 'fill half my plate with vegetables',
+    },
+    /** A habit step as a one-thing idea: "Go for a 10-minute walk after dinner". */
+    withAnchor: (action: string, anchor: string) => `${action} ${anchor}`,
+    capitalize: (s: string) => s.charAt(0).toUpperCase() + s.slice(1),
+    /** "One thing for this week / October / your new year" */
+    periodWeek: 'this week',
+    periodBirthday: 'your new year',
+    calendarNote: 'Missing one is fine: just pick it up next time. From Memento Mori.',
+    // Editor
+    when: 'WHEN',
+    daysA11y: 'Days',
+    atSetTime: 'at a set time',
+    anchorPlaceholder: 'or in your words: when I get home',
+    anchorA11y: 'The moment that reminds you, in your words',
+    around: 'Around (for reminders)',
+    at: 'At',
+    timeA11y: 'Time',
+    iWill: 'I WILL',
+    actionPlaceholder: 'call Mom',
+    actionA11y: 'What you will do',
+    save: 'Save plan',
+    cancel: 'Cancel',
+    planReachOut: 'Plan when to reach out',
+    planReachOutA11y: (name: string) => `Plan when to reach out to ${name}`,
+    yourPlan: 'Your plan',
+    edit: 'Edit',
+    removeA11y: 'Remove this plan',
+    addToCalendar: 'Add to my calendar',
+    calendarSaved: 'Saved: open it to add ✓',
+    addToCalendarA11y: (title: string) => `Add "${title}" to your calendar as a repeating event`,
+  },
+
+  thisWeek: {
+    heading: 'This week',
+    doneToday: 'done today ✓',
+    doneThisWeek: 'done this week ✓',
+    next: (when: string) => `next: ${when}`,
+    welcomeBack: (name: string) =>
+      `Welcome back${name ? `, ${name}` : ''}. Plans slip for everyone, and that is fine: picking one up again is what counts. This week is a fresh page.`,
+    oneThingFor: (period: string) => `One thing for ${period}`,
+    doneMark: ' · done ✓',
+    did: 'Done',
+    didToday: 'Done today ✓',
+    moreVisits: (n: string, name: string) => `About ${n} more visits with ${name} at your current pace.`,
+    smallStep: (label: string, years: string) => `${label} could add about ${years} years. This is a small step toward it.`,
+    noPlans:
+      'No plans yet. A plan is a small “when, then”: “Sundays after lunch, I will call Mom.” You could make one on anyone in Loves, or for a habit on Life.',
+    suggestHeading: 'A plan you could try',
+    suggestPerson: (n: string, name: string) =>
+      `About ${n} more visits with ${name} at your current pace. A plan makes the next one more likely.`,
+    suggestLever: (label: string, years: string) => `${label} could add about ${years} years. A small plan is a way to start.`,
+    whyPlans: 'Why plans help',
+    makeItMine: 'Make it my plan',
+    changeIt: 'Change it',
+    notNow: 'Not now',
+  },
+
+  freshStart: {
+    eyebrow: { week: 'Monday · a fresh start', month: 'The 1st · a fresh start', birthday: 'Your birthday · a fresh start' },
+    title: (period: string) => `One thing for ${period}?`,
+    birthday: (name: string, weeks: string) =>
+      `Happy birthday${name ? `, ${name}` : ''}. You have lived about ${weeks} weeks, some of them wonderful. What is one thing you could do with the year ahead?`,
+    prompt: (week: boolean, month: string) =>
+      `What is one thing you could do ${week ? 'this week' : `in ${month}`} that you would be glad you did?`,
+    callIdea: (name: string) => `Call ${name}`,
+    gratitudeIdea: 'Write to someone I am grateful for',
+    useIdea: (idea: string) => `Use idea: ${idea}`,
+    ownPlaceholder: 'or your own',
+    a11y: (period: string) => `One thing for ${period}`,
+    choose: 'Make it my one thing',
+    notToday: 'Not today',
+  },
+
+  todaysCount: {
+    pet: 'A walk or some quiet time together today?',
+    activity: 'Could you pick a day for the next one? Deciding when makes it more likely.',
+    agency: (label: string, years: string, more: string, what: string): Rich => [
+      s(`${label} could add about `),
+      b(`${years} years`),
+      s(': about '),
+      b(more),
+      s(` ${what}. You can try it on the Life calendar.`),
+    ],
+  },
 
   loves: {
     per: PER,

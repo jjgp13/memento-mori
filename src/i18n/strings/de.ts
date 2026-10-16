@@ -31,6 +31,7 @@ export const de: Strings = {
     source: 'Quelle',
     why: 'Warum',
     theScience: 'Die Forschung',
+    lifeTables: 'Sterbetafeln',
     sourceA11y: (prefix, label) => `${prefix}: ${label}, öffnet im Browser`,
     tickingSound: 'Ticken',
     clockTicking: 'Uhrticken',
@@ -56,6 +57,7 @@ export const de: Strings = {
     monthInitials: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
     weekdayInitials: ['S', 'M', 'D', 'M', 'D', 'F', 'S'],
     weekdays: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+    weekdaysShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
     year: 'Jahr',
     month: 'Monat',
     day: 'Tag',
@@ -136,6 +138,7 @@ export const de: Strings = {
     step: {
       you: 'Du',
       birth: 'Geburt',
+      place: 'Ort',
       body: 'Körper',
       habits: 'Gewohnheiten',
       time: 'Deine Zeit',
@@ -147,6 +150,12 @@ export const de: Strings = {
     nameA11y: 'Vorname',
     namePlaceholder: 'Dein Vorname',
     dobQuestion: 'Wann bist du geboren?',
+    countryQuestion: 'Wo lebst du?',
+    countryWhy:
+      'Wo man lebt, prägt, wie lange Menschen leben: zwischen Ländern um 30 Jahre oder mehr. Wir starten mit den Sterbetafeln deines Landes.',
+    countrySearch: 'Land suchen',
+    countrySearchAgain: 'Woanders? Suchen',
+    countryNone: 'Kein Land mit diesem Namen in den UN-Tafeln.',
     sexQuestion: 'Welches Geschlecht wurde dir bei der Geburt zugewiesen?',
     sexWhy: 'Im Durchschnitt leben Frauen etwa fünf Jahre länger als Männer.',
     sex: { m: 'Männlich', f: 'Weiblich' },
@@ -192,8 +201,8 @@ export const de: Strings = {
     ],
     values: (vals) =>
       `Du hast gesagt, ${list(vals)} ${plural(vals.length, 'ist', 'sind')} dir am wichtigsten. Wir führen dich immer wieder dorthin zurück.`,
-    range: (med, q25, q75) =>
-      `Das ist eine Spanne, kein Datum: Die Hälfte der Menschen, die so leben wie du, wird ${med}, und die meisten landen zwischen ${q25} und ${q75}. Keine medizinische Beratung.`,
+    range: (med, q25, q75, country) =>
+      `Das ist eine Spanne, kein Datum: Die Hälfte der Menschen, die so leben wie du${country ? ` (${country})` : ''}, wird ${med}, und die meisten landen zwischen ${q25} und ${q75}. Keine medizinische Beratung.`,
     seeLife: 'Dein Leben ansehen',
   },
 
@@ -212,7 +221,7 @@ export const de: Strings = {
   },
 
   life: {
-    eyebrow: (name) => (name ? `${name}, heute` : 'Heute'),
+    eyebrow: (name) => (name ? `${name} · wahrscheinlich verbleibende Zeit` : 'Wahrscheinlich verbleibende Zeit'),
     verdict: (age, med, left) => [
       s('Du bist '),
       b(age),
@@ -259,8 +268,49 @@ export const de: Strings = {
         b(hours),
         s(' Stunden. Verbringe sie bewusst.'),
       ],
+      layers: (unit, sleep, phone, free) => [
+        s(' Zusammengerechnet sind etwa '),
+        b(sleep),
+        s(` dieser ${unit === 'years' ? 'Jahre' : 'Wochen'} Schlaf (gut verbrachte Zeit)`),
+        ...(phone ? [s(' und '), b(phone), s(' am Handy')] : []),
+        s('. Bleiben etwa '),
+        b(free),
+        s(phone ? ' wach und ohne Handy.' : ' wach.'),
+      ],
     },
-    legend: { lived: 'Gelebt', now: 'Jetzt', likely: 'Wahrscheinlich vor dir', reach: 'In Reichweite', maybe: 'Wenn das Glück es will' },
+    legend: {
+      lived: 'Gelebt',
+      now: 'Jetzt',
+      likely: 'Wahrscheinlich vor dir',
+      reach: 'In Reichweite',
+      maybe: 'Wenn das Glück es will',
+      asleep: 'Schlaf',
+      phone: 'Am Handy',
+    },
+    shows: { all: 'Alles', awake: 'Wach', free: 'Ohne Handy' },
+    showA11y: 'Verbleibende Zeit anzeigen',
+    whatIf: 'Was wäre, wenn … zum Ausprobieren tippen',
+    whatIfA11y: (label, years) => `Was wäre, wenn: ${label}, etwa ${years} Jahre`,
+    whatIfYears: (years) => `+${years} J.`,
+    weeksAhead: 'Deine Wochen vor dir',
+    weeksUnit: 'Wochen',
+    bar: { free: 'wach, ohne Handy', phone: 'am Handy', sleep: 'Schlaf' },
+    barLever: (label) => label,
+    triedTotal: (several, weeks, years, capped) => [
+      s(several ? 'Zusammen etwa ' : 'Etwa '),
+      b(`${weeks} Wochen mehr`),
+      s(` (${years} Jahre)`),
+      s(several ? `: weniger als die Summe, weil sich Gewohnheiten überschneiden${capped ? ', und gedeckelt' : ''}.` : '.'),
+    ],
+    triedOne: (label, years) => `${label}: allein etwa ${years} Jahre`,
+    tapWhatIf: 'Tippe im Kalender auf ein „Was wäre, wenn“, um zu sehen, was eine Änderung bringen könnte.',
+    makePlan: 'Einen kleinen Plan machen',
+    makePlanA11y: (label) => `Einen kleinen Plan machen für: ${label}`,
+    onePlanAtATime: (sentence) => `Ein kleiner Plan nach dem anderen: Dieser würde „${sentence}“ ersetzen`,
+    tablesFor: (country) => `Ausgangspunkt: Sterbetafeln für ${country}.`,
+    tablesUS: 'Ausgangspunkt: eine Näherung der US-Sterbetafeln.',
+    changeCountry: 'Land ändern',
+    setCountry: 'Land wählen',
     phoneTitle: 'Dein Handy',
     phoneLine: (hours, years, share) => [
       s(`${hours} Stunden am Tag sind etwa `),
@@ -283,7 +333,7 @@ export const de: Strings = {
     together: (several, gain, capped) => [
       s(several ? 'Zusammen etwa ' : 'Das sind etwa '),
       b(`${gain} Jahre mehr`),
-      s(`${capped ? ' (gedeckelt: die Effekte überschneiden sich)' : ''}. Das sind die bronzenen Kreise unten.`),
+      s(`${capped ? ' (gedeckelt: die Effekte überschneiden sich)' : ''}. Probiere sie im Kalender mit „Was wäre, wenn“ aus.`),
     ],
     allGood: 'Du tust schon das, was am meisten Zeit bringt. Bleib dabei, und halte deine Menschen nah.',
   },
@@ -304,7 +354,8 @@ export const de: Strings = {
   habitsScreen: {
     eyebrow: 'Was du in der Hand hast',
     title: 'Ändere eine Gewohnheit, ändere die Zahl',
-    median: 'Medianalter für jemanden, der so lebt wie du. Tippe auf eine Option, um zu sehen, was sie ändern würde.',
+    median: (country) =>
+      `Medianalter für jemanden, der so lebt wie du${country ? ` (${country})` : ''}. Tippe auf eine Option, um zu sehen, was sie ändern würde.`,
     whatMatters: 'WAS AM MEISTEN ZÄHLT',
     ranked: 'Geordnet nach Größe und Stärke der Belege. Tippe auf einen Eintrag für Zahlen und Quelle.',
     exerciseReplaced: 'Ersetzt durch deine täglichen Schritte oben, damit nichts doppelt zählt.',
@@ -392,13 +443,142 @@ export const de: Strings = {
   },
 
   howItWorks: [
-    'Das jährliche Sterberisiko steigt bei allen mit dem Alter und verdoppelt sich etwa alle 8 Jahre. Wir starten mit dieser Kurve für dein Geschlecht, einer Näherung der US-Sterbetafeln.',
+    'Das jährliche Sterberisiko steigt bei allen mit dem Alter und verdoppelt sich etwa alle 7 Jahre. Wir starten mit dieser Kurve für dein Geschlecht in deinem Land, angepasst an dessen UN-Sterbetafel (World Population Prospects 2024, Todesfälle 2023). Ohne Land nutzen wir eine Näherung der US-Tafeln.',
     'Deine Gewohnheiten multiplizieren dieses Risiko: Rauchen ×2,2, Sport 3+ Mal pro Woche ×0,85, unter 6 Stunden Schlaf ×1,15, selten nahestehende Menschen sehen ×1,29 und so weiter.',
     'Wir verfolgen dieses Risiko Monat für Monat ab deinem heutigen Alter. Das Alter, bis zu dem die Hälfte der Menschen wie du gestorben ist, ist dein Median; die 25-%- und 75-%-Marken ergeben deine Spanne.',
     'Faustregel: Jahre ≈ ln(Risikofaktor) ÷ 0,085. Deshalb kostet ein verdoppeltes Risiko etwa 8 Jahre, und Aufhören mit dem Rauchen kann etwa 9 zurückgeben.',
     'Mehrere Änderungen zusammen bringen weniger als ihre Summe, und wir begrenzen den Gesamtgewinn auf 14 Jahre, den größten Unterschied über alle Gewohnheiten aus einer großen US-Studie.',
     'Das sind Zusammenhänge aus Bevölkerungsstudien, keine Ursachen, und keine medizinische Beratung.',
   ],
+
+  claims: {
+    lifeTables: 'Sterbetafeln für 237 Länder und Gebiete, nach Geschlecht, Schätzungen für 2023.',
+    plans:
+      'Festzulegen, wann und wo man etwas tut, als Wenn-dann, macht das Dranbleiben viel wahrscheinlicher (94 Studien).',
+    freshStart: 'Menschen beginnen ein Ziel eher zu Wochen- oder Monatsbeginn oder am Geburtstag: ein Neuanfang.',
+    comingBack:
+      'Im größten Test von Bewegungs-Anstößen (61.293 Menschen) half am meisten, die Rückkehr nach einem verpassten Training zu belohnen.',
+    personalNumbers:
+      'Die eigenen Zahlen zu sehen, kann helfen: Raucher, denen man ihr „Lungenalter“ nannte, hörten etwa doppelt so oft binnen eines Jahres auf (13,6 % gegenüber 6,4 %).',
+    walkAfterMeals: 'Ein paar Minuten leichtes Gehen nach dem Essen senkten den Blutzucker um etwa 17 % gegenüber Sitzen.',
+  },
+
+  plans: {
+    everyDay: 'Jeden Tag',
+    weekdays: 'Werktags',
+    weekends: 'Am Wochenende',
+    days: (days) => {
+      const names = ['Sonntags', 'Montags', 'Dienstags', 'Mittwochs', 'Donnerstags', 'Freitags', 'Samstags'];
+      const short = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+      if (days.length === 1) return names[days[0]];
+      if (days.length === 2) return `${names[days[0]]} und ${names[days[1]].toLowerCase()}`;
+      return list(days.map((d) => short[d]));
+    },
+    time: (h, m) => `${h}:${String(m).padStart(2, '0')} Uhr`,
+    cue: (days, anchor, time) => `${days} ${anchor ?? `um ${time}`}`,
+    sentence: (cue, action) => `${cue} werde ich ${action}.`,
+    nameInSentence: (name) => name.replace(/^Mein /, 'mein ').replace(/^Meine /, 'meine '),
+    today: 'heute',
+    tomorrow: 'morgen',
+    anchors: {
+      breakfast: 'nach dem Frühstück',
+      lunch: 'nach dem Mittagessen',
+      work: 'nach der Arbeit',
+      dinner: 'nach dem Abendessen',
+      morning: 'am Morgen',
+      cigarette: 'wenn ich eine Zigarette will',
+      atLunch: 'beim Mittagessen',
+    },
+    call: (name) => `${name} anrufen`,
+    messageOrCall: (name) => `${name} schreiben oder anrufen`,
+    actions: {
+      walk: '10 Minuten spazieren gehen',
+      connect: 'jemanden anrufen oder sehen, den ich liebe',
+      bed: 'das Handy weglegen und mich bettfertig machen',
+      smoke: 'erst 5 Minuten gehen',
+      drink: 'erst ein Glas Sprudelwasser trinken',
+      plate: 'meinen Teller zur Hälfte mit Gemüse füllen',
+    },
+    withAnchor: (action, anchor) => `${anchor} ${action}`,
+    capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),
+    periodWeek: 'diese Woche',
+    periodBirthday: 'dein neues Lebensjahr',
+    calendarNote: 'Einmal verpassen ist in Ordnung: einfach beim nächsten Mal weitermachen. Von Memento Mori.',
+    when: 'WANN',
+    daysA11y: 'Tage',
+    atSetTime: 'zu einer festen Zeit',
+    anchorPlaceholder: 'oder in deinen Worten: wenn ich nach Hause komme',
+    anchorA11y: 'Der Moment, der dich erinnert, in deinen Worten',
+    around: 'Gegen (für Erinnerungen)',
+    at: 'Um',
+    timeA11y: 'Uhrzeit',
+    iWill: 'WERDE ICH',
+    actionPlaceholder: 'Mama anrufen',
+    actionA11y: 'Was du tun wirst',
+    save: 'Plan speichern',
+    cancel: 'Abbrechen',
+    planReachOut: 'Planen, wann du dich meldest',
+    planReachOutA11y: (name) => `Planen, wann du dich bei ${name} meldest`,
+    yourPlan: 'Dein Plan',
+    edit: 'Bearbeiten',
+    removeA11y: 'Diesen Plan entfernen',
+    addToCalendar: 'Zu meinem Kalender hinzufügen',
+    calendarSaved: 'Gespeichert: öffnen zum Hinzufügen ✓',
+    addToCalendarA11y: (title) => `„${title}“ als wiederkehrenden Termin zu deinem Kalender hinzufügen`,
+  },
+
+  thisWeek: {
+    heading: 'Diese Woche',
+    doneToday: 'heute erledigt ✓',
+    doneThisWeek: 'diese Woche erledigt ✓',
+    next: (when) => `nächstes Mal: ${when}`,
+    welcomeBack: (name) =>
+      `Willkommen zurück${name ? `, ${name}` : ''}. Pläne rutschen jedem mal durch, und das ist in Ordnung: Wieder anzufangen ist, was zählt. Diese Woche ist eine neue Seite.`,
+    oneThingFor: (period) => `Eine Sache für ${period}`,
+    doneMark: ' · erledigt ✓',
+    did: 'Erledigt',
+    didToday: 'Heute erledigt ✓',
+    moreVisits: (n, name) => `Etwa ${n} weitere Besuche mit ${name} in deinem jetzigen Rhythmus.`,
+    smallStep: (label, years) => `${label} könnte etwa ${years} Jahre bringen. Das ist ein kleiner Schritt dorthin.`,
+    noPlans:
+      'Noch keine Pläne. Ein Plan ist ein kleines „Wann, dann“: „Sonntags nach dem Mittagessen werde ich Mama anrufen.“ Du kannst einen für jeden Menschen unter Liebe machen, oder für eine Gewohnheit unter Leben.',
+    suggestHeading: 'Ein Plan zum Ausprobieren',
+    suggestPerson: (n, name) =>
+      `Etwa ${n} weitere Besuche mit ${name} in deinem jetzigen Rhythmus. Ein Plan macht den nächsten wahrscheinlicher.`,
+    suggestLever: (label, years) => `${label} könnte etwa ${years} Jahre bringen. Ein kleiner Plan ist ein Anfang.`,
+    whyPlans: 'Warum Pläne helfen',
+    makeItMine: 'Zu meinem Plan machen',
+    changeIt: 'Ändern',
+    notNow: 'Nicht jetzt',
+  },
+
+  freshStart: {
+    eyebrow: { week: 'Montag · ein Neuanfang', month: 'Der 1. · ein Neuanfang', birthday: 'Dein Geburtstag · ein Neuanfang' },
+    title: (period) => `Eine Sache für ${period}?`,
+    birthday: (name, weeks) =>
+      `Alles Gute zum Geburtstag${name ? `, ${name}` : ''}. Du hast etwa ${weeks} Wochen gelebt, manche davon wunderbar. Was ist eine Sache, die du mit dem neuen Jahr machen könntest?`,
+    prompt: (week, month) =>
+      `Was ist eine Sache, die du ${week ? 'diese Woche' : `im ${month}`} tun könntest und über die du dich freuen würdest?`,
+    callIdea: (name) => `${name} anrufen`,
+    gratitudeIdea: 'Jemandem schreiben, dem ich dankbar bin',
+    useIdea: (idea) => `Idee verwenden: ${idea}`,
+    ownPlaceholder: 'oder deine eigene',
+    a11y: (period) => `Eine Sache für ${period}`,
+    choose: 'Zu meiner einen Sache machen',
+    notToday: 'Heute nicht',
+  },
+
+  todaysCount: {
+    pet: 'Heute ein Spaziergang oder etwas ruhige Zeit zusammen?',
+    activity: 'Könntest du einen Tag fürs nächste Mal festlegen? Zu entscheiden, wann, macht es wahrscheinlicher.',
+    agency: (label, years, more, what) => [
+      s(`${label} könnte etwa `),
+      b(`${years} Jahre`),
+      s(' bringen: etwa '),
+      b(more),
+      s(` ${what}. Du kannst es im Lebenskalender ausprobieren.`),
+    ],
+  },
 
   loves: {
     per: PER,

@@ -4,6 +4,7 @@
  */
 import type { Strings } from '@/i18n/strings/en';
 import { YEAR_MS, WEEKS_PER_YEAR, ageAt, estimate, survival, type ModelInput } from '@/lib/model';
+import type { Plan } from '@/lib/plans';
 
 export type Per = 'day' | 'week' | 'month' | 'year';
 export type Species = 'dog' | 'cat';
@@ -24,6 +25,8 @@ export type Love = {
   phone?: string;
   /** People: when they last talked or met, logged with "We talked" (most recent first, capped). */
   contacts?: number[];
+  /** People: when they mean to reach out ("Sundays after lunch, I will call Mom"). */
+  plan?: Plan;
   addedAt: number;
 };
 
@@ -66,7 +69,7 @@ export function activitySuggestions(t: Strings): Suggestion[] {
 
 /**
  * Years left to share = from now until the earliest of: your median age, your "until" age,
- * a person's own median age (averaged over sexes, since we don't ask theirs), or a pet's typical lifespan.
+ * a person's own median age (averaged over sexes, since we don't ask theirs; assumed to live where you do), or a pet's typical lifespan.
  */
 export function loveCount(love: Love, me: ModelInput, now = Date.now()) {
   const age = ageAt(me.dob, now);
@@ -76,7 +79,7 @@ export function loveCount(love: Love, me: ModelInput, now = Date.now()) {
 
   if (love.kind === 'person' && love.theirAge != null) {
     const theirs = love.theirAge + (now - love.addedAt) / YEAR_MS;
-    const theirMedian = (survival('m', theirs, 1).med + survival('f', theirs, 1).med) / 2;
+    const theirMedian = (survival('m', theirs, 1, me.country).med + survival('f', theirs, 1, me.country).med) / 2;
     years = Math.min(years, theirMedian - theirs);
   }
 

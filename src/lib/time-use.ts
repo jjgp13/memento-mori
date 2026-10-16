@@ -9,6 +9,9 @@ import { ageAt, estimate, type ModelInput } from '@/lib/model';
 
 /** Waking hours in a day, used for "share of your waking life". */
 export const WAKING_HOURS = 16;
+
+/** Hours asleep a night, from their sleep answer: about 8 in the healthy range, about 5.5 if under 6. */
+export const sleepHours = (me: Pick<ModelInput, 'sleep'>) => (me.sleep === 'short' ? 5.5 : 8);
 /** The swap we suggest: half an hour a day back from the phone. */
 export const SWAP_HOURS = 0.5;
 

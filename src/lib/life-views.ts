@@ -11,10 +11,36 @@ export type Zoom = 'life' | 'weeks' | 'year' | 'today';
 export const ZOOMS: Zoom[] = ['life', 'weeks', 'year', 'today'];
 
 /**
- * lived · now (fills like a pie) · likely ahead (before the median) · reach (extra time one habit change
- * would likely add) · maybe (median to 75th pct) · none (gap)
+ * lived · now (fills like a pie) · likely ahead (before the median) · reach (extra time a habit change
+ * would likely add) · maybe (median to 75th pct) · none (gap). sleep and phone are the share of the
+ * likely-ahead time those hours add up to, drawn together at its end.
  */
-export type CellState = 'lived' | 'now' | 'likely' | 'reach' | 'maybe' | 'none';
+export type CellState = 'lived' | 'now' | 'likely' | 'sleep' | 'phone' | 'reach' | 'maybe' | 'none';
+
+/** What to draw on top of the plain calendar. */
+export type Layers = {
+  /** Years each change being tried would add, drawn one after another just past the median. */
+  gains?: number[];
+  /** Share of each day asleep (0–1). */
+  sleep?: number;
+  /** Share of each day on the phone (0–1). */
+  phone?: number;
+};
+
+/** Likely-ahead cells [from, to): the first part stays free, then phone time, then sleep, added up. */
+function splitAhead(from: number, to: number, { sleep = 0, phone = 0 }: Layers) {
+  const n = Math.max(0, to - from);
+  const freeEnd = from + Math.round(n * (1 - sleep - phone));
+  const phoneEnd = freeEnd + Math.round(n * phone);
+  return (i: number): CellState => (i < freeEnd ? 'likely' : i < phoneEnd ? 'phone' : 'sleep');
+}
+
+/** "Added up, about 15 of those years are sleep and 7 on your phone." Sleep is time well spent, never "lost". */
+function layersCaption(t: Strings, left: number, unit: 'years' | 'weeks', { sleep = 0, phone = 0 }: Layers): Rich {
+  if (!sleep && !phone) return [];
+  const free = left * (1 - sleep - phone);
+  return t.life.caption.layers(unit, fmt(left * sleep), phone ? fmt(left * phone) : null, fmt(free));
+}
 
 export type { Rich } from '@/i18n/rich';
 export { fmt } from '@/i18n/format';
@@ -26,7 +52,11 @@ export type GridView = {
   labelW: number;
   /** How far through the current unit we are, 0–1. */
   frac: number;
+  /** Too many cells for outlines and dashes to read: draw likely weeks as dots, "maybe" ones as hollow rings. */
+  dense?: boolean;
   state: (i: number) => CellState;
+  /** For a 'reach' cell: which of `Layers.gains` it belongs to. */
+  reachOf?: (i: number) => number;
   label?: (i: number) => string;
   rowLabel?: (row: number) => string;
   caption: Rich;
@@ -34,24 +64,40 @@ export type GridView = {
 
 const pct = (f: number) => `${Math.floor(f * 100)}%`;
 
-/** `gain`: years the best habit change would add, drawn just past the median as "within reach". */
-export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t: Strings, gain = 0): GridView {
+/** Which change a point `x` years past the median belongs to, for changes drawn end to end. */
+function segmentOf(gains: number[]) {
+  return (x: number) => {
+    let end = 0;
+    for (let k = 0; k < gains.length; k++) {
+      end += gains[k];
+      if (x < end) return k;
+    }
+    return Math.max(0, gains.length - 1);
+  };
+}
+
+export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t: Strings, layers: Layers = {}): GridView {
   const cap = t.life.caption;
   const age = ageAt(dob, now);
+  const gains = layers.gains ?? [];
+  const gain = gains.reduce((sum, g) => sum + g, 0);
+  const segment = segmentOf(gains);
 
   if (zoom === 'life') {
     const a = Math.floor(age);
     const frac = age - a;
+    const ahead = splitAhead(a + 1, Math.ceil(est.med), layers);
     return {
       cols: 10,
       count: Math.ceil(Math.max(est.q75, est.med + gain)) + 1,
       labelW: 26,
       frac,
       state: (i) =>
-        i < a ? 'lived' : i === a ? 'now' : i < est.med ? 'likely' : i < est.med + gain ? 'reach' : i < est.q75 ? 'maybe' : 'none',
+        i < a ? 'lived' : i === a ? 'now' : i < est.med ? ahead(i) : i < est.med + gain ? 'reach' : i < est.q75 ? 'maybe' : 'none',
+      reachOf: (i) => segment(i - est.med),
       label: (i) => (i % 5 === 0 ? String(i) : ''),
       rowLabel: (row) => String(row * 10),
-      caption: cap.life(a + 1, pct(frac), fmt(est.med - age)),
+      caption: [...cap.life(a + 1, pct(frac), fmt(est.med - age)), ...layersCaption(t, est.med - age, 'years', layers)],
     };
   }
 
@@ -60,14 +106,20 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t:
     const w = Math.floor(weeksLived);
     const med = est.med * WEEKS_PER_YEAR;
     const reach = (est.med + gain) * WEEKS_PER_YEAR;
+    const ahead = splitAhead(w + 1, Math.ceil(med), layers);
     return {
       cols: 52,
+      dense: true,
       count: Math.ceil(Math.max(est.q75, est.med + gain) * WEEKS_PER_YEAR),
       labelW: 22,
       frac: weeksLived - w,
-      state: (i) => (i < w ? 'lived' : i === w ? 'now' : i < med ? 'likely' : i < reach ? 'reach' : 'maybe'),
+      state: (i) => (i < w ? 'lived' : i === w ? 'now' : i < med ? ahead(i) : i < reach ? 'reach' : 'maybe'),
+      reachOf: (i) => segment((i - med) / WEEKS_PER_YEAR),
       rowLabel: (row) => (row % 10 === 0 ? String(row) : ''),
-      caption: cap.weeks(fmt(w + 1), pct(weeksLived - w), fmt(med - weeksLived)),
+      caption: [
+        ...cap.weeks(fmt(w + 1), pct(weeksLived - w), fmt(med - weeksLived)),
+        ...layersCaption(t, med - weeksLived, 'weeks', layers),
+      ],
     };
   }
 
