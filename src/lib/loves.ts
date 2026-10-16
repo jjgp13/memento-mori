@@ -33,8 +33,9 @@ export const PER_YEAR: Record<Per, number> = { day: 365.2425, week: WEEKS_PER_YE
 export const PER_LABEL: Record<Per, string> = { day: 'a day', week: 'a week', month: 'a month', year: 'a year' };
 
 /**
- * Typical lifespans (median age at death) from UK primary-care records: dogs about 12.5 years
- * (O'Neill et al. 2013, 2024), cats about 14 (O'Neill et al. 2015). Rough by design; breed and size matter.
+ * Typical lifespans (median age at death) from UK records: dogs about 12.5 years (McMillan et al. 2024;
+ * O'Neill et al. 2013 found 12.0), cats about 14 (O'Neill et al. 2015). Rough by design; breed and size matter.
+ * Sources: PET_LIFESPANS in src/lib/evidence.ts.
  */
 export const PET_LIFESPAN: Record<Species, number> = { dog: 12.5, cat: 14 };
 /** An older pet still likely has some time; never count below half a year. */

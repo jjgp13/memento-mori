@@ -4,10 +4,12 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { ScreenLink, SupportLine } from '@/components/disclaimer';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { signOut } from '@/lib/auth';
+import { clearPrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
 import { useAuth } from '@/providers/auth-provider';
 
@@ -30,6 +32,7 @@ export default function YouScreen() {
       return;
     }
     // With no answers left, the app guard sends them back to onboarding.
+    clearPrefs();
     clearProfile();
   }
 
@@ -64,7 +67,7 @@ export default function YouScreen() {
         {confirming ? (
           <View style={styles.confirm}>
             <ThemedText type="small" themeColor="fg">
-              This erases your answers, the people and things you love, and everything else on this device. It
+              This erases your answers, the people and things you love, your settings and everything else on this device. It
               can&apos;t be undone.
             </ThemedText>
             <Button title="Yes, delete everything" onPress={deleteEverything} style={{ backgroundColor: theme.danger }} />
@@ -79,10 +82,25 @@ export default function YouScreen() {
           </ThemedText>
         ) : null}
 
-        <ThemedText type="small">
-          Estimates come from population studies. They show direction and rough size, not a promise, and are not
-          medical advice.
-        </ThemedText>
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <ThemedText type="heading">HOW IT WORKS</ThemedText>
+          <ThemedText type="small" themeColor="fg">
+            Estimates come from population studies and UN life tables. They show direction and rough size, not a
+            prediction, and are not medical advice.
+          </ThemedText>
+          <View style={styles.links}>
+            <ScreenLink href="/how-it-works" title="How this works" />
+            <ScreenLink href="/sources" title="Sources" />
+          </View>
+        </View>
+
+        <View style={styles.links}>
+          <ScreenLink href="/legal/terms" title="Terms of Use" />
+          <ScreenLink href="/legal/privacy" title="Privacy Policy" />
+          <ScreenLink href="/legal/health-data" title="Consumer Health Data Privacy Policy" />
+        </View>
+
+        <SupportLine />
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,5 +130,11 @@ const styles = StyleSheet.create({
   },
   confirm: {
     gap: 10,
+  },
+  links: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: 16,
+    rowGap: 4,
   },
 });

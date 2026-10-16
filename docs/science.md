@@ -168,4 +168,13 @@ Time, regret, attention
 - Apple Screen Time API (Family Controls). — [Apple docs](https://developer.apple.com/documentation/xcode/configuring-family-controls.md)
 
 Pets (used for the Loves counts)
-- Dogs ~12.5 years, cats ~14 years median lifespan: O'Neill D.G. et al. (UK VetCompass studies, 2013–2024).
+- Dogs ~12.5 years: McMillan K.M. et al. Longevity of companion dog breeds: those at risk from early death. *Sci Rep* 2024;14:531 (584,734 UK dogs). — [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC10834484/); O'Neill D.G. et al. Longevity and mortality of owned dogs in England. *Vet J* 2013 (median 12.0). — [DOI](https://doi.org/10.1016/j.tvjl.2013.09.020)
+- Cats ~14 years: O'Neill D.G. et al. Longevity and mortality of cats attending primary care veterinary practices in England. *J Feline Med Surg* 2015. — [RVC](https://rvc-repository.worktribe.com/output/1402075)
+
+Model shape
+- Gompertz B. On the nature of the function expressive of the law of human mortality. *Phil Trans R Soc Lond* 1825. — [DOI](https://doi.org/10.1098/rstl.1825.0026)
+- Makeham W.M. On the law of mortality and the construction of annuity tables. *J Inst Actuaries* 1860. — [DOI](https://doi.org/10.1017/S204616580000126X)
+
+> **In the app:** every study the app cites lives in `src/lib/sources.ts`; the Sources screen and
+> [sources.md](sources.md) are generated from it, and the How this works screen (`src/app/how-it-works.tsx`)
+> explains each step with its source. Add a new source there first, then here.

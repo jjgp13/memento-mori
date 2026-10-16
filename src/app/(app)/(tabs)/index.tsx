@@ -5,6 +5,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
 import { Button } from '@/components/button';
+import { Disclaimer } from '@/components/disclaimer';
 import { LifeGrid } from '@/components/life-grid';
 import { PlanEditor, PlanSummary } from '@/components/plan-editor';
 import { RichText } from '@/components/rich-text';
@@ -167,10 +168,7 @@ function Life({ profile }: { profile: Profile }) {
 
       <HabitsCard profile={profile} now={now} levers={levers} />
 
-      <ThemedText type="small">
-        Estimates come from population averages and broad risk ratios. They show direction and rough size, not a
-        promise, and are not medical advice.
-      </ThemedText>
+      <Disclaimer />
     </>
   );
 }

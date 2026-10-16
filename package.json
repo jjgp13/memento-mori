@@ -48,7 +48,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "check:model": "node scripts/check-model.mts",
-    "fit:countries": "node scripts/fit-country-tables.mts"
+    "fit:countries": "node scripts/fit-country-tables.mts",
+    "docs": "node scripts/write-docs.mts"
   },
   "private": true
 }

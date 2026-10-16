@@ -3,6 +3,7 @@ import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Button } from '@/components/button';
+import { ScreenLink } from '@/components/disclaimer';
 import { Screen } from '@/components/screen';
 import { SourceLink } from '@/components/source-link';
 import { Stepper } from '@/components/stepper';
@@ -210,11 +211,13 @@ function EvidenceRow({ rank, item }: { rank: number; item: Evidence }) {
             {item.detail}
           </ThemedText>
           <ThemedText type="small">{item.inEstimate ? 'Part of your estimate.' : 'Not in your estimate yet; shown for direction.'}</ThemedText>
-          <Pressable accessibilityRole="link" onPress={() => Linking.openURL(item.source.url)}>
-            <ThemedText type="small" themeColor="accent" style={styles.link}>
-              {item.source.label} ↗
-            </ThemedText>
-          </Pressable>
+          {[item.source, ...(item.also ?? [])].map((s) => (
+            <Pressable key={s.url} accessibilityRole="link" onPress={() => Linking.openURL(s.url)}>
+              <ThemedText type="small" themeColor="accent" style={styles.link}>
+                {s.label} ↗
+              </ThemedText>
+            </Pressable>
+          ))}
         </Animated.View>
       ) : null}
     </Pressable>
@@ -260,6 +263,7 @@ function HowItWorks() {
             </Animated.View>
           ))
         : null}
+      <ScreenLink href="/how-it-works" title="Every step, with sources" />
     </View>
   );
 }

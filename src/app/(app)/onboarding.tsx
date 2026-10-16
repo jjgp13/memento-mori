@@ -16,6 +16,8 @@ import { Button } from '@/components/button';
 import { Choices } from '@/components/choices';
 import { CountryPicker } from '@/components/country-picker';
 import { DatePicker } from '@/components/date-picker';
+import { Disclaimer, ScreenLink } from '@/components/disclaimer';
+import { LinkedText } from '@/components/linked-text';
 import { AliveTimeline } from '@/components/onboarding/alive-timeline';
 import { CountUp } from '@/components/onboarding/count-up';
 import { LoveEditor } from '@/components/onboarding/love-editor';
@@ -30,6 +32,7 @@ import { countryName, deviceCountry } from '@/lib/country';
 import { LIFE_TABLES } from '@/lib/evidence';
 import { bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
+import { LEGAL_VERSION } from '@/lib/legal';
 import { fmt } from '@/lib/life-views';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
@@ -42,6 +45,7 @@ import {
   type ModelInput,
   type Sex,
 } from '@/lib/model';
+import { setPref } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 import { shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 import { MAX_VALUES, VALUES, type ValueKey } from '@/lib/values';
@@ -57,6 +61,7 @@ type StepKey =
   | 'values'
   | 'people'
   | 'activities'
+  | 'disclaimer'
   | 'compute'
   | 'reveal';
 
@@ -71,6 +76,7 @@ const FIRST_RUN: StepKey[] = [
   'values',
   'people',
   'activities',
+  'disclaimer',
   'compute',
   'reveal',
 ];
@@ -183,8 +189,22 @@ export default function OnboardingScreen() {
       <ThemedText key="m" type="small">
         A few short questions, one at a time. Your answers stay on this device.
       </ThemedText>,
+      <LinkedText
+        key="l"
+        type="small"
+        text="By beginning, you agree to the [Terms of Use](/legal/terms) and confirm you are 18 or older. Your answers, including health habits, never leave this device: see the [Privacy Policy](/legal/privacy) and [Consumer Health Data Privacy Policy](/legal/health-data)."
+      />,
     ];
-    footer = <Button title="Begin" onPress={next} />;
+    footer = (
+      <Button
+        title="Begin"
+        onPress={() => {
+          setPref('agreedVersion', LEGAL_VERSION);
+          setPref('agreedAt', Date.now());
+          next();
+        }}
+      />
+    );
   } else if (step === 'name') {
     body = [
       <ThemedText key="e" type="eyebrow">
@@ -375,6 +395,25 @@ export default function OnboardingScreen() {
     ];
     const last = editing && index === steps.length - 1;
     footer = continueButton(last ? 'Save' : any ? 'Continue' : 'Skip for now');
+  } else if (step === 'disclaimer') {
+    body = [
+      <ThemedText key="e" type="eyebrow">
+        Before you see it
+      </ThemedText>,
+      <ThemedText key="t" type="subtitle">
+        A few honest words
+      </ThemedText>,
+      <Disclaimer key="d" full />,
+    ];
+    footer = (
+      <Button
+        title="I understand"
+        onPress={() => {
+          setPref('disclaimerAt', Date.now());
+          next();
+        }}
+      />
+    );
   } else if (step === 'compute') {
     body = [<Computing key="c" />];
   } else if (step === 'reveal' && me) {
@@ -534,6 +573,7 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
       {countryName(me.country) ? ` in ${countryName(me.country)}` : ''} reach {Math.round(est.med)}, and most land
       between {Math.round(est.q25)} and {Math.round(est.q75)}. Not medical advice.
     </ThemedText>,
+    <ScreenLink key="w" href="/how-it-works" title="How this works" />,
     <Button key="b" title="See your life" onPress={onDone} />,
   );
 
