@@ -4,9 +4,11 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { LanguagePicker } from '@/components/language-picker';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 import { signOut } from '@/lib/auth';
 import { clearProfile } from '@/lib/profile';
 import { useAuth } from '@/providers/auth-provider';
@@ -17,6 +19,8 @@ import { useAuth } from '@/providers/auth-provider';
  */
 export default function YouScreen() {
   const theme = useTheme();
+  const t = useT();
+  const a = t.account;
   const { session } = useAuth();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +30,7 @@ export default function YouScreen() {
     try {
       if (session) await signOut();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not sign out.');
+      setError(e instanceof Error ? e.message : a.signOutFailed);
       return;
     }
     // With no answers left, the app guard sends them back to onboarding.
@@ -37,41 +41,40 @@ export default function YouScreen() {
     <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.head}>
-          <ThemedText type="eyebrow">You</ThemedText>
-          <Button title="Done" variant="link" onPress={() => router.back()} />
+          <ThemedText type="eyebrow">{a.title}</ThemedText>
+          <Button title={t.common.done} variant="link" onPress={() => router.back()} />
         </View>
 
         <Button
-          title="Edit your answers"
+          title={a.edit}
           variant="ghost"
           onPress={() => router.push({ pathname: '/onboarding', params: { edit: '1' } })}
         />
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
-          <ThemedText type="heading">YOUR DATA</ThemedText>
+          <ThemedText type="heading">{a.dataHeading}</ThemedText>
           <ThemedText type="small" themeColor="fg">
-            Everything you enter stays on this device. There is no account, no ads and no tracking. Your estimate is
-            worked out right here, on your phone or in your browser.
+            {a.dataBody}
           </ThemedText>
-          {session ? (
-            <ThemedText type="small">
-              You also have a {session.user.is_anonymous ? 'guest account' : 'signed-in account'} from an earlier test.
-              It holds nothing but an empty profile; deleting below signs it out.
-            </ThemedText>
-          ) : null}
+          {session ? <ThemedText type="small">{a.guestNote(!!session.user.is_anonymous)}</ThemedText> : null}
+        </View>
+
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <ThemedText type="heading">{t.language.heading}</ThemedText>
+          <LanguagePicker />
+          <ThemedText type="small">{t.language.note}</ThemedText>
         </View>
 
         {confirming ? (
           <View style={styles.confirm}>
             <ThemedText type="small" themeColor="fg">
-              This erases your answers, the people and things you love, and everything else on this device. It
-              can&apos;t be undone.
+              {a.confirm}
             </ThemedText>
-            <Button title="Yes, delete everything" onPress={deleteEverything} style={{ backgroundColor: theme.danger }} />
-            <Button title="Keep my data" variant="link" onPress={() => setConfirming(false)} />
+            <Button title={a.yesDelete} onPress={deleteEverything} style={{ backgroundColor: theme.danger }} />
+            <Button title={a.keep} variant="link" onPress={() => setConfirming(false)} />
           </View>
         ) : (
-          <Button title="Delete everything on this device" variant="ghost" onPress={() => setConfirming(true)} />
+          <Button title={a.deleteAll} variant="ghost" onPress={() => setConfirming(true)} />
         )}
         {error ? (
           <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
@@ -79,10 +82,7 @@ export default function YouScreen() {
           </ThemedText>
         ) : null}
 
-        <ThemedText type="small">
-          Estimates come from population studies. They show direction and rough size, not a promise, and are not
-          medical advice.
-        </ThemedText>
+        <ThemedText type="small">{a.disclaimer}</ThemedText>
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,13 +2,15 @@ import { StyleSheet, View } from 'react-native';
 
 import { CountUp } from '@/components/onboarding/count-up';
 import { ReachOut } from '@/components/reach-out';
+import { RichText } from '@/components/rich-text';
 import { SourceLink } from '@/components/source-link';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
+import { dec1, fmt } from '@/i18n/format';
 import { impactAgency, type Impact } from '@/lib/daily';
 import { PLANS } from '@/lib/evidence';
-import { fmt } from '@/lib/life-views';
 import type { Love } from '@/lib/loves';
 import type { Profile } from '@/lib/profile';
 
@@ -29,13 +31,14 @@ export function TodaysCount({
   onChangeLove: (next: Love) => void;
 }) {
   const theme = useTheme();
+  const t = useT();
   const agency = impactAgency(profile, impact, now);
   const love = impact.love;
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <ThemedText type="eyebrow" themeColor="muted">
-        {impact.back ? 'Look back' : "Today's count"}
+        {impact.back ? t.opening.lookBack : t.opening.todaysCount}
       </ThemedText>
       <CountUp to={impact.n} style={styles.big} themeColor="accent" />
       <ThemedText style={styles.what}>{impact.what}</ThemedText>
@@ -44,25 +47,15 @@ export function TodaysCount({
       {love?.kind === 'person' ? (
         <ReachOut love={love} onChange={onChangeLove} compact />
       ) : love?.kind === 'pet' ? (
-        <ThemedText>A walk or some quiet time together today?</ThemedText>
+        <ThemedText>{t.todaysCount.pet}</ThemedText>
       ) : love ? (
         <>
-          <ThemedText>Could you pick a day for the next one? Deciding when makes it more likely.</ThemedText>
-          <SourceLink source={PLANS.source} prefix="Why" />
+          <ThemedText>{t.todaysCount.activity}</ThemedText>
+          <SourceLink source={PLANS.source} prefix={t.common.why} />
         </>
       ) : agency ? (
         <>
-          <ThemedText>
-            {agency.label} could add about{' '}
-            <ThemedText themeColor="accent" style={styles.num}>
-              {agency.years.toFixed(1)} years
-            </ThemedText>
-            : about{' '}
-            <ThemedText themeColor="accent" style={styles.num}>
-              {fmt(agency.more)}
-            </ThemedText>{' '}
-            {impact.what}. You can try it on the Life calendar.
-          </ThemedText>
+          <RichText parts={t.todaysCount.agency(t.levers[agency.key], dec1(agency.years), fmt(agency.more), impact.what)} />
           <SourceLink of={agency.key} />
         </>
       ) : null}

@@ -4,28 +4,30 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Fonts, MaxContentWidth } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 
 type Icon = SymbolViewProps['name'];
 
 // A fixed bottom nav like the prototype's, since web has no system tab bar.
 export default function AppTabs() {
   const theme = useTheme();
+  const t = useT();
 
   return (
     <Tabs style={{ flex: 1 }}>
       <TabSlot style={{ flex: 1 }} />
       <TabList style={[styles.nav, { backgroundColor: theme.bg, borderTopColor: theme.line }]}>
         <TabTrigger name="index" href="/" asChild>
-          <TabButton icon={{ web: 'grid_view' }}>Life</TabButton>
+          <TabButton icon={{ web: 'grid_view' }}>{t.tabs.life}</TabButton>
         </TabTrigger>
         <TabTrigger name="habits" href="/habits" asChild>
-          <TabButton icon={{ web: 'tune' }}>Habits</TabButton>
+          <TabButton icon={{ web: 'tune' }}>{t.tabs.habits}</TabButton>
         </TabTrigger>
         <TabTrigger name="loves" href="/loves" asChild>
-          <TabButton icon={{ web: 'favorite' }}>Loves</TabButton>
+          <TabButton icon={{ web: 'favorite' }}>{t.tabs.loves}</TabButton>
         </TabTrigger>
         <TabTrigger name="today" href="/today" asChild>
-          <TabButton icon={{ web: 'hourglass_empty' }}>Today</TabButton>
+          <TabButton icon={{ web: 'hourglass_empty' }}>{t.tabs.today}</TabButton>
         </TabTrigger>
       </TabList>
     </Tabs>

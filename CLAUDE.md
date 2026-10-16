@@ -23,11 +23,13 @@ A free app that estimates how much life a person likely has left and helps them 
 - Oct 15: plans (`src/lib/plans.ts`): an if-then plan per person (Loves) and one small habit plan (Life), Today's "This week" with one-tap actions, welcome-backs (no streaks), at most one suggested plan a week, fresh starts (Mondays, the 1st, birthdays), "Add to my calendar" .ics download on web.
 - Oct 15: Life puts the clock, legend and calendar first; "What if" switches on the calendar (one per change that would add time for them, each drawn in its own color, combined gain split in proportion and capped); "All / Awake / Off phone" layers (sleep framed as time well spent); one phone control under the calendar; "Your weeks ahead" bar with sources and a plan offer. Today opens with one rotating count, weighted to loves, paired with its next step. Evidence notes in docs/nudges.md §1k.
 - Oct 15: baseline by country (`gm-2026.10c+wpp2024-2023`): UN WPP 2024 life tables fitted per country and sex by `npm run fit:countries` (`scripts/fit-country-tables.mts` → `src/lib/country-tables.ts`); a country step in onboarding, pre-filled from the device region (`expo-localization`, `src/lib/country.ts`); Life says which tables it uses. No country = the old US approximation.
+- Oct 15: languages. All UI text lives in typed catalogs in `src/i18n/strings/` (English, 中文, हिन्दी, Español for Mexico, Français, বাংলা, Português, Русский, Bahasa Indonesia, Deutsch, 日本語). The app follows the device language (`expo-localization`); a picker on the welcome screen and the You screen overrides it (`language` in prefs). Translations other than Spanish are first drafts that need a native speaker's review. Arabic and Urdu wait for right-to-left layout.
 - Next: 1–2 local reminders a week (needs native build for notifications); diet/strength/purpose as model factors; native build for health data and screen time; healthy-years estimate.
 
 ## Working in this repo
 - Follow @AGENTS.md for Expo conventions (versioned docs, `npx expo install`, no hand-edited `ios/`/`android/`).
-- Run `npx tsc --noEmit` and `npx expo lint` before calling work done. `.claude/launch.json` has an `expo-web` preview config.
+- Run `npx tsc --noEmit` and `npx expo lint` before calling work done.
+- No user-facing text in components or `src/lib`: add it to `src/i18n/strings/en.ts`, then to every other catalog (the typecheck lists any language that is missing it). Components read strings with `useT()`; lib helpers that build sentences take `t` as a parameter, so React Compiler rebuilds them when the language changes. Format numbers with `fmt`/`dec1`/`num` from `@/i18n/format`. `.claude/launch.json` has an `expo-web` preview config.
 
 ## Product decisions so far
 - **Flow on every open:** impact card ("~150 more movies") → Stoic quote + question → life calendar. First open after onboarding starts with a "weeks remaining" reveal. One tap to move on; skippable.
