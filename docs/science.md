@@ -15,12 +15,57 @@ the time feels meaningful — and what that means for the app. Researched Octobe
 - **The healthspan gap.** Across 183 countries, people now live on average **9.6 years** at the end of
   life with disease or disability. The US gap is the largest in the world, **12.4 years**, up from 10.9 in
   2000. Women's gap is about 2.4 years wider than men's. (Garmany et al., *JAMA Network Open* 2024)
-- **Habits move healthy years even more than total years.** In two large Harvard cohorts, people at 50
+- **Habits move healthy years at least as much as total years.** In two large Harvard cohorts, people at 50
   with 4–5 healthy habits lived about **10.7 (women) and 7.6 (men) more years free of cancer, heart
-  disease and diabetes** than people with none. (Li et al., *BMJ* 2020)
+  disease and diabetes** than people with none, while total years rose by about 9.4 and 8.1 (31.7 → 41.1
+  for women, 31.3 → 39.4 for men). Nearly all the extra time was healthy time: the years lived with
+  disease barely changed (about 8 either way). (Li et al., *BMJ* 2020)
 
 **For the app:** the count of years left should be paired with an estimate of *healthy* years left.
 That's the more honest and more motivating number.
+
+**In the app (since Oct 15, model `gm-2026.10d`):** Life shows the years likely lived in good health as a
+green band on the calendar that fades across its range, a "Strong and independent" card, and a line in
+the first-run reveal; What-if switches move the band too.
+
+- *Baseline.* WHO Global Health Observatory, healthy life expectancy (HALE) and life expectancy at birth
+  and at 60, by sex, 2023 (indicators WHOSIS_000002, _000007, _000001, _000015; 185 countries). Licence:
+  CC BY 4.0 plus WHO's dataset terms (attribution; no implied endorsement). Downloaded from the GHO OData
+  API (`https://ghoapi.azureedge.net/api/<indicator>`) by `scripts/fetch-health-tables.mts` →
+  `src/lib/health-tables.ts`, bundled; nothing is fetched at run time.
+- *Method.* HALE is computed with the Sullivan method: life expectancy minus the time lived with illness
+  or disability, weighted by severity. We model the share of people at each age not in good health as a
+  logistic curve, fitted per country and sex so the model's healthy share of the years ahead, from birth
+  and from 60, matches WHO's HALE ÷ life expectancy (to within 0.0001). We fit the *share* rather than
+  WHO's years because the mortality underneath is the UN's (§1 above), and WHO's and the UN's life
+  expectancies differ by a year or more in some countries (up to 9 for Nigeria). For one person, the
+  years ahead are weighted by that share and the less healthy time is gathered at the end, where most
+  of it falls, so the healthy median and range follow the lifespan ones and never become a fixed age.
+  Places WHO doesn't cover (52 of the UN's 237, mostly territories) use the world's shares on their own
+  mortality; no country uses the US shares on the US approximation.
+- *Habits.* Habits act on the health curve as an age shift, 2 × ln(multiplier) ÷ 0.085, twice their
+  effect on mortality. Factor 2 is calibrated so the Li 2020 contrast (4 habits vs none, at 50, US)
+  gives about the same gain in healthy as in total years: model ratio 0.99 (women) and 0.98 (men), vs
+  1.14 and 0.94 in the study. Strength training adds a health-only hazard ratio (below). Healthy-year
+  gains are capped at 14 years, like total gains.
+- *Checked by `npm run check:model`:* the healthy share per country vs WHO, the Li 2020 ratio, healthy ≤
+  lifespan at every quantile, and that strength training adds more healthy years than total years.
+- *Caveats.* "Good health" in HALE is severity-weighted, not the same as being independent; gathering
+  the less healthy time at the end is a simplification (some of it is spread through life). Shown as
+  "likely" with a range, never "you will need help at 78".
+
+### Staying strong and independent
+
+| Finding | Evidence | Badge | In the model |
+|---|---|---|---|
+| **Healthy habits add healthy years** | Li 2020 above: +10.7 / +7.6 disease-free years at 50 with 4–5 habits | Strong | Yes: all habits shift the health curve |
+| **Exercise prevents falls** | Cochrane review, 108 trials, 23,407 people over 60 at home: falls rate −23% (RaR 0.77, high certainty); balance and functional exercise −24%; several kinds together, usually balance plus strength, −34% (RaR 0.66, moderate certainty) (Sherrington 2019) | Strong | Through exercise and strength |
+| **Staying able to walk on your own** | LIFE trial, 1,635 sedentary people aged 70–89: walking plus strength, flexibility and balance work vs health education cut major mobility disability (can't walk 400 m) 30.1% vs 35.5%, HR 0.82, over 2.6 years; persistent disability HR 0.72 (Pahor 2014) | Moderate | Yes: strength twice a week ×0.82 on losing good health |
+| **Grip strength** | Meta-analysis of 34 studies of people 60+: low vs high grip, ratio 1.78 for declining function, 1.79 for mortality (Rijk 2016). A marker, not a cause | Moderate | No (no measurement on device yet) |
+| **Strength training and mortality** | 30–60 min a week of muscle-strengthening linked to 10–17% lower mortality (Momma 2022) | Moderate | Yes: once a week ×0.9 (interpolated), twice ×0.85 |
+
+So strength training twice a week adds about 1.5 years in the model and about 2.3 years in good
+health (a 41-year-old US woman), the one change that moves the healthy band more than the total.
 
 - **Where you live.** In 2023 the median age at death, from birth, ran from about **59** to over **90**
   across 237 countries and areas: a gap larger than any habit. Men in Russia reach a median of about 70,
@@ -46,7 +91,7 @@ Ranked roughly by size and strength of evidence.
 | # | Factor | What the evidence says | Strength | In the model today |
 |---|---|---|---|---|
 | 1 | **Not smoking** | The largest single lever. Quitting at any age helps. | Strong | Yes: current ×2.2, former ×1.3 |
-| 2 | **Moving & fitness** | Steps: risk keeps falling up to **8–10k/day under 60**, **6–8k/day over 60** (meta-analysis of 15 cohorts, 47,471 adults). Cardio fitness: the fittest people were ~80% less likely to die than the least fit over ~8 years, with no upper limit of benefit seen (122,000 treadmill tests). Strength: 30–60 min/week of muscle-strengthening linked to **10–17% lower** mortality, on top of aerobic exercise. | Strong | Yes: exercise answer or steps; strength not yet |
+| 2 | **Moving & fitness** | Steps: risk keeps falling up to **8–10k/day under 60**, **6–8k/day over 60** (meta-analysis of 15 cohorts, 47,471 adults). Cardio fitness: the fittest people were ~80% less likely to die than the least fit over ~8 years, with no upper limit of benefit seen (122,000 treadmill tests). Strength: 30–60 min/week of muscle-strengthening linked to **10–17% lower** mortality, on top of aerobic exercise. | Strong | Yes: exercise answer or steps; strength since Oct 15 |
 | 3 | **Close relationships** | Stronger social ties: **~1.5× the odds of survival** across 148 studies (308,849 people) — comparable to smoking. Isolation, loneliness, living alone: **+29%, +26%, +32%** odds of early death across 70 studies (3.4 M people, Holt-Lunstad 2015). Relationship satisfaction at 50 predicted health at 80 better than cholesterol (Harvard Study of Adult Development, 85+ years). | Strong | **Yes, since Oct 14** (rarely ×1.29) |
 | 4 | **What you eat** | Switching from a typical Western diet to an optimal one at 20: **+10.7 years (women), +13.0 (men)**; at 60 still **+8**; at 80 **+3.4**. Biggest wins: more legumes, whole grains, nuts; less red and processed meat. (Modeling study; population-level, not individual.) | Strong–moderate | **No** |
 | 5 | **Healthy weight & blood pressure** | Part of every "healthy lifestyle" score; obesity and high blood pressure drive heart disease, the top cause of death. | Strong | Weight yes; BP no |
@@ -115,13 +160,13 @@ Proposals, roughly in order of value for effort.
    - **Android:** read app usage with the user's "Usage access" permission.
    - **iOS:** Apple's Screen Time API needs a special entitlement Apple must approve, only one app can
      hold the data at a time, and usage reports run in a sandbox that can't export data. Feasible but slow.
-2. **Healthy years, not just years.** Show "about N years in good health" next to the lifespan
-   estimate, and show that habits move healthy years more than total years (Li 2020).
+2. **Healthy years, not just years.** *Done Oct 15* (§1): "about N years in good health" next to the
+   lifespan estimate, as a band on the calendar, moved by habits (Li 2020) and strength training.
 3. **Add the missing factors to the model**, each versioned, with evidence badges, gains still capped:
    - **Social connection** (biggest gap, strongest evidence). A careful hazard ratio for isolation/loneliness
      of about 1.25–1.3 would be defensible.
    - **Diet quality** (a 2–3 question screener: legumes/whole grains/nuts, processed meat, sugary drinks).
-   - **Strength training** (yes/no, 30–60 min a week).
+   - ~~**Strength training**~~ (done Oct 15: rarely / once a week / twice or more).
    - **Purpose** (one Ryff-style question), shown as "linked to", with a moderate-evidence badge.
 4. **Health data on device** (native app): steps, sleep and resting heart rate from Apple Health / Health
    Connect replace self-reported answers. No sign-in needed — it never leaves the phone.
@@ -137,12 +182,16 @@ Lifespan, healthspan and habits
 - Li Y. et al. Impact of healthy lifestyle factors on life expectancies in the US population. *Circulation* 2018. — [AHA summary](https://www.heart.org/en/news/2018/05/03/americans-could-live-up-to-14-years-longer-by-doing-five-things), [Harvard release](https://www.hsph.harvard.edu/news/press-releases/five-healthy-lifestyle-habits/)
 - Li Y. et al. Healthy lifestyle and life expectancy free of cancer, cardiovascular disease, and type 2 diabetes. *BMJ* 2020;368:l6669. — [BMJ](https://www.bmj.com/content/368/bmj.l6669), [Harvard release](https://www.hsph.harvard.edu/news/press-releases/healthy-lifestyle-in-middle-age-increases-years-free-of-chronic-diseases/)
 - Garmany A. et al. Global healthspan-lifespan gaps among 183 WHO member states. *JAMA Netw Open* 2024. — [PubMed](https://pubmed.ncbi.nlm.nih.gov/39661386/), [Mayo Clinic](https://newsnetwork.mayoclinic.org/discussion/the-global-divide-between-longer-life-and-good-health/)
+- World Health Organization. Global Health Observatory: healthy life expectancy (HALE) and life expectancy at birth and at 60, by sex, 2023 (Global Health Estimates). CC BY 4.0 with WHO dataset terms. — [HALE at birth](https://data.who.int/indicators/i/C64284D), [GHE overview](https://www.who.int/data/gho/data/themes/mortality-and-global-health-estimates/ghe-life-expectancy-and-healthy-life-expectancy), [OData API](https://ghoapi.azureedge.net/api/WHOSIS_000002)
 - Nguyen X-M.T. et al. Eight habits and life expectancy, Million Veteran Program. NUTRITION 2023 (conference). — [ASN release](https://nutrition.org/these-eight-habits-could-lengthen-your-life-by-decades/)
 
 Activity and fitness
 - Paluch A.E. et al. Daily steps and all-cause mortality: a meta-analysis of 15 international cohorts. *Lancet Public Health* 2022. — [DOAJ](https://doaj.org/article/c3639c468b4348958202e52793ab979d)
 - Mandsager K. et al. Cardiorespiratory fitness and long-term mortality. *JAMA Netw Open* 2018. — [Cleveland Clinic](https://newsroom.clevelandclinic.org/2018/10/19/cleveland-clinic-research-shows-better-cardiorespiratory-fitness-correlates-to-a-longer-life/), [ACC summary](https://acc.org/latest-in-cardiology/articles/2019/02/20/08/11/cardiorespiratory-fitness-and-long-term-mortality)
 - Momma H. et al. Muscle-strengthening activities and mortality. *Br J Sports Med* 2022. — [BJSM](https://bjsm.bmj.com/content/56/13/755), [TCTMD](https://www.tctmd.com/news/strength-training-linked-less-premature-mortality-cvd-and-diabetes)
+- Sherrington C. et al. Exercise for preventing falls in older people living in the community. *Cochrane Database Syst Rev* 2019; abridged in *Br J Sports Med* 2020. — [BJSM](https://bjsm.bmj.com/content/54/15/885)
+- Pahor M. et al. Effect of structured physical activity on prevention of major mobility disability in older adults: the LIFE study. *JAMA* 2014;311:2387–96. — [PubMed](https://pubmed.ncbi.nlm.nih.gov/24866862/), [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC4266388/)
+- Rijk J.M. et al. Prognostic value of handgrip strength in people aged 60 years and older: a systematic review and meta-analysis. *Geriatr Gerontol Int* 2016. — [PubMed](https://pubmed.ncbi.nlm.nih.gov/26016893/)
 
 Diet, sleep, alcohol
 - Fadnes L.T. et al. Estimating impact of food choices on life expectancy. *PLOS Med* 2022. — [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC8824353)

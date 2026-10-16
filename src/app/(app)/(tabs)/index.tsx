@@ -20,10 +20,20 @@ import { useClockTick } from '@/hooks/use-clock-tick';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { countryName } from '@/lib/country';
-import { LIFE_TABLES, PERSONAL_NUMBERS, WALK_AFTER_MEALS } from '@/lib/evidence';
-import { MAX_TOTAL_GAIN, allLevers, combinedGain, gainFrom, habitBreakdown, habitsEffect, type Lever } from '@/lib/habit-impact';
+import { HEALTHY_LIFE_TABLES, LIFE_TABLES, PERSONAL_NUMBERS, WALK_AFTER_MEALS } from '@/lib/evidence';
+import {
+  MAX_TOTAL_GAIN,
+  allLevers,
+  bestHealthyLever,
+  combinedGain,
+  gainFrom,
+  habitBreakdown,
+  habitsEffect,
+  healthyGainFrom,
+  type Lever,
+} from '@/lib/habit-impact';
 import { ZOOMS, fmt, lifeView, type Zoom } from '@/lib/life-views';
-import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate } from '@/lib/model';
+import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, healthEstimate, type Healthspan, type Survival } from '@/lib/model';
 import { defaultHabitPlan, planSentence } from '@/lib/plans';
 import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
@@ -48,6 +58,7 @@ const LEVER_COLOR: Record<Lever['key'], ThemeColor> = {
   sleep: 'leverSleep',
   smoke: 'leverSmoke',
   alcohol: 'leverDrink',
+  strength: 'leverStrength',
 };
 
 /** A change being tried and the share of the combined gain it's drawn with. */
@@ -70,11 +81,12 @@ function Life({ profile }: { profile: Profile }) {
   const [tries, setTries] = useState<Lever['key'][]>([]);
   // The grid only needs minute precision; the clock ticks every second on its own.
   const now = useNow(60_000);
-  const est = estimate(profile, now);
+  const { life: est, health } = healthEstimate(profile, now);
   const age = ageAt(profile.dob, now);
   const levers = allLevers(profile, now);
   const triedLevers = tries.flatMap((k) => levers.filter((l) => l.key === k));
   const gain = gainFrom(profile, triedLevers.map((l) => l.key), now);
+  const healthyGain = healthyGainFrom(profile, triedLevers.map((l) => l.key), now);
   const tried = splitGain(gain, triedLevers);
   const phone = profile.phoneHours;
   const lifeZoom = zoom === 'life' || zoom === 'weeks';
@@ -82,6 +94,7 @@ function Life({ profile }: { profile: Profile }) {
     gains: tried.map((t) => t.share),
     sleep: show === 'all' ? 0 : sleepHours(profile) / 24,
     phone: show === 'free' && phone ? phone / 24 : 0,
+    health: shiftHealth(health, est, healthyGain, gain),
   });
   // The median is found in monthly steps from the current age, so re-estimating every tick would
   // pin "time left" to a constant. Anchor it to when the screen opened so the clock really counts down.
@@ -121,6 +134,7 @@ function Life({ profile }: { profile: Profile }) {
       <View style={[styles.board, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <Legend
           life={lifeZoom}
+          healthy={lifeZoom}
           dense={!!view.dense}
           sleep={lifeZoom && show !== 'all'}
           phone={lifeZoom && show === 'free' && !!phone}
@@ -144,7 +158,7 @@ function Life({ profile }: { profile: Profile }) {
           seeLife();
         }}
       />
-      <WhatIf profile={profile} now={now} tried={tried} gain={gain} anyLevers={levers.length > 0} />
+      <WhatIf profile={profile} now={now} tried={tried} gain={gain} healthyGain={healthyGain} anyLevers={levers.length > 0} />
 
       <View style={styles.head}>
         <RichText
@@ -165,6 +179,8 @@ function Life({ profile }: { profile: Profile }) {
         <TablesNote country={profile.country} />
       </View>
 
+      <HealthyCard profile={profile} now={now} health={health} age={age} />
+
       <HabitsCard profile={profile} now={now} levers={levers} />
 
       <ThemedText type="small">
@@ -172,6 +188,90 @@ function Life({ profile }: { profile: Profile }) {
         promise, and are not medical advice.
       </ThemedText>
     </>
+  );
+}
+
+/**
+ * The healthy band, moved by the changes being tried. Each end can't pass the matching end of life, which the
+ * changes move too.
+ */
+function shiftHealth(health: Healthspan, life: Survival, healthyGain: number, gain: number) {
+  return {
+    q25: Math.min(health.q25 + healthyGain, life.q25 + gain),
+    med: Math.min(health.med + healthyGain, life.med + gain),
+    q75: Math.min(health.q75 + healthyGain, life.q75 + gain),
+  };
+}
+
+/**
+ * Years likely in good health, and the one change that would add the most of them, with a small plan for it
+ * (death reminders work when paired with one doable action: docs/nudges.md §1g). Strength training comes
+ * first when it's open to them: it does the most for staying independent.
+ */
+function HealthyCard({ profile, now, health, age }: { profile: Profile; now: number; health: Healthspan; age: number }) {
+  const theme = useTheme();
+  const strength = allLevers(profile, now).find((l) => l.key === 'strength' && l.healthy >= 0.2);
+  const lever = strength ?? bestHealthyLever(profile, now);
+  const years = (a: number) => Math.max(0, Math.round(a - age));
+  const askStrength = () => router.push({ pathname: '/onboarding', params: { edit: '1', only: 'strength' } });
+
+  return (
+    <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+      <View style={styles.timeRow}>
+        <View style={[styles.dot, { backgroundColor: theme.healthy }]} />
+        <ThemedText type="eyebrow" themeColor="muted" style={styles.flex}>
+          Strong and independent
+        </ThemedText>
+      </View>
+      <RichText
+        parts={[
+          { text: 'About ' },
+          { text: `${years(health.med)} of those years`, strong: true },
+          {
+            text: ` are likely to be in good health: strong, steady and doing things for yourself. For most people like you, ${years(health.q25)}–${years(health.q75)}.`,
+          },
+        ]}
+      />
+      <ThemedText type="small">
+        Later years often bring more aches and illness, and lean a little more on the people around you. How many,
+        and how soon, is partly in your hands.
+      </ThemedText>
+      {lever && lever.healthy >= 0.2 ? (
+        <View style={[styles.lever, { borderTopColor: theme.line }]}>
+          <RichText
+            parts={[
+              { text: `${lever.label} could add about ` },
+              { text: `${lever.healthy.toFixed(1)} of them`, strong: true },
+              {
+                text:
+                  lever.key === 'strength'
+                    ? ': stronger legs, steadier balance, fewer falls.'
+                    : lever.healthy > lever.years + 0.1
+                      ? ', more than it adds to your lifespan.'
+                      : '.',
+              },
+            ]}
+          />
+          <SourceLink of={lever.key === 'strength' ? 'mobility' : 'healthy'} />
+          <LeverPlan profile={profile} lever={lever} />
+        </View>
+      ) : (
+        <ThemedText type="small">
+          You already do the things that keep people strong the longest. Keep them, and keep your people close.
+        </ThemedText>
+      )}
+      {profile.strength == null ? (
+        <Pressable accessibilityRole="button" onPress={askStrength} hitSlop={6}>
+          <ThemedText type="small" themeColor="accent" style={styles.tablesEdit}>
+            Do you do strength training? Add your answer
+          </ThemedText>
+        </Pressable>
+      ) : null}
+      <View style={styles.tablesLinks}>
+        <SourceLink source={HEALTHY_LIFE_TABLES.source} prefix="Healthy years" />
+        <SourceLink of="healthy" prefix="Habits" />
+      </View>
+    </View>
   );
 }
 
@@ -196,7 +296,7 @@ function Toggles({ levers, tries, onToggle }: { levers: Lever[]; tries: Lever['k
               key={l.key}
               accessibilityRole="switch"
               aria-checked={on}
-              accessibilityLabel={`What if: ${l.label}, about ${l.years.toFixed(1)} years`}
+              accessibilityLabel={`What if: ${l.label}, about ${l.years.toFixed(1)} years, ${l.healthy.toFixed(1)} more in good health`}
               onPress={() => onToggle(l.key)}
               hitSlop={4}
               style={[styles.toggle, { borderColor: on ? color : theme.line, backgroundColor: on ? theme.bg : 'transparent' }]}>
@@ -216,7 +316,21 @@ function Toggles({ levers, tries, onToggle }: { levers: Lever[]; tries: Lever['k
  * What the changes being tried add up to, each linked to its source. Seeing your own numbers helps most
  * when it leads straight to a plan, so a single change offers one.
  */
-function WhatIf({ profile, now, tried, gain, anyLevers }: { profile: Profile; now: number; tried: Tried[]; gain: number; anyLevers: boolean }) {
+function WhatIf({
+  profile,
+  now,
+  tried,
+  gain,
+  healthyGain,
+  anyLevers,
+}: {
+  profile: Profile;
+  now: number;
+  tried: Tried[];
+  gain: number;
+  healthyGain: number;
+  anyLevers: boolean;
+}) {
   const theme = useTheme();
   // The weeks ahead, split the way the "Off phone" calendar shows them, plus the changes being tried.
   const weeks = yearsLeft(profile, now) * WEEKS_PER_YEAR;
@@ -250,6 +364,13 @@ function WhatIf({ profile, now, tried, gain, anyLevers }: { profile: Profile; no
                     ? `: less than the sum, since habit effects overlap${gain >= MAX_TOTAL_GAIN ? ', and capped' : ''}.`
                     : '.',
               },
+              ...(healthyGain >= 0.1
+                ? [
+                    { text: ' The green band grows by about ' },
+                    { text: `${healthyGain.toFixed(1)} years in good health`, strong: true },
+                    { text: '.' },
+                  ]
+                : []),
             ]}
           />
           {tried.map((t) => (
@@ -257,7 +378,7 @@ function WhatIf({ profile, now, tried, gain, anyLevers }: { profile: Profile; no
               <View style={[styles.dot, { backgroundColor: theme[LEVER_COLOR[t.key]] }]} />
               <View style={styles.flex}>
                 <ThemedText type="small" themeColor="fg">
-                  {t.label}: about {t.years.toFixed(1)} years on its own
+                  {t.label}: about {t.years.toFixed(1)} years on its own, {t.healthy.toFixed(1)} in good health
                 </ThemedText>
                 <SourceLink of={t.key} />
               </View>
@@ -341,12 +462,13 @@ function Clock({ end }: { end: number }) {
 }
 
 /** What each color means, above the calendar; sleep and phone appear only while they're shown. */
-function Legend({ life, dense, sleep, phone }: { life: boolean; dense: boolean; sleep: boolean; phone: boolean }) {
+function Legend({ life, healthy, dense, sleep, phone }: { life: boolean; healthy: boolean; dense: boolean; sleep: boolean; phone: boolean }) {
   const theme = useTheme();
   // Matches how the grid draws: on the dense Weeks view, likely weeks are dots and "maybe" ones plain rings.
   const items = [
     { label: 'Lived', fill: theme.lived },
     { label: 'Now', fill: theme.accent },
+    ...(healthy ? [{ label: 'Likely in good health', fill: theme.healthy }] : []),
     dense ? { label: 'Likely ahead', fill: theme.remain } : { label: 'Likely ahead', stroke: theme.remain },
     ...(sleep ? [{ label: 'Asleep', fill: theme.sleep }] : []),
     ...(phone ? [{ label: 'On your phone', fill: theme.screen }] : []),

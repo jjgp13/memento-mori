@@ -26,6 +26,9 @@ export const Colors = {
     leverSleep: '#5F5FA8',
     leverSmoke: '#A37A1C',
     leverDrink: '#7E8A2A',
+    leverStrength: '#8A5A9E',
+    /** Weeks and years likely lived in good health: a soft green band over the calendar. */
+    healthy: '#6E9C6A',
   },
   dark: {
     bg: '#131715',
@@ -47,6 +50,8 @@ export const Colors = {
     leverSleep: '#9D9DE0',
     leverSmoke: '#D9B04E',
     leverDrink: '#B8C46A',
+    leverStrength: '#C79BDB',
+    healthy: '#5E8F5B',
   },
 } as const;
 

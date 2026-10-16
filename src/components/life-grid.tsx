@@ -33,9 +33,14 @@ type Base = 'lived' | 'likely' | 'maybe';
 type Layer = 'reach' | 'sleep' | 'phone';
 const isLayer = (st: CellState): st is Layer => st === 'reach' || st === 'sleep' || st === 'phone';
 
+/** The healthy band fades in a few steps (opacity of the tint), so the range reads as soft, not as a line. */
+const HEALTH_STEPS = [1, 0.7, 0.45, 0.22];
+const healthStep = (level: number) => (level <= 0.08 ? -1 : HEALTH_STEPS.findIndex((v, k) => level >= (v + (HEALTH_STEPS[k + 1] ?? 0)) / 2));
+
 /**
- * Circles: lived, now (fills like a pie), likely ahead, and "if fortune allows". Layers (within reach,
- * sleep, phone) are drawn on their own and fade in whenever they change, so a "what if" shows up live.
+ * Circles: lived, now (fills like a pie), likely ahead, and "if fortune allows". Likely time in good health is
+ * tinted green, fading across its range. Layers (within reach, sleep, phone) and the healthy band are drawn on
+ * their own and fade in whenever they change, so a "what if" shows up live (no fade under Reduce Motion).
  */
 export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColors?: string[] }) {
   const theme = useTheme();
@@ -51,6 +56,7 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
   const layers: Record<Layer, string[]> = { reach: [], sleep: [], phone: [] };
   // One path per change being tried, so each shows in its own color.
   const reach: string[][] = reachColors.map(() => []);
+  const healthy: string[][] = HEALTH_STEPS.map(() => []);
   const labels: { x: number; y: number; text: string; onLived: boolean }[] = [];
   let nowCell: { cx: number; cy: number } | null = null;
 
@@ -65,7 +71,11 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
         if (st === 'reach' && reach.length) reach[Math.min(reach.length - 1, view.reachOf?.(i) ?? 0)].push(ring(cx, cy, r));
         else layers[st].push(ring(cx, cy, r));
         paths[UNDER[st]!].push(ring(cx, cy, r));
-      } else paths[st].push(ring(cx, cy, r));
+      } else {
+        paths[st].push(ring(cx, cy, r));
+        const k = st === 'likely' && view.health ? healthStep(view.health(i)) : -1;
+        if (k >= 0) healthy[k].push(ring(cx, cy, r));
+      }
       const text = view.label && r >= 11 && st !== 'now' ? view.label(i) : '';
       if (text) labels.push({ x: cx, y: cy, text, onLived: st === 'lived' });
     }
@@ -78,7 +88,7 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
   const w = view.labelW + cell * view.cols;
   const h = rows * cell;
   // Changes whenever a layer grows or shrinks, so the new layer fades in.
-  const layerKey = `${reach.map((p) => p.length).join('.')}-${layers.reach.length}-${layers.sleep.length}-${layers.phone.length}-${cell}`;
+  const layerKey = `${reach.map((p) => p.length).join('.')}-${layers.reach.length}-${layers.sleep.length}-${layers.phone.length}-${healthy.map((p) => p.length).join('.')}-${cell}`;
 
   return (
     <View
@@ -112,6 +122,19 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
 
           <Animated.View key={layerKey} entering={FadeIn.duration(900)} style={StyleSheet.absoluteFill} pointerEvents="none">
             <Svg width={w} height={h}>
+              {healthy.map((p, k) =>
+                p.length ? (
+                  <Path
+                    key={`h${k}`}
+                    d={p.join('')}
+                    fill={theme.healthy}
+                    fillOpacity={HEALTH_STEPS[k] * (small ? 1 : 0.55)}
+                    stroke={small ? undefined : theme.healthy}
+                    strokeOpacity={HEALTH_STEPS[k]}
+                    strokeWidth={stroke}
+                  />
+                ) : null,
+              )}
               {small ? (
                 <>
                   <Path d={layers.sleep.join('')} fill={theme.sleep} />

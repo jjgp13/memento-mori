@@ -27,17 +27,18 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { countryName, deviceCountry } from '@/lib/country';
-import { LIFE_TABLES } from '@/lib/evidence';
-import { bestLever, habitsEffect } from '@/lib/habit-impact';
+import { HEALTHY_LIFE_TABLES, LIFE_TABLES } from '@/lib/evidence';
+import { allLevers, bestHealthyLever, bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
 import { fmt } from '@/lib/life-views';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
   HABITS,
   HABIT_KEYS,
+  LATER_HABITS,
   WEEKS_PER_YEAR,
   ageAt,
-  estimate,
+  healthEstimate,
   type HabitKey,
   type ModelInput,
   type Sex,
@@ -90,7 +91,8 @@ const DEFAULT_PHONE_HOURS = 4;
 
 /** Model inputs once every answer the model needs is in. */
 function modelInput(d: Draft): ModelInput | null {
-  if (!d.dob || !d.sex || HABIT_KEYS.some((k) => !d[k])) return null;
+  // Habits asked only since 2026.10d may be missing on older profiles; they count as x1 until answered.
+  if (!d.dob || !d.sex || HABIT_KEYS.some((k) => !d[k] && !(LATER_HABITS as readonly HabitKey[]).includes(k))) return null;
   return d as ModelInput;
 }
 
@@ -138,7 +140,12 @@ export default function OnboardingScreen() {
   const answerAndAdvance = (patch: Partial<Draft>) => {
     set(patch);
     clearTimeout(advanceTimer.current);
-    advanceTimer.current = setTimeout(next, reduced ? 0 : 320);
+    // Editing a single answer (`?only=strength`): the answer is the last step, so save and close.
+    const save = () => {
+      saveProfile({ ...draft, ...patch } as Profile);
+      close();
+    };
+    advanceTimer.current = setTimeout(editing && index === steps.length - 1 ? save : next, reduced ? 0 : 320);
   };
 
   // "Counting your weeks" plays for a moment, then the reveal.
@@ -443,9 +450,11 @@ function Computing() {
 function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: () => void }) {
   const theme = useTheme();
   const [now] = useState(() => Date.now());
-  const est = estimate(me, now);
+  const { life: est, health } = healthEstimate(me, now);
   const age = ageAt(me.dob, now);
   const weeksLeft = (est.med - age) * WEEKS_PER_YEAR;
+  // Strength training first when it's open to them: it does the most for staying independent.
+  const strong = allLevers(me, now).find((l) => l.key === 'strength' && l.healthy >= 0.2) ?? bestHealthyLever(me, now);
   const effect = habitsEffect(me, now);
   const lever = bestLever(me, now);
   const person = draft.loves.find((l) => l.kind !== 'activity');
@@ -464,6 +473,26 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
       A full life like yours is about {fmt(est.med * WEEKS_PER_YEAR)} weeks. You have lived {fmt(age * WEEKS_PER_YEAR)} of
       them. Let&apos;s make the rest count.
     </ThemedText>,
+    <View key="hy" style={styles.healthy}>
+      <ThemedText>
+        About{' '}
+        <ThemedText themeColor="accent" style={styles.num}>
+          {fmt(Math.max(0, health.med - age) * WEEKS_PER_YEAR)}
+        </ThemedText>{' '}
+        of those weeks are likely to be in good health: strong and doing things for yourself.
+        {strong && strong.healthy >= 0.2 ? (
+          <>
+            {' '}
+            {strong.label} could add about{' '}
+            <ThemedText themeColor="accent" style={styles.num}>
+              {strong.healthy.toFixed(1)} years
+            </ThemedText>{' '}
+            of them.
+          </>
+        ) : null}
+      </ThemedText>
+      <SourceLink source={HEALTHY_LIFE_TABLES.source} prefix="Healthy years" />
+    </View>,
   ];
 
   if (person) {
@@ -650,5 +679,8 @@ const styles = StyleSheet.create({
   agency: {
     borderTopWidth: 1,
     paddingTop: 14,
+  },
+  healthy: {
+    gap: 4,
   },
 });

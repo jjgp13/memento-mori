@@ -2,7 +2,7 @@
  * What the Life screen's circle grid shows at each zoom level. Ported from draw() in
  * prototype/index.html; rendering lives in components/life-grid.tsx.
  */
-import { DAY_MS, WEEK_MS, WEEKS_PER_YEAR, ageAt, birthTime, type Survival } from '@/lib/model';
+import { DAY_MS, WEEK_MS, WEEKS_PER_YEAR, ageAt, birthTime, type Healthspan, type Survival } from '@/lib/model';
 
 export type Zoom = 'life' | 'weeks' | 'year' | 'today';
 export const ZOOMS: { key: Zoom; label: string }[] = [
@@ -27,7 +27,28 @@ export type Layers = {
   sleep?: number;
   /** Share of each day on the phone (0–1). */
   phone?: number;
+  /** Ages good health likely lasts to (with any changes being tried): a band that fades from q25 to q75. */
+  health?: Pick<Healthspan, 'q25' | 'med' | 'q75'>;
 };
+
+/** How likely the time at `age` is lived in good health, as a soft band: 1 before q25, fading to 0 at q75. */
+function healthLevel(health: Layers['health']) {
+  if (!health) return undefined;
+  const { q25, q75 } = health;
+  return (age: number) => (age < q25 ? 1 : age >= q75 ? 0 : (q75 - age) / Math.max(1e-6, q75 - q25));
+}
+
+/** "About 28 of those years are likely in good health." Doubles as the band's text alternative. */
+function healthCaption(age: number, unit: string, perYear: number, health: Layers['health']): Rich {
+  if (!health) return [];
+  const lo = Math.max(0, health.q25 - age) * perYear;
+  const hi = Math.max(0, health.q75 - age) * perYear;
+  return [
+    t(' About '),
+    b(fmt(Math.max(0, health.med - age) * perYear)),
+    t(` of them are likely in good health, strong and independent: the green band, fading where people differ (for most like you, ${fmt(lo)}–${fmt(hi)} ${unit}).`),
+  ];
+}
 
 /** Likely-ahead cells [from, to): the first part stays free, then phone time, then sleep, added up. */
 function splitAhead(from: number, to: number, { sleep = 0, phone = 0 }: Layers) {
@@ -67,6 +88,8 @@ export type GridView = {
   state: (i: number) => CellState;
   /** For a 'reach' cell: which of `Layers.gains` it belongs to. */
   reachOf?: (i: number) => number;
+  /** For a 'likely' cell: how likely it's lived in good health, 0–1 (the healthy band). */
+  health?: (i: number) => number;
   label?: (i: number) => string;
   rowLabel?: (row: number) => string;
   caption: Rich;
@@ -94,6 +117,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
   const gains = layers.gains ?? [];
   const gain = gains.reduce((t, g) => t + g, 0);
   const segment = segmentOf(gains);
+  const level = healthLevel(layers.health);
 
   if (zoom === 'life') {
     const a = Math.floor(age);
@@ -107,6 +131,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
       state: (i) =>
         i < a ? 'lived' : i === a ? 'now' : i < est.med ? ahead(i) : i < est.med + gain ? 'reach' : i < est.q75 ? 'maybe' : 'none',
       reachOf: (i) => segment(i - est.med),
+      health: level && ((i) => level(i + 0.5)),
       label: (i) => (i % 5 === 0 ? String(i) : ''),
       rowLabel: (row) => String(row * 10),
       caption: [
@@ -115,6 +140,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
         t(' gone. About '),
         b(fmt(est.med - age)),
         t(' more birthdays are likely.'),
+        ...healthCaption(age, 'years', 1, layers.health),
         ...layersCaption(est.med - age, 'years', layers),
       ],
     };
@@ -134,6 +160,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
       frac: weeksLived - w,
       state: (i) => (i < w ? 'lived' : i === w ? 'now' : i < med ? ahead(i) : i < reach ? 'reach' : 'maybe'),
       reachOf: (i) => segment((i - med) / WEEKS_PER_YEAR),
+      health: level && ((i) => level((i + 0.5) / WEEKS_PER_YEAR)),
       rowLabel: (row) => (row % 10 === 0 ? String(row) : ''),
       caption: [
         t(`Week ${fmt(w + 1)} of your life is `),
@@ -141,6 +168,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
         t(' gone. About '),
         b(fmt(med - weeksLived)),
         t(' weeks likely remain.'),
+        ...healthCaption(age, 'weeks', WEEKS_PER_YEAR, layers.health),
         ...layersCaption(med - weeksLived, 'weeks', layers),
       ],
     };

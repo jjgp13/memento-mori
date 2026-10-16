@@ -69,10 +69,11 @@ export const WHAT_MATTERS: Evidence[] = [
     key: 'strength',
     title: 'Strength training',
     strength: 'moderate',
-    summary: '30–60 minutes a week is linked to 10–17% lower mortality.',
-    detail: 'On top of, not instead of, aerobic exercise. Benefits beyond about an hour a week are unclear.',
+    summary: '30–60 minutes a week is linked to 10–17% lower mortality, and to staying strong and independent for longer.',
+    detail:
+      'On top of, not instead of, aerobic exercise; benefits beyond about an hour a week are unclear. Its bigger effect is on the later years: strength and balance work means fewer falls and less disability (see "Staying strong and independent"). In this app, twice a week counts ×0.85 on the risk of dying and ×0.82 on the risk of losing good health.',
     source: { label: 'Momma et al., Br J Sports Med 2022', url: 'https://bjsm.bmj.com/content/56/13/755' },
-    inEstimate: false,
+    inEstimate: true,
   },
   {
     key: 'purpose',
@@ -121,6 +122,59 @@ export const WHAT_MATTERS: Evidence[] = [
     inEstimate: false,
   },
 ];
+
+/**
+ * Staying strong and independent: how habits move healthy years (healthspan), on the Habits screen and behind the
+ * healthy band on Life. Keep in step with docs/science.md §1.
+ */
+export const HEALTHSPAN: Evidence[] = [
+  {
+    key: 'healthy-habits',
+    title: 'Healthy habits add healthy years',
+    strength: 'strong',
+    summary: 'At 50, 4–5 healthy habits went with about 10.7 (women) and 7.6 (men) more years free of cancer, heart disease and diabetes.',
+    detail:
+      'In two large Harvard cohorts (Nurses’ Health Study, Health Professionals Follow-up Study), total years rose about as much (+9.4 women, +8.1 men): nearly all the extra time was healthy time, and the years lived with disease barely changed. The habits: not smoking, healthy weight, 30+ minutes a day of activity, moderate or no drinking, a good diet. The app moves your healthy years with your habits to match.',
+    source: { label: 'Li et al., BMJ 2020', url: 'https://www.bmj.com/content/368/bmj.l6669' },
+    inEstimate: true,
+  },
+  {
+    key: 'falls',
+    title: 'Exercise prevents falls',
+    strength: 'strong',
+    summary: 'Exercise cut falls in older people by 23%; programs with strength and balance work by about a third.',
+    detail:
+      'Cochrane review of 108 trials (23,407 people over 60 living at home). Overall rate ratio 0.77 (high-certainty evidence); balance and functional exercise 0.76; several kinds together, usually balance plus strength, 0.66 (moderate certainty).',
+    source: { label: 'Sherrington et al., Cochrane 2019', url: 'https://bjsm.bmj.com/content/54/15/885' },
+    inEstimate: false,
+  },
+  {
+    key: 'mobility',
+    title: 'Staying able to walk on your own',
+    strength: 'moderate',
+    summary: 'In a trial of 1,635 people aged 70–89, walking with strength and balance work cut major mobility disability by 18%.',
+    detail:
+      'The LIFE trial: a structured moderate program (walking, strength, flexibility, balance) vs health education, over 2.6 years. Losing the ability to walk 400 m: 30.1% vs 35.5% (HR 0.82). One large trial of a combined program, so the share due to strength alone is unknown. The app uses 0.82 for strength training twice a week.',
+    source: { label: 'Pahor et al., JAMA 2014', url: 'https://pubmed.ncbi.nlm.nih.gov/24866862/' },
+    inEstimate: true,
+  },
+  {
+    key: 'grip',
+    title: 'Grip strength',
+    strength: 'moderate',
+    summary: 'People over 60 with weak grip were about 1.8× as likely to lose function, and to die, over follow-up.',
+    detail:
+      'Meta-analysis of 34 studies of people 60 and older living at home: pooled ratio 1.78 for declining physical function and 1.79 for mortality, low vs high grip. Grip is a marker of overall strength; observational, so it shows who is at risk more than what to do, but strength training is how strength is kept.',
+    source: { label: 'Rijk et al., Geriatr Gerontol Int 2016', url: 'https://pubmed.ncbi.nlm.nih.gov/26016893/' },
+    inEstimate: false,
+  },
+];
+
+/** Where healthy years start from: each country's healthy life expectancy (src/lib/health-tables.ts). */
+export const HEALTHY_LIFE_TABLES = {
+  claim: 'Healthy life expectancy (HALE) for 185 countries, by sex, 2023: the years people live in good health.',
+  source: { label: 'WHO Global Health Observatory', url: 'https://data.who.int/indicators/i/C64284D' },
+};
 
 /** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */
 export const LIFE_TABLES = {
@@ -177,11 +231,12 @@ const EVIDENCE_FOR: Record<string, string> = {
   sleep: 'sleep',
   connection: 'relationships',
   phone: 'scrolling',
+  healthy: 'healthy-habits',
 };
 
 export function evidenceFor(key: string): Evidence | undefined {
   const k = EVIDENCE_FOR[key] ?? key;
-  return WHAT_MATTERS.find((e) => e.key === k);
+  return WHAT_MATTERS.find((e) => e.key === k) ?? HEALTHSPAN.find((e) => e.key === k);
 }
 
 export const HOW_IT_WORKS = [
@@ -190,5 +245,7 @@ export const HOW_IT_WORKS = [
   'We follow that risk month by month from your age today. The age by which half of people like you have died is your median; the 25% and 75% marks give your range.',
   'Rule of thumb: years ≈ ln(risk multiplier) ÷ 0.085. That is why doubling your risk costs about 8 years, and why quitting smoking can give back about 9.',
   'Several changes together add less than their sum, and we cap the total at 14 years, the largest all-habits difference found in a major US study.',
+  'Healthy years start from your country’s healthy life expectancy (WHO, 2023): the share of the years ahead that people your age spend in good health. We gather the less healthy time at the end, where most of it falls, so it shows as a band that fades, not a date.',
+  'Habits move healthy years about as much as total years, as they did in a large Harvard study, and strength training more: it keeps people strong, steady and independent. The same 14-year cap applies.',
   'These are associations from population studies, not causes, and not medical advice.',
 ];

@@ -11,7 +11,7 @@ import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
 import { countryName } from '@/lib/country';
-import { HOW_IT_WORKS, WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
+import { HEALTHSPAN, HOW_IT_WORKS, WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
 import {
   GOMPERTZ_B,
   HABITS,
@@ -19,6 +19,7 @@ import {
   ageAt,
   estimate,
   hazardMultiplier,
+  healthEstimate,
   stepsHR,
   survival,
   yearsFromHR,
@@ -67,6 +68,17 @@ function Habits({ profile }: { profile: Profile }) {
           Ranked by size and strength of evidence. Tap one to see the numbers and the source.
         </ThemedText>
         {WHAT_MATTERS.map((e, i) => (
+          <EvidenceRow key={e.key} rank={i + 1} item={e} />
+        ))}
+      </View>
+
+      <View style={styles.section}>
+        <ThemedText type="heading">STAYING STRONG AND INDEPENDENT</ThemedText>
+        <ThemedText type="small">
+          What keeps the later years healthy: the green band on your Life calendar. Tap one to see the numbers and the
+          source.
+        </ThemedText>
+        {HEALTHSPAN.map((e, i) => (
           <EvidenceRow key={e.key} rank={i + 1} item={e} />
         ))}
       </View>
@@ -136,7 +148,24 @@ function Factor({
           );
         })}
       </View>
+      {habit === 'strength' ? <StrengthNote profile={profile} now={now} /> : null}
     </View>
+  );
+}
+
+/** Strength training does more for the years in good health than for the total, so say so under its options. */
+function StrengthNote({ profile, now }: { profile: Profile; now: number }) {
+  if (profile.strength === 'regular') {
+    return <ThemedText type="small">Twice a week keeps you stronger and steadier for longer. Keep it up.</ThemedText>;
+  }
+  const base = healthEstimate(profile, now);
+  const next = healthEstimate({ ...profile, strength: 'regular' }, now);
+  const healthy = next.health.med - base.health.med;
+  return (
+    <ThemedText type="small">
+      Its bigger effect is on staying strong and independent: twice a week could add about {healthy.toFixed(1)} years in
+      good health.
+    </ThemedText>
   );
 }
 
