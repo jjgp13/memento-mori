@@ -1,16 +1,16 @@
 import { StyleSheet, type TextStyle, type StyleProp } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText, type ThemedTextProps } from '@/components/themed-text';
 import { Fonts } from '@/constants/theme';
-import type { Rich } from '@/lib/life-views';
+import type { Rich } from '@/i18n/rich';
 
 /** Body text whose **strong** runs are set in bronze monospace, like the prototype's <b>. */
-export function RichText({ parts, style }: { parts: Rich; style?: StyleProp<TextStyle> }) {
+export function RichText({ parts, style, type }: { parts: Rich; style?: StyleProp<TextStyle>; type?: ThemedTextProps['type'] }) {
   return (
-    <ThemedText style={style}>
+    <ThemedText type={type} style={style}>
       {parts.map((p, i) =>
         p.strong ? (
-          <ThemedText key={i} themeColor="accent" style={[style, styles.strong]}>
+          <ThemedText key={i} type={type} themeColor="accent" style={[style, styles.strong]}>
             {p.text}
           </ThemedText>
         ) : (

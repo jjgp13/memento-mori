@@ -4,8 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Fonts, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+import { useT } from '@/i18n';
 const daysIn = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
@@ -14,6 +13,7 @@ type View3 = 'year' | 'month' | 'day';
 /** Birth-date picker from the prototype: year → month → day, one view at a time. */
 export function DatePicker({ value, onChange }: { value: string; onChange: (iso: string) => void }) {
   const theme = useTheme();
+  const t = useT();
   const [init] = useState(() => (value ? value.split('-').map(Number) : null));
   const [y, setY] = useState<number | null>(init ? init[0] : null);
   const [m, setM] = useState<number | null>(init ? init[1] - 1 : null);
@@ -54,7 +54,7 @@ export function DatePicker({ value, onChange }: { value: string; onChange: (iso:
     for (let dec = Math.floor(minYear / 10) * 10; dec <= maxYear; dec += 10) {
       items.push(
         <Text key={`d${dec}`} style={[styles.decade, { color: theme.muted }]}>
-          {dec}s
+          {t.date.decade(dec)}
         </Text>,
       );
       for (let k = Math.max(dec, minYear); k < Math.min(dec + 10, maxYear + 1); k++) {
@@ -76,8 +76,8 @@ export function DatePicker({ value, onChange }: { value: string; onChange: (iso:
   } else if (view === 'month') {
     body = (
       <View style={styles.wrap}>
-        {MONTHS.map((name, i) => (
-          <Cell key={name} label={name.slice(0, 3)} on={i === m} onPress={() => pickMonth(i)} width="33.333%" />
+        {t.date.monthsShort.map((name, i) => (
+          <Cell key={i} label={name} on={i === m} onPress={() => pickMonth(i)} width="33.333%" />
         ))}
       </View>
     );
@@ -85,7 +85,7 @@ export function DatePicker({ value, onChange }: { value: string; onChange: (iso:
     const first = new Date(y, m, 1).getDay();
     body = (
       <View style={styles.wrap}>
-        {'SMTWTFS'.split('').map((c, i) => (
+        {t.date.weekdayInitials.map((c, i) => (
           <Text key={`w${i}`} style={[styles.weekday, { color: theme.muted }]}>
             {c}
           </Text>
@@ -103,15 +103,15 @@ export function DatePicker({ value, onChange }: { value: string; onChange: (iso:
   return (
     <View style={[styles.box, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <View style={styles.head}>
-        <Head label={y != null ? String(y) : 'Year'} current={view === 'year'} onPress={() => setView('year')} />
+        <Head label={y != null ? String(y) : t.date.year} current={view === 'year'} onPress={() => setView('year')} />
         <Head
-          label={m != null ? MONTHS[m] : 'Month'}
+          label={m != null ? t.date.months[m] : t.date.month}
           current={view === 'month'}
           disabled={y == null}
           onPress={() => setView('month')}
         />
         <Head
-          label={d != null ? String(d) : 'Day'}
+          label={d != null ? String(d) : t.date.day}
           current={view === 'day'}
           disabled={m == null}
           onPress={() => setView('day')}

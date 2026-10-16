@@ -9,13 +9,13 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 import { downloadFile } from '@/lib/download';
 import { PLANS } from '@/lib/evidence';
 import type { Love } from '@/lib/loves';
 import {
-  ANCHORS,
-  DAY_NAMES,
   WEEK_ORDER,
+  anchors as anchorChoices,
   capitalize,
   defaultPersonPlan,
   minutesToTime,
@@ -47,13 +47,16 @@ export function PlanEditor<P extends Plan>({
   note?: ReactNode;
 }) {
   const theme = useTheme();
+  const t = useT();
+  const pt = t.plans;
   const [plan, setPlan] = useState<P>(initial);
   const set = (patch: Partial<Plan>) => setPlan((p) => ({ ...p, ...patch }));
   const anchored = !!plan.anchor?.trim();
   // Their own words for the cue stay on the list of choices while editing.
-  const anchors = ANCHORS.some((a) => a.anchor === initial.anchor) || !initial.anchor
-    ? ANCHORS
-    : [{ anchor: initial.anchor, time: initial.time }, ...ANCHORS];
+  const choices = anchorChoices(t);
+  const anchors = choices.some((a) => a.anchor === initial.anchor) || !initial.anchor
+    ? choices
+    : [{ anchor: initial.anchor, time: initial.time }, ...choices];
 
   const toggleDay = (d: Weekday) => {
     const on = plan.days.includes(d);
@@ -63,8 +66,8 @@ export function PlanEditor<P extends Plan>({
 
   return (
     <Animated.View entering={FadeIn.duration(250)} style={[styles.wrap, { borderColor: theme.line }]}>
-      <ThemedText type="heading">WHEN</ThemedText>
-      <View style={styles.days} accessibilityLabel="Days">
+      <ThemedText type="heading">{pt.when}</ThemedText>
+      <View style={styles.days} accessibilityLabel={pt.daysA11y}>
         {WEEK_ORDER.map((d) => {
           const on = plan.days.includes(d);
           return (
@@ -72,11 +75,11 @@ export function PlanEditor<P extends Plan>({
               key={d}
               accessibilityRole="checkbox"
               aria-checked={on}
-              accessibilityLabel={DAY_NAMES[d]}
+              accessibilityLabel={t.date.weekdays[d]}
               onPress={() => toggleDay(d)}
               style={[styles.day, { backgroundColor: on ? theme.fg : theme.surface, borderColor: on ? theme.fg : theme.line }]}>
               <ThemedText type="mono" style={{ color: on ? theme.bg : theme.muted }}>
-                {DAY_NAMES[d][0]}
+                {t.date.weekdayInitials[d]}
               </ThemedText>
             </Pressable>
           );
@@ -84,7 +87,7 @@ export function PlanEditor<P extends Plan>({
       </View>
 
       <View style={styles.chips}>
-        <Chip label="at a set time" on={!anchored} onPress={() => set({ anchor: undefined })} />
+        <Chip label={pt.atSetTime} on={!anchored} onPress={() => set({ anchor: undefined })} />
         {anchors.map((a) => (
           <Chip key={a.anchor} label={a.anchor} on={plan.anchor === a.anchor} onPress={() => set({ anchor: a.anchor, time: a.time })} />
         ))}
@@ -92,43 +95,43 @@ export function PlanEditor<P extends Plan>({
       <TextField
         value={plan.anchor ?? ''}
         onChangeText={(anchor) => set({ anchor })}
-        placeholder="or in your words: when I get home"
-        accessibilityLabel="The moment that reminds you, in your words"
+        placeholder={pt.anchorPlaceholder}
+        accessibilityLabel={pt.anchorA11y}
         autoCapitalize="none"
       />
       <View style={styles.timeRow}>
         <ThemedText type="small" style={styles.flex}>
-          {anchored ? 'Around (for reminders)' : 'At'}
+          {anchored ? pt.around : pt.at}
         </ThemedText>
         <Stepper
           value={timeToMinutes(plan.time)}
           onChange={(m) => set({ time: minutesToTime(m) })}
           step={15}
           max={LAST_SLOT}
-          format={(m) => timeLabel(minutesToTime(m))}
-          accessibilityLabel="Time"
+          format={(m) => timeLabel(minutesToTime(m), t)}
+          accessibilityLabel={pt.timeA11y}
         />
       </View>
 
-      <ThemedText type="heading">I WILL</ThemedText>
+      <ThemedText type="heading">{pt.iWill}</ThemedText>
       <TextField
         value={plan.action}
         onChangeText={(action) => set({ action })}
-        placeholder="call Mom"
-        accessibilityLabel="What you will do"
+        placeholder={pt.actionPlaceholder}
+        accessibilityLabel={pt.actionA11y}
         autoCapitalize="none"
       />
 
       <ThemedText type="quote" style={styles.sentence}>
-        {planSentence(plan)}
+        {planSentence(plan, t)}
       </ThemedText>
-      <ThemedText type="small">{PLANS.claim}</ThemedText>
+      <ThemedText type="small">{t.claims.plans}</ThemedText>
       <SourceLink source={PLANS.source} />
       {note}
 
       <View style={styles.row}>
-        <Button title="Save plan" disabled={!plan.action.trim()} onPress={() => onSave({ ...plan, anchor: plan.anchor?.trim() || undefined, action: plan.action.trim() })} style={styles.flex} />
-        <Button title="Cancel" variant="link" onPress={onCancel} />
+        <Button title={pt.save} disabled={!plan.action.trim()} onPress={() => onSave({ ...plan, anchor: plan.anchor?.trim() || undefined, action: plan.action.trim() })} style={styles.flex} />
+        <Button title={pt.cancel} variant="link" onPress={onCancel} />
       </View>
     </Animated.View>
   );
@@ -151,12 +154,13 @@ function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () 
 
 /** A person's plan on their card: suggest one when asked, otherwise show it. */
 export function PersonPlan({ love, onChange }: { love: Love; onChange: (next: Love) => void }) {
+  const t = useT();
   const [editing, setEditing] = useState(false);
 
   if (editing) {
     return (
       <PlanEditor
-        initial={love.plan ?? defaultPersonPlan(love)}
+        initial={love.plan ?? defaultPersonPlan(love, t)}
         onCancel={() => setEditing(false)}
         onSave={(plan) => {
           onChange({ ...love, plan: { ...plan, createdAt: love.plan?.createdAt ?? Date.now() } });
@@ -170,9 +174,9 @@ export function PersonPlan({ love, onChange }: { love: Love; onChange: (next: Lo
   }
   return (
     <Button
-      title="Plan when to reach out"
+      title={t.plans.planReachOut}
       variant="link"
-      accessibilityLabel={`Plan when to reach out to ${love.name}`}
+      accessibilityLabel={t.plans.planReachOutA11y(love.name)}
       onPress={() => setEditing(true)}
       style={styles.start}
     />
@@ -181,16 +185,17 @@ export function PersonPlan({ love, onChange }: { love: Love; onChange: (next: Lo
 
 /** A saved plan in one line, with Edit, calendar and Remove. */
 export function PlanSummary({ plan, onEdit, onRemove }: { plan: Plan; onEdit: () => void; onRemove: () => void }) {
+  const t = useT();
   return (
     <View style={styles.summary}>
       <ThemedText type="eyebrow" themeColor="muted">
-        Your plan
+        {t.plans.yourPlan}
       </ThemedText>
-      <ThemedText style={styles.italic}>{planSentence(plan)}</ThemedText>
+      <ThemedText style={styles.italic}>{planSentence(plan, t)}</ThemedText>
       <View style={styles.links}>
-        <Button title="Edit" variant="link" onPress={onEdit} />
+        <Button title={t.plans.edit} variant="link" onPress={onEdit} />
         <AddToCalendar plan={plan} />
-        <Button title="Remove" variant="link" accessibilityLabel="Remove this plan" onPress={onRemove} />
+        <Button title={t.common.remove} variant="link" accessibilityLabel={t.plans.removeA11y} onPress={onRemove} />
       </View>
     </View>
   );
@@ -201,16 +206,17 @@ export function PlanSummary({ plan, onEdit, onRemove }: { plan: Plan; onEdit: ()
  * and no account; on phones the browser offers to add it. Native reminders come with the native build.
  */
 export function AddToCalendar({ plan }: { plan: Plan }) {
+  const t = useT();
   const [saved, setSaved] = useState(false);
   if (Platform.OS !== 'web') return null;
   const title = capitalize(plan.action.trim());
 
   return (
     <Button
-      title={saved ? 'Saved: open it to add ✓' : 'Add to my calendar'}
+      title={saved ? t.plans.calendarSaved : t.plans.addToCalendar}
       variant="link"
-      accessibilityLabel={`Add "${title}" to your calendar as a repeating event`}
-      onPress={() => setSaved(downloadFile(`${slug(title)}.ics`, planIcs(plan, title), 'text/calendar;charset=utf-8'))}
+      accessibilityLabel={t.plans.addToCalendarA11y(title)}
+      onPress={() => setSaved(downloadFile(`${slug(title)}.ics`, planIcs(plan, title, t), 'text/calendar;charset=utf-8'))}
     />
   );
 }

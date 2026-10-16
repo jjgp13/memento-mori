@@ -7,6 +7,7 @@ import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 
 /**
  * A reading screen (How this works, Sources, the legal documents): an eyebrow and Done, then a
@@ -14,13 +15,14 @@ import { useTheme } from '@/hooks/use-theme';
  */
 export function DocScreen({ eyebrow, title, lede, children }: PropsWithChildren<{ eyebrow: string; title: string; lede?: string }>) {
   const theme = useTheme();
+  const t = useT();
   const done = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: theme.bg }]}>
       <View style={styles.bar}>
         <ThemedText type="eyebrow">{eyebrow}</ThemedText>
-        <Button title="Done" variant="link" onPress={done} />
+        <Button title={t.common.done} variant="link" onPress={done} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.head}>

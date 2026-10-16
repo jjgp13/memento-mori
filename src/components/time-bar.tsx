@@ -5,7 +5,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 import { ThemedText } from '@/components/themed-text';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { fmt } from '@/lib/life-views';
+import { fmt } from '@/i18n/format';
 
 export type BarPart = { key: string; label: string; value: number; color: string };
 
@@ -15,7 +15,7 @@ const ease = Easing.bezier(0.2, 0.7, 0.2, 1);
  * The weeks ahead as one bar (awake and free, phone, sleep, within reach) that eases to new sizes as
  * someone tries a change, right next to the controls they're touching.
  */
-export function TimeBar({ parts, unit = 'weeks' }: { parts: BarPart[]; unit?: string }) {
+export function TimeBar({ parts, unit }: { parts: BarPart[]; unit: string }) {
   const theme = useTheme();
   const total = parts.reduce((t, p) => t + p.value, 0) || 1;
   const shown = parts.filter((p) => p.value >= 0.5);

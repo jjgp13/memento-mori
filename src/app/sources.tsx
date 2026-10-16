@@ -4,7 +4,9 @@ import { DocScreen, DocSection } from '@/components/doc-screen';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { QUOTE_SOURCES, STUDIES, authorsLine, reference, studiesByTopic } from '@/lib/sources';
+import { useT } from '@/i18n';
+import { fmt } from '@/i18n/format';
+import { STUDIES, authorsLine, reference, studiesByTopic } from '@/lib/sources';
 
 /**
  * Every study and data set cited anywhere in the app, generated from the catalog in src/lib/sources.ts
@@ -12,21 +14,18 @@ import { QUOTE_SOURCES, STUDIES, authorsLine, reference, studiesByTopic } from '
  */
 export default function SourcesScreen() {
   const theme = useTheme();
-  const count = Object.keys(STUDIES).length;
+  const src = useT().sources;
 
   return (
-    <DocScreen
-      eyebrow="Sources"
-      title="The research behind the app"
-      lede={`All ${count} studies and data sets the app cites, grouped by what they are used for. Tap one to open it.`}>
-      {studiesByTopic().map((t) => (
-        <DocSection key={t.key} title={t.title}>
-          <ThemedText type="small">{t.blurb}</ThemedText>
-          {t.studies.map((s) => (
+    <DocScreen eyebrow={src.eyebrow} title={src.title} lede={src.lede(fmt(Object.keys(STUDIES).length))}>
+      {studiesByTopic().map((topic) => (
+        <DocSection key={topic.key} title={src.topics[topic.key].title}>
+          <ThemedText type="small">{src.topics[topic.key].blurb}</ThemedText>
+          {topic.studies.map((s) => (
             <Pressable
               key={s.id}
               accessibilityRole="link"
-              accessibilityLabel={`${reference(s)} Opens in browser.`}
+              accessibilityLabel={`${reference(s)} ${src.opens}`}
               onPress={() => Linking.openURL(s.url)}
               style={({ pressed }) => [styles.item, { borderTopColor: theme.line }, pressed && styles.pressed]}>
               <ThemedText type="small" themeColor="fg">
@@ -34,7 +33,7 @@ export default function SourcesScreen() {
                 {s.journal}, {s.year}
                 {s.details ? `; ${s.details}` : ''}.
               </ThemedText>
-              <ThemedText type="small">Used for: {s.usedFor}</ThemedText>
+              <ThemedText type="small">{src.usedFor(src.uses[s.id])}</ThemedText>
               <ThemedText type="small" themeColor="accent" style={styles.link} numberOfLines={1}>
                 {s.url.replace(/^https?:\/\//, '')} ↗
               </ThemedText>
@@ -43,16 +42,13 @@ export default function SourcesScreen() {
         </DocSection>
       ))}
 
-      <DocSection title="Quotes">
+      <DocSection title={src.quotesHeading}>
         <ThemedText type="small" themeColor="fg">
-          {QUOTE_SOURCES}
+          {src.quotes}
         </ThemedText>
       </DocSection>
 
-      <ThemedText type="small">
-        Some links go to a summary or press release when the full paper is behind a paywall. Associations from
-        population studies are not proof of cause, and nothing here is medical advice.
-      </ThemedText>
+      <ThemedText type="small">{src.footnote}</ThemedText>
     </DocScreen>
   );
 }

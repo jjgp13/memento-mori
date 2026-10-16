@@ -1,7 +1,12 @@
 /**
- * Disclaimers, the support line, and the legal documents (Terms of Use, Privacy Policy, Consumer Health
- * Data Privacy Policy). The in-app screens render these, and scripts/write-docs.mts writes the Markdown
- * copies in docs/legal/, so the two can't drift. Edit here, then run `npm run docs`.
+ * The legal documents (Terms of Use, Privacy Policy, Consumer Health Data Privacy Policy). The in-app
+ * screens render these, and scripts/write-docs.mts writes the Markdown copies in docs/legal/, so the two
+ * can't drift. Edit here, then run `npm run docs`.
+ *
+ * ENGLISH ONLY, on purpose: the one exception to "all UI text lives in the language catalogs". Legal text
+ * should be translated professionally from the lawyer-reviewed English, not drafted in 11 languages.
+ * Everything around the documents (titles in links, the draft notice, the disclaimer and support line)
+ * is in the catalogs under `legal` and `disclaimer`.
  *
  * DRAFTS: written to match what the app does today (data on device only, no ads, no analytics, no
  * selling), but not yet reviewed by a lawyer. Everything in [BRACKETS] must be filled in before launch.
@@ -21,21 +26,6 @@ export const PLACEHOLDERS = {
   venue: '[VENUE: courts of a city/county and state]',
 } as const;
 const P = PLACEHOLDERS;
-
-/** The three things every estimate screen should say. */
-export const DISCLAIMER = {
-  short: 'An estimate from population averages, for reflection and education. Not a prediction of your death, and not medical advice.',
-  points: [
-    'This is an estimate from population averages, not a prediction of when you will die. Nobody can know that.',
-    'It is not medical advice, diagnosis or treatment. For questions about your health, talk with a doctor or other qualified professional.',
-    'It is here for reflection and education: to help you spend the time you have on what matters to you.',
-  ],
-};
-
-/** For anyone the subject weighs on. */
-export const SUPPORT = {
-  text: 'If thinking about death feels heavy right now, you don’t have to carry it alone. In the US, call or text [988](https://988lifeline.org) (Suicide & Crisis Lifeline). Elsewhere, [findahelpline.com](https://findahelpline.com) lists free, confidential support near you. In an emergency, call your local emergency number.',
-};
 
 export type LegalKey = 'terms' | 'privacy' | 'health-data';
 

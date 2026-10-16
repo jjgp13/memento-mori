@@ -7,10 +7,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 
 /** A tab screen: brand bar with an account button, then a scrolling phone-width column. */
 export function Screen({ children }: PropsWithChildren) {
   const theme = useTheme();
+  const t = useT();
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.root, { backgroundColor: theme.bg }]}>
@@ -18,7 +20,7 @@ export function Screen({ children }: PropsWithChildren) {
         <ThemedText style={styles.brand}>MEMENTO MORI</ThemedText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="You"
+          accessibilityLabel={t.common.you}
           onPress={() => router.push('/account')}
           style={[styles.icon, { borderColor: theme.line, backgroundColor: theme.surface }]}>
           <SymbolView name={{ ios: 'person', android: 'person', web: 'person' }} size={18} tintColor={theme.fg} />

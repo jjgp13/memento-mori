@@ -6,8 +6,18 @@
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
-import { DRAFT_NOTICE, LEGAL_DOCS, LEGAL_KEYS, LEGAL_VERSION, SUPPORT, DISCLAIMER } from '../src/lib/legal.ts';
-import { QUOTE_SOURCES, STUDIES, reference, studiesByTopic } from '../src/lib/sources.ts';
+import { DRAFT_NOTICE, LEGAL_DOCS, LEGAL_KEYS, LEGAL_VERSION } from '../src/lib/legal.ts';
+import { STUDIES, reference, studiesByTopic, type Topic } from '../src/lib/sources.ts';
+
+/** Topic headings for the Markdown copy (the app's are in the language catalogs, under `sources.topics`). */
+const TOPIC_TITLE: Record<Topic, string> = {
+  model: 'How the estimate is built',
+  habits: 'Habits in the estimate',
+  direction: 'Shown for direction, not in the estimate',
+  behavior: 'Plans, prompts and reaching out',
+  time: 'Where the hours go',
+  loves: 'Loves: "N more times"',
+};
 
 const root = new URL('../', import.meta.url);
 const check = process.argv.includes('--check');
@@ -47,20 +57,18 @@ for (const key of LEGAL_KEYS) {
 
 let index = header('src/lib/legal.ts');
 index += '# Legal documents (drafts)\n\n';
-index += `> **These are drafts and have not been reviewed by a lawyer.** They describe what the app does today (version ${LEGAL_VERSION}). The app shows the same text under You and on the welcome screen.\n\n`;
+index += `> **These are drafts and have not been reviewed by a lawyer.** They describe what the app does today (version ${LEGAL_VERSION}). The app shows the same text, linked from the welcome screen and the You screen. The documents stay English until reviewed; the disclaimer and support line around them are in every language catalog (\`src/i18n/strings\`, under \`disclaimer\`).\n\n`;
 for (const key of LEGAL_KEYS) index += `- [${LEGAL_DOCS[key].title}](${key}.md): ${LEGAL_DOCS[key].summary}\n`;
-index += `\n## Disclaimer shown in the app\n\n${DISCLAIMER.points.map((p) => `- ${p}`).join('\n')}\n\n`;
-index += `## Support line\n\n${links(SUPPORT.text, 'legal')}\n`;
 files['docs/legal/README.md'] = index;
 
 let sources = header('src/lib/sources.ts');
 sources += `# Sources\n\nEvery study and data set cited in the app (${Object.keys(STUDIES).length} in all). The app's Sources screen shows the same list; each in-app source link draws from it. See also the Sources sections of [science.md](science.md) and [nudges.md](nudges.md), which also list background reading not cited in the app.\n\n`;
 for (const t of studiesByTopic()) {
-  sources += `## ${t.title}\n\n_${t.blurb}_\n\n`;
-  for (const s of t.studies) sources += `- ${reference(s)} — [link](${s.url})  \n  Used for: ${s.usedFor}\n`;
+  sources += `## ${TOPIC_TITLE[t.key]}\n\n`;
+  for (const s of t.studies) sources += `- ${reference(s)} — [link](${s.url})\n`;
   sources += '\n';
 }
-sources += `## Quotes\n\n${QUOTE_SOURCES}\n`;
+sources += `What each study is used for is on the app's Sources screen (\`sources.uses\` in the language catalogs).\n`;
 files['docs/sources.md'] = sources;
 
 let stale = 0;

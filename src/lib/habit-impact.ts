@@ -2,7 +2,10 @@
  * How someone's habits move their estimate, and the single change that would help most.
  * Ported from bestLever() in prototype/index.html.
  */
-import { HABITS, HABIT_KEYS, ageAt, hazardMultiplier, survival, type HabitKey, type ModelInput } from '@/lib/model';
+import { num } from '@/i18n/format';
+import { habitAnswer } from '@/i18n/labels';
+import type { Strings } from '@/i18n/strings/en';
+import { HABIT_KEYS, ageAt, hazardMultiplier, survival, type HabitKey, type ModelInput } from '@/lib/model';
 
 /** The healthiest answer for each habit. */
 const BEST: { [K in HabitKey]: ModelInput[K] } = {
@@ -12,16 +15,6 @@ const BEST: { [K in HabitKey]: ModelInput[K] } = {
   alcohol: 'moderate',
   sleep: 'ok',
   connection: 'often',
-};
-
-const LEVER_LABEL: Record<HabitKey | 'steps', string> = {
-  smoke: 'Quitting smoking',
-  exercise: 'Exercising 3+ times a week',
-  bmi: 'Reaching a healthy weight',
-  alcohol: 'Drinking less',
-  sleep: 'Sleeping 6–9 hours',
-  connection: 'Seeing the people you love every week',
-  steps: 'Walking 10,000 steps a day',
 };
 
 /**
@@ -43,7 +36,8 @@ export function habitsEffect(p: ModelInput, now = Date.now()) {
   return medianWith(p, now) - survival(p.sex, ageAt(p.dob, now), 1, p.country).med;
 }
 
-export type Lever = { key: HabitKey | 'steps'; label: string; years: number };
+/** A single change; its label is `t.levers[key]`. */
+export type Lever = { key: HabitKey | 'steps'; years: number };
 
 /** Each single habit change that would add time, biggest first (only those worth mentioning). */
 export function allLevers(p: ModelInput, now = Date.now()): Lever[] {
@@ -51,7 +45,7 @@ export function allLevers(p: ModelInput, now = Date.now()): Lever[] {
   const levers: Lever[] = [];
   const consider = (key: Lever['key'], changed: ModelInput) => {
     const years = medianWith(changed, now) - base;
-    if (years >= MIN_LEVER_YEARS) levers.push({ key, label: LEVER_LABEL[key], years });
+    if (years >= MIN_LEVER_YEARS) levers.push({ key, years });
   };
 
   for (const k of HABIT_KEYS) {
@@ -101,14 +95,13 @@ const NEUTRAL: { [K in HabitKey]: ModelInput[K] } = {
 export type HabitEffect = { key: HabitKey; label: string; answer: string; years: number };
 
 /** Per habit: years gained (+) or lost (−) by the current answer versus the neutral one. */
-export function habitBreakdown(p: ModelInput, now = Date.now()): HabitEffect[] {
+export function habitBreakdown(p: ModelInput, t: Strings, now = Date.now()): HabitEffect[] {
   const base = medianWith(p, now);
   return HABIT_KEYS.flatMap((k) => {
     const neutral: ModelInput = k === 'exercise' ? { ...p, exercise: NEUTRAL.exercise, steps: undefined } : { ...p, [k]: NEUTRAL[k] };
     const years = base - medianWith(neutral, now);
     if (Math.abs(years) < 0.05) return [];
-    const options: readonly { value: string; label: string }[] = HABITS[k].options;
-    const answer = k === 'exercise' && p.steps ? `${p.steps.toLocaleString('en-US')} steps a day` : (options.find((o) => o.value === p[k])?.label ?? '');
-    return [{ key: k, label: HABITS[k].short, answer, years }];
+    const answer = k === 'exercise' && p.steps ? t.habitsScreen.stepsAnswer(num(p.steps)) : habitAnswer(t, k, p[k]);
+    return [{ key: k, label: t.habits[k].short, answer, years }];
   });
 }

@@ -11,11 +11,13 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
+import { dec1, num } from '@/i18n/format';
+import { habitOptions } from '@/i18n/labels';
 import { countryName } from '@/lib/country';
-import { HOW_IT_WORKS, WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
+import { WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
 import {
   GOMPERTZ_B,
-  HABITS,
   HABIT_KEYS,
   ageAt,
   estimate,
@@ -35,6 +37,8 @@ export default function HabitsScreen() {
 
 function Habits({ profile }: { profile: Profile }) {
   const theme = useTheme();
+  const t = useT();
+  const h = t.habitsScreen;
   const now = useNow(60_000);
   const median = estimate(profile, now).med;
   const update = (patch: Partial<Profile>) => saveProfile({ ...profile, ...patch });
@@ -42,17 +46,16 @@ function Habits({ profile }: { profile: Profile }) {
   return (
     <>
       <View style={styles.head}>
-        <ThemedText type="eyebrow">What is in your control</ThemedText>
-        <ThemedText type="subtitle">Change a habit, change the count</ThemedText>
+        <ThemedText type="eyebrow">{h.eyebrow}</ThemedText>
+        <ThemedText type="subtitle">{h.title}</ThemedText>
       </View>
 
       <View style={styles.est}>
         <Animated.Text key={median.toFixed(1)} entering={FadeIn.duration(400)} style={[styles.big, { color: theme.accent }]}>
-          {median.toFixed(1)}
+          {dec1(median)}
         </Animated.Text>
         <ThemedText type="small" style={styles.flex}>
-          median age for someone living like you{countryName(profile.country) ? ` in ${countryName(profile.country)}` : ''}.
-          Tap an option to see what it would change.
+          {h.median(countryName(profile.country) ?? null)}
         </ThemedText>
       </View>
 
@@ -63,10 +66,8 @@ function Habits({ profile }: { profile: Profile }) {
       ))}
 
       <View style={styles.section}>
-        <ThemedText type="heading">WHAT MATTERS MOST</ThemedText>
-        <ThemedText type="small">
-          Ranked by size and strength of evidence. Tap one to see the numbers and the source.
-        </ThemedText>
+        <ThemedText type="heading">{h.whatMatters}</ThemedText>
+        <ThemedText type="small">{h.ranked}</ThemedText>
         {WHAT_MATTERS.map((e, i) => (
           <EvidenceRow key={e.key} rank={i + 1} item={e} />
         ))}
@@ -92,14 +93,15 @@ function Factor({
   onChange: (patch: Partial<Profile>) => void;
 }) {
   const theme = useTheme();
-  const h = HABITS[habit];
-  const options: readonly { value: string; label: string }[] = h.options;
+  const t = useT();
+  const title = t.habits[habit].short.toLocaleUpperCase();
+  const options: readonly { value: string; label: string }[] = habitOptions(t, habit);
 
   if (habit === 'exercise' && profile.steps) {
     return (
       <View style={[styles.factor, { borderBottomColor: theme.line }]}>
-        <ThemedText type="heading">EXERCISE</ThemedText>
-        <ThemedText type="small">Replaced by your daily steps above, so nothing is counted twice.</ThemedText>
+        <ThemedText type="heading">{title}</ThemedText>
+        <ThemedText type="small">{t.habitsScreen.exerciseReplaced}</ThemedText>
       </View>
     );
   }
@@ -108,14 +110,18 @@ function Factor({
   return (
     <View style={[styles.factor, { borderBottomColor: theme.line }]}>
       <View style={styles.rowBetween}>
-        <ThemedText type="heading">{h.short.toUpperCase()}</ThemedText>
-        <SourceLink of={habit} prefix="Why" />
+        <ThemedText type="heading">{title}</ThemedText>
+        <SourceLink of={habit} prefix={t.common.why} />
       </View>
       <View style={styles.options}>
         {options.map((o) => {
           const on = profile[habit] === o.value;
           const delta = on ? 0 : survival(profile.sex, age, hazardMultiplier({ ...profile, [habit]: o.value } as ModelInput), profile.country).med - base;
-          const note = on ? 'you now' : Math.abs(delta) < 0.05 ? 'no change' : `${delta > 0 ? '+' : '−'}${Math.abs(delta).toFixed(1)} yrs`;
+          const note = on
+            ? t.habitsScreen.youNow
+            : Math.abs(delta) < 0.05
+              ? t.habitsScreen.noChange
+              : t.common.yrs(`${delta > 0 ? '+' : '−'}${dec1(Math.abs(delta))}`);
           return (
             <Pressable
               key={o.value}
@@ -144,6 +150,8 @@ function Factor({
 /** Daily steps with the math shown step by step; replaces the exercise answer when set. */
 function Steps({ profile, onChange }: { profile: Profile; onChange: (patch: Partial<Profile>) => void }) {
   const theme = useTheme();
+  const t = useT();
+  const h = t.habitsScreen;
   const steps = profile.steps;
   const hr = stepsHR(steps ?? 6000);
   const years = yearsFromHR(hr);
@@ -151,7 +159,7 @@ function Steps({ profile, onChange }: { profile: Profile; onChange: (patch: Part
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <View style={styles.rowBetween}>
-        <ThemedText type="heading">DAILY STEPS</ThemedText>
+        <ThemedText type="heading">{h.stepsHeading}</ThemedText>
         <Badge strength="strong" />
       </View>
       <Stepper
@@ -160,26 +168,26 @@ function Steps({ profile, onChange }: { profile: Profile; onChange: (patch: Part
         step={500}
         min={1000}
         max={20000}
-        format={(v) => v.toLocaleString('en-US')}
-        accessibilityLabel="Average daily steps"
+        format={num}
+        accessibilityLabel={h.stepsA11y}
       />
       {steps ? (
         <View style={styles.math}>
-          <ThemedText type="mono">1 · Average: {steps.toLocaleString('en-US')} steps a day</ThemedText>
-          <ThemedText type="mono">2 · Risk vs 6,000 steps: × {hr.toFixed(2)}</ThemedText>
+          <ThemedText type="mono">{h.math1(num(steps))}</ThemedText>
+          <ThemedText type="mono">{h.math2(num(Number(hr.toFixed(2))))}</ThemedText>
           <ThemedText type="mono">
-            3 · Years ≈ ln(1 ÷ {hr.toFixed(2)}) ÷ {GOMPERTZ_B} ={' '}
+            {h.math3(num(Number(hr.toFixed(2))), num(GOMPERTZ_B))}
             <ThemedText type="mono" themeColor="accent">
               {years >= 0 ? '+' : '−'}
-              {Math.abs(years).toFixed(1)}
+              {dec1(Math.abs(years))}
             </ThemedText>
           </ThemedText>
-          <ThemedText type="mono">4 · Replaces your exercise answer; benefit levels off at 10,000.</ThemedText>
+          <ThemedText type="mono">{h.math4}</ThemedText>
           <SourceLink of="steps" />
-          <Button title="Use my exercise answer instead" variant="link" onPress={() => onChange({ steps: undefined })} />
+          <Button title={h.useExercise} variant="link" onPress={() => onChange({ steps: undefined })} />
         </View>
       ) : (
-        <ThemedText type="small">Tap + or − to use your steps instead of your exercise answer. Your phone&apos;s health app shows your average.</ThemedText>
+        <ThemedText type="small">{h.stepsHint}</ThemedText>
       )}
     </View>
   );
@@ -187,6 +195,8 @@ function Steps({ profile, onChange }: { profile: Profile; onChange: (patch: Part
 
 function EvidenceRow({ rank, item }: { rank: number; item: Evidence }) {
   const theme = useTheme();
+  const t = useT();
+  const text = t.evidence[item.key];
   const [open, setOpen] = useState(false);
 
   return (
@@ -199,18 +209,18 @@ function EvidenceRow({ rank, item }: { rank: number; item: Evidence }) {
         <ThemedText type="mono" themeColor="muted" style={styles.rank}>
           {rank}
         </ThemedText>
-        <ThemedText style={styles.flex}>{item.title}</ThemedText>
+        <ThemedText style={styles.flex}>{text.title}</ThemedText>
         <Badge strength={item.strength} />
       </View>
       <ThemedText type="small" style={styles.indent}>
-        {item.summary}
+        {text.summary}
       </ThemedText>
       {open ? (
         <Animated.View entering={FadeIn.duration(250)} style={[styles.indent, styles.detail]}>
           <ThemedText type="small" themeColor="fg">
-            {item.detail}
+            {text.detail}
           </ThemedText>
-          <ThemedText type="small">{item.inEstimate ? 'Part of your estimate.' : 'Not in your estimate yet; shown for direction.'}</ThemedText>
+          <ThemedText type="small">{item.inEstimate ? t.habitsScreen.inEstimate : t.habitsScreen.notInEstimate}</ThemedText>
           {[item.source, ...(item.also ?? [])].map((s) => (
             <Pressable key={s.url} accessibilityRole="link" onPress={() => Linking.openURL(s.url)}>
               <ThemedText type="small" themeColor="accent" style={styles.link}>
@@ -226,6 +236,7 @@ function EvidenceRow({ rank, item }: { rank: number; item: Evidence }) {
 
 function Badge({ strength }: { strength: Strength }) {
   const theme = useTheme();
+  const t = useT();
   const strong = strength === 'strong';
   return (
     <View
@@ -234,7 +245,7 @@ function Badge({ strength }: { strength: Strength }) {
         { borderColor: strong ? theme.accent : theme.line, borderStyle: strength === 'emerging' ? 'dashed' : 'solid' },
       ]}>
       <ThemedText type="eyebrow" themeColor={strong ? 'accent' : 'muted'} style={styles.badgeText}>
-        {strength}
+        {t.habitsScreen.strength[strength]}
       </ThemedText>
     </View>
   );
@@ -242,17 +253,18 @@ function Badge({ strength }: { strength: Strength }) {
 
 function HowItWorks() {
   const theme = useTheme();
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <Pressable accessibilityRole="button" aria-expanded={open} onPress={() => setOpen(!open)} style={styles.rowBetween}>
-        <ThemedText type="heading">HOW YOUR ESTIMATE WORKS</ThemedText>
+        <ThemedText type="heading">{t.habitsScreen.howItWorks}</ThemedText>
         <ThemedText type="mono" themeColor="muted">
           {open ? '−' : '+'}
         </ThemedText>
       </Pressable>
       {open
-        ? HOW_IT_WORKS.map((line, i) => (
+        ? t.howItWorks.map((line, i) => (
             <Animated.View key={i} entering={FadeIn.delay(i * 60).duration(300)} style={styles.howRow}>
               <ThemedText type="mono" themeColor="accent">
                 {i + 1}
@@ -263,7 +275,7 @@ function HowItWorks() {
             </Animated.View>
           ))
         : null}
-      <ScreenLink href="/how-it-works" title="Every step, with sources" />
+      <ScreenLink href="/how-it-works" title={t.methods.everyStep} />
     </View>
   );
 }

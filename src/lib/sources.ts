@@ -4,23 +4,15 @@
  * the in-app bibliography can't drift from what the screens actually cite.
  * Keep it in step with the Sources lists in docs/science.md and docs/nudges.md.
  *
- * Pure data with relative imports only: scripts/write-docs.mts reads it with plain Node.
+ * Authors, titles and journals stay as published, in every language. What each study is used for, and
+ * the topic headings, are in the language catalogs (src/i18n) under `sources`.
+ * Pure data with no imports: scripts/write-docs.mts reads it with plain Node.
  */
 
 export type Topic = 'model' | 'habits' | 'direction' | 'behavior' | 'time' | 'loves';
 
-export const TOPICS: { key: Topic; title: string; blurb: string }[] = [
-  { key: 'model', title: 'How the estimate is built', blurb: 'The mortality curve, the life tables it is fitted to, and the cap on combined gains.' },
-  { key: 'habits', title: 'Habits in your estimate', blurb: 'Where each habit’s risk multiplier comes from.' },
-  {
-    key: 'direction',
-    title: 'Shown for direction, not in the estimate',
-    blurb: 'Findings on the Habits screen that point the way but are not yet part of the numbers.',
-  },
-  { key: 'behavior', title: 'Plans, prompts and reaching out', blurb: 'Behavior science behind plans, fresh starts and welcome-backs.' },
-  { key: 'time', title: 'Where the hours go', blurb: 'Phone time and what taking some back can do.' },
-  { key: 'loves', title: 'Loves: “N more times”', blurb: 'Typical lifespans used to count time with pets.' },
-];
+/** Topics in the order the Sources screen lists them. */
+export const TOPICS: Topic[] = ['model', 'habits', 'direction', 'behavior', 'time', 'loves'];
 
 export type Study = {
   /** Authors as published, e.g. "Li Y, Pan A, Wang DD, et al." */
@@ -39,8 +31,6 @@ export type Study = {
   /** Replaces the "who, journal year" label (e.g. for data sets). */
   label?: string;
   topic: Topic;
-  /** Where the app leans on it, in a few words. */
-  usedFor: string;
 };
 
 export const STUDIES = {
@@ -55,7 +45,6 @@ export const STUDIES = {
     url: 'https://doi.org/10.1098/rstl.1825.0026',
     who: 'Gompertz',
     topic: 'model',
-    usedFor: 'The shape of the curve: yearly risk of dying rises exponentially with age.',
   },
   makeham1860: {
     authors: 'Makeham WM.',
@@ -67,7 +56,6 @@ export const STUDIES = {
     url: 'https://doi.org/10.1017/S204616580000126X',
     who: 'Makeham',
     topic: 'model',
-    usedFor: 'The constant, age-independent part of the risk (the “A” term).',
   },
   wpp2024: {
     authors: 'United Nations, Department of Economic and Social Affairs, Population Division',
@@ -78,7 +66,6 @@ export const STUDIES = {
     who: 'UN',
     label: 'UN World Population Prospects 2024',
     topic: 'model',
-    usedFor: 'Your baseline: the life table for your country and sex.',
   },
   li2018: {
     authors: 'Li Y, Pan A, Wang DD, et al.',
@@ -89,7 +76,6 @@ export const STUDIES = {
     url: 'https://www.heart.org/en/news/2018/05/03/americans-could-live-up-to-14-years-longer-by-doing-five-things',
     who: 'Li et al.',
     topic: 'model',
-    usedFor: 'The 14-year cap on combined gains; not smoking as the largest lever.',
   },
 
   holtLunstad2015: {
@@ -101,7 +87,6 @@ export const STUDIES = {
     url: 'https://scholarsarchive.byu.edu/facpub/7516',
     who: 'Holt-Lunstad et al.',
     topic: 'habits',
-    usedFor: 'Connection: rarely seeing close people ×1.29.',
   },
   holtLunstad2010: {
     authors: 'Holt-Lunstad J, Smith TB, Layton JB.',
@@ -112,7 +97,6 @@ export const STUDIES = {
     url: 'https://doaj.org/article/c9833ba608474b048444b92ae7ee48ad',
     who: 'Holt-Lunstad et al.',
     topic: 'habits',
-    usedFor: 'Strong social ties and about 1.5× the odds of survival (148 studies).',
   },
   paluch2022: {
     authors: 'Paluch AE, Bajpai S, Bassett DR, et al.',
@@ -123,7 +107,6 @@ export const STUDIES = {
     url: 'https://doaj.org/article/c3639c468b4348958202e52793ab979d',
     who: 'Paluch et al.',
     topic: 'habits',
-    usedFor: 'Exercise and daily steps.',
   },
   mandsager2018: {
     authors: 'Mandsager K, Harb S, Cremer P, Phelan D, Nissen SE, Jaber W.',
@@ -134,7 +117,6 @@ export const STUDIES = {
     url: 'https://newsroom.clevelandclinic.org/2018/10/19/cleveland-clinic-research-shows-better-cardiorespiratory-fitness-correlates-to-a-longer-life/',
     who: 'Mandsager et al.',
     topic: 'habits',
-    usedFor: 'Cardio fitness as one of the strongest predictors of survival.',
   },
   li2020: {
     authors: 'Li Y, Schoufour J, Wang DD, et al.',
@@ -145,7 +127,6 @@ export const STUDIES = {
     url: 'https://www.bmj.com/content/368/bmj.l6669',
     who: 'Li et al.',
     topic: 'habits',
-    usedFor: 'Healthy weight, and years free of chronic disease.',
   },
   cappuccio2010: {
     authors: 'Cappuccio FP, D’Elia L, Strazzullo P, Miller MA.',
@@ -156,7 +137,6 @@ export const STUDIES = {
     url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2864873/',
     who: 'Cappuccio et al.',
     topic: 'habits',
-    usedFor: 'Sleep: under 6 hours ×1.15.',
   },
   zhao2023: {
     authors: 'Zhao J, Stockwell T, Naimi T, Churchill S, Clay J, Sherk A.',
@@ -167,7 +147,6 @@ export const STUDIES = {
     url: 'https://www.healio.com/news/primary-care/20230405/metaanalysis-alcohol-consumption-does-not-lower-allcause-mortality-risk',
     who: 'Zhao et al.',
     topic: 'habits',
-    usedFor: 'Alcohol: heavy drinking ×1.4; light drinking not protective.',
   },
 
   fadnes2022: {
@@ -179,7 +158,6 @@ export const STUDIES = {
     url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8824353',
     who: 'Fadnes et al.',
     topic: 'direction',
-    usedFor: 'What you eat.',
   },
   momma2022: {
     authors: 'Momma H, Kawakami R, Honda T, Sawada SS.',
@@ -192,7 +170,6 @@ export const STUDIES = {
     url: 'https://bjsm.bmj.com/content/56/13/755',
     who: 'Momma et al.',
     topic: 'direction',
-    usedFor: 'Strength training.',
   },
   cohen2016: {
     authors: 'Cohen R, Bavishi C, Rozanski A.',
@@ -203,7 +180,6 @@ export const STUDIES = {
     url: 'https://eurekalert.org/news-releases/529471',
     who: 'Cohen et al.',
     topic: 'direction',
-    usedFor: 'A sense of purpose.',
   },
   lee2019: {
     authors: 'Lee LO, James P, Zevon ES, et al.',
@@ -215,7 +191,6 @@ export const STUDIES = {
     url: 'https://www.cnbc.com/2019/08/29/having-an-optimistic-outlook-could-help-you-live-years-longer-study.html',
     who: 'Lee et al.',
     topic: 'direction',
-    usedFor: 'Optimism and reaching 85.',
   },
   okun2013: {
     authors: 'Okun MA, Yeung EW, Brown S.',
@@ -226,7 +201,6 @@ export const STUDIES = {
     url: 'https://keep.lib.asu.edu/items/129666',
     who: 'Okun et al.',
     topic: 'direction',
-    usedFor: 'Helping others.',
   },
   waldinger2016: {
     authors: 'Waldinger RJ, Schulz MS (Harvard Study of Adult Development)',
@@ -237,7 +211,6 @@ export const STUDIES = {
     who: 'Waldinger & Schulz',
     label: 'Harvard Study of Adult Development',
     topic: 'direction',
-    usedFor: 'Relationship satisfaction at 50 and health at 80.',
   },
 
   allcott2020: {
@@ -249,7 +222,6 @@ export const STUDIES = {
     url: 'https://www.aeaweb.org/doi/10.1257/aer.20190658',
     who: 'Allcott et al.',
     topic: 'time',
-    usedFor: 'Less scrolling, more time with people.',
   },
   hunt2018: {
     authors: 'Hunt MG, Marx R, Lipson C, Young J.',
@@ -261,7 +233,6 @@ export const STUDIES = {
     url: 'https://techcrunch.com/2018/11/09/limiting-social-media-use-reduced-loneliness-and-depression-in-new-experiment',
     who: 'Hunt et al.',
     topic: 'time',
-    usedFor: 'Limiting social media to 30 minutes a day.',
   },
   phoneTime2025: {
     authors: 'eMarketer, reported by Boston 25 News',
@@ -271,7 +242,6 @@ export const STUDIES = {
     url: 'https://www.boston25news.com/news/deep-dive-into-americans-mobile-habits-2025/UCZOPSUIZVJ57EK5YZ2BTPEYAE/',
     who: 'eMarketer',
     topic: 'time',
-    usedFor: 'The 4-hour starting point for the phone question (estimates vary).',
   },
 
   liu2023: {
@@ -284,7 +254,6 @@ export const STUDIES = {
     url: 'https://www.apa.org/news/press/releases/2022/07/friends-enjoy-being-reached',
     who: 'Liu et al.',
     topic: 'behavior',
-    usedFor: 'Reaching out to people.',
   },
   gollwitzer2006: {
     authors: 'Gollwitzer PM, Sheeran P.',
@@ -296,7 +265,6 @@ export const STUDIES = {
     url: 'https://www.socmot.uni-konstanz.de/publications/implementation-intentions-and-goal-achievement-meta-analysis-effects-and-processes',
     who: 'Gollwitzer & Sheeran',
     topic: 'behavior',
-    usedFor: 'If-then plans.',
   },
   dai2014: {
     authors: 'Dai H, Milkman KL, Riis J.',
@@ -307,7 +275,6 @@ export const STUDIES = {
     url: 'https://faculty.wharton.upenn.edu/wp-content/uploads/2014/06/Dai_Fresh_Start_2014_Mgmt_Sci.pdf',
     who: 'Dai, Milkman & Riis',
     topic: 'behavior',
-    usedFor: 'Fresh starts: Mondays, the 1st, birthdays.',
   },
   milkman2021: {
     authors: 'Milkman KL, Gromet D, Ho H, et al.',
@@ -318,7 +285,6 @@ export const STUDIES = {
     url: 'https://authors.library.caltech.edu/records/mys88-cc756',
     who: 'Milkman et al.',
     topic: 'behavior',
-    usedFor: 'Welcome-backs after time away, instead of streaks.',
   },
   parkes2008: {
     authors: 'Parkes G, Greenhalgh T, Griffin M, Dent R.',
@@ -329,7 +295,6 @@ export const STUDIES = {
     url: 'https://www.bmj.com/content/336/7644/598',
     who: 'Parkes et al.',
     topic: 'behavior',
-    usedFor: 'Showing people their own numbers.',
   },
   buffey2022: {
     authors: 'Buffey AJ, Herring MP, Langley CK, Donnelly AE, Carson BP.',
@@ -342,7 +307,6 @@ export const STUDIES = {
     url: 'https://ktvz.com/health/cnn-health/2023/09/08/just-2-minutes-of-walking-after-eating-can-help-blood-sugar-study-says-2/',
     who: 'Buffey et al.',
     topic: 'behavior',
-    usedFor: 'Short walks after meals.',
   },
 
   oneill2013: {
@@ -355,7 +319,6 @@ export const STUDIES = {
     url: 'https://doi.org/10.1016/j.tvjl.2013.09.020',
     who: 'O’Neill et al.',
     topic: 'loves',
-    usedFor: 'Dogs: median longevity about 12 years.',
   },
   mcmillan2024: {
     authors: 'McMillan KM, Bielby J, Williams CL, Upjohn MM, Casey RA, Christley RM.',
@@ -367,7 +330,6 @@ export const STUDIES = {
     url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10834484/',
     who: 'McMillan et al.',
     topic: 'loves',
-    usedFor: 'Dogs: median life expectancy 12.5 years (584,734 UK dogs).',
   },
   oneill2015: {
     authors: 'O’Neill DG, Church DB, McGreevy PD, Thomson PC, Brodbelt DC.',
@@ -379,7 +341,6 @@ export const STUDIES = {
     url: 'https://rvc-repository.worktribe.com/output/1402075',
     who: 'O’Neill et al.',
     topic: 'loves',
-    usedFor: 'Cats: median longevity 14 years.',
   },
 } as const satisfies Record<string, Study>;
 
@@ -407,9 +368,5 @@ export function reference(s: Study) {
 /** The catalog grouped by topic, in TOPICS order. */
 export function studiesByTopic() {
   const all = Object.entries(STUDIES) as [StudyId, Study][];
-  return TOPICS.map((t) => ({ ...t, studies: all.filter(([, s]) => s.topic === t.key).map(([id, s]) => ({ id, ...s })) }));
+  return TOPICS.map((key) => ({ key, studies: all.filter(([, s]) => s.topic === key).map(([id, s]) => ({ id, ...s })) }));
 }
-
-/** Not studies, but quoted in the app: where the Stoic lines on the Today screen come from. */
-export const QUOTE_SOURCES =
-  'Marcus Aurelius (Meditations, tr. George Long, 1862), Seneca (Letters and On the Shortness of Life, tr. Richard M. Gummere, 1917–25, and others) and Epictetus (Enchiridion, tr. Thomas Wentworth Higginson, 1865). Public-domain translations, some lightly adapted.';

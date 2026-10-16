@@ -39,6 +39,7 @@ src/app/                 Expo Router routes
   sign-in.tsx            Apple, Google, email code
   (app)/(tabs)/          Life · Habits · Loves · Today (placeholders to port from the prototype)
   (app)/account.tsx      signed-in user, sign out
+src/i18n/                languages: strings/en.ts is the source, one typed catalog per language
 src/lib/supabase.ts      client (sessions in SQLite-backed localStorage on native)
 src/lib/auth.ts          OAuth, email OTP, deep-link code exchange
 src/providers/           auth session context

@@ -9,9 +9,10 @@ import { SourceLink } from '@/components/source-link';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useT, type Strings } from '@/i18n';
+import { dec1, fmt } from '@/i18n/format';
 import { COMING_BACK, PLANS } from '@/lib/evidence';
 import { allLevers, bestLever } from '@/lib/habit-impact';
-import { fmt } from '@/lib/life-views';
 import { loveCount, type Love } from '@/lib/loves';
 import { WEEK_MS } from '@/lib/model';
 import {
@@ -40,11 +41,11 @@ import { saveProfile, type Profile } from '@/lib/profile';
 const startOfToday = (now: number) => new Date(new Date(now).setHours(0, 0, 0, 0)).getTime();
 
 /** "next: Sunday", "today", or what's already been done. Never a streak, never a miss. */
-function status(moments: number[], plan: Plan, now: number) {
-  if (doneSince(moments, startOfToday(now))) return 'done today ✓';
-  if (doneSince(moments, weekStart(now))) return 'done this week ✓';
-  const when = whenLabel(nextOccurrence(plan, now), now);
-  return when === 'today' ? 'today' : `next: ${when}`;
+function status(moments: number[], plan: Plan, t: Strings, now: number) {
+  if (doneSince(moments, startOfToday(now))) return t.thisWeek.doneToday;
+  if (doneSince(moments, weekStart(now))) return t.thisWeek.doneThisWeek;
+  const when = whenLabel(nextOccurrence(plan, now), t, now);
+  return when === t.plans.today ? when : t.thisWeek.next(when);
 }
 
 /**
@@ -53,6 +54,8 @@ function status(moments: number[], plan: Plan, now: number) {
  */
 export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Profile; now: number; lastSeen: number; freshToday: boolean }) {
   const theme = useTheme();
+  const t = useT();
+  const w = t.thisWeek;
   const { planNudgeDismissedAt } = usePrefs();
   const loves = profile.loves ?? [];
   const setLove = (next: Love) => saveProfile({ ...profile, loves: loves.map((l) => (l.id === next.id ? next : l)) });
@@ -79,16 +82,13 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
   return (
     <View style={styles.wrap}>
       <ThemedText type="eyebrow" themeColor="muted">
-        This week
+        {w.heading}
       </ThemedText>
 
       {slipped || away ? (
         <View style={[styles.card, { backgroundColor: theme.accentSoft, borderColor: theme.accent }]}>
-          <ThemedText>
-            Welcome back{profile.name ? `, ${profile.name}` : ''}. Plans slip for everyone, and that is fine: picking one up
-            again is what counts. This week is a fresh page.
-          </ThemedText>
-          <ThemedText type="small">{COMING_BACK.claim}</ThemedText>
+          <ThemedText>{w.welcomeBack(profile.name)}</ThemedText>
+          <ThemedText type="small">{t.claims.comingBack}</ThemedText>
           <SourceLink source={COMING_BACK.source} />
         </View>
       ) : null}
@@ -96,12 +96,12 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
       {focus ? (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <ThemedText type="eyebrow" themeColor="muted">
-            One thing for {freshStartLabel(focus.period, focus.setAt)}
-            {focus.doneAt ? ' · done ✓' : ''}
+            {w.oneThingFor(freshStartLabel(focus.period, t, focus.setAt))}
+            {focus.doneAt ? w.doneMark : ''}
           </ThemedText>
           <ThemedText style={styles.action}>{focus.text}</ThemedText>
           {focus.doneAt ? null : (
-            <Button title="Done" variant="ghost" onPress={() => saveProfile({ ...profile, focus: { ...focus, doneAt: Date.now() } })} />
+            <Button title={w.did} variant="ghost" onPress={() => saveProfile({ ...profile, focus: { ...focus, doneAt: Date.now() } })} />
           )}
         </View>
       ) : null}
@@ -109,12 +109,10 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
       {people.map((l) => (
         <View key={l.id} style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <ThemedText type="eyebrow" themeColor="muted">
-            {cueLabel(l.plan)} · {status(planMoments(l.plan, l), l.plan, now)}
+            {cueLabel(l.plan, t)} · {status(planMoments(l.plan, l), l.plan, t, now)}
           </ThemedText>
           <ThemedText style={styles.action}>{capitalize(l.plan.action)}</ThemedText>
-          <ThemedText type="small">
-            About {fmt(loveCount(l, profile, now).times)} more visits with {nameInSentence(l.name)} at your current pace.
-          </ThemedText>
+          <ThemedText type="small">{w.moreVisits(fmt(loveCount(l, profile, now).times), nameInSentence(l.name, t))}</ThemedText>
           <ReachOut love={l} onChange={setLove} compact />
         </View>
       ))}
@@ -122,19 +120,17 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
       {habit ? (
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <ThemedText type="eyebrow" themeColor="muted">
-            {cueLabel(habit)} · {status(planMoments(habit), habit, now)}
+            {cueLabel(habit, t)} · {status(planMoments(habit), habit, t, now)}
           </ThemedText>
           <ThemedText style={styles.action}>{capitalize(habit.action)}</ThemedText>
           {lever ? (
             <>
-              <ThemedText type="small">
-                {lever.label} could add about {lever.years.toFixed(1)} years. This is a small step toward it.
-              </ThemedText>
+              <ThemedText type="small">{w.smallStep(t.levers[lever.key], dec1(lever.years))}</ThemedText>
               <SourceLink of={lever.key} />
             </>
           ) : null}
           <Button
-            title={doneSince(planMoments(habit), today) ? 'Done today ✓' : 'Done'}
+            title={doneSince(planMoments(habit), today) ? w.didToday : w.did}
             variant="ghost"
             disabled={!!doneSince(planMoments(habit), today)}
             onPress={() => saveProfile({ ...profile, habitPlan: withDone(habit) })}
@@ -146,15 +142,12 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
         <Suggestion profile={profile} now={now} />
       ) : empty ? (
         <View style={styles.empty}>
-          <ThemedText>
-            No plans yet. A plan is a small “when, then”: “Sundays after lunch, I will call Mom.” You could make one on
-            anyone in Loves, or for a habit on Life.
-          </ThemedText>
-          <ThemedText type="small">{PLANS.claim}</ThemedText>
+          <ThemedText>{w.noPlans}</ThemedText>
+          <ThemedText type="small">{t.claims.plans}</ThemedText>
           <SourceLink source={PLANS.source} />
           <View style={styles.row}>
-            <Button title="Loves" variant="ghost" onPress={() => router.push('/loves')} style={styles.flex} />
-            <Button title="Life" variant="ghost" onPress={() => router.push('/')} style={styles.flex} />
+            <Button title={t.tabs.loves} variant="ghost" onPress={() => router.push('/loves')} style={styles.flex} />
+            <Button title={t.tabs.life} variant="ghost" onPress={() => router.push('/')} style={styles.flex} />
           </View>
         </View>
       ) : null}
@@ -165,11 +158,13 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
 /** One suggested plan, at most once a week: a person to reach out to first, else the best habit change. */
 function Suggestion({ profile, now }: { profile: Profile; now: number }) {
   const theme = useTheme();
+  const t = useT();
+  const w = t.thisWeek;
   const [editing, setEditing] = useState(false);
   const loves = profile.loves ?? [];
   const person = personToPlan(loves);
   const lever = person || profile.habitPlan ? null : bestLever(profile, now);
-  const plan: Plan | null = person ? defaultPersonPlan(person, now) : lever ? defaultHabitPlan(lever.key, now) : null;
+  const plan: Plan | null = person ? defaultPersonPlan(person, t, now) : lever ? defaultHabitPlan(lever.key, t, now) : null;
   if (!plan) return null;
 
   // The default was made with `now`, so createdAt is already this minute.
@@ -181,29 +176,24 @@ function Suggestion({ profile, now }: { profile: Profile; now: number }) {
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <ThemedText type="eyebrow" themeColor="muted">
-        A plan you could try
+        {w.suggestHeading}
       </ThemedText>
       {person ? (
-        <ThemedText type="small">
-          About {fmt(loveCount(person, profile, now).times)} more visits with {nameInSentence(person.name)} at your current
-          pace. A plan makes the next one more likely.
-        </ThemedText>
+        <ThemedText type="small">{w.suggestPerson(fmt(loveCount(person, profile, now).times), nameInSentence(person.name, t))}</ThemedText>
       ) : lever ? (
-        <ThemedText type="small">
-          {lever.label} could add about {lever.years.toFixed(1)} years. A small plan is a way to start.
-        </ThemedText>
+        <ThemedText type="small">{w.suggestLever(t.levers[lever.key], dec1(lever.years))}</ThemedText>
       ) : null}
-      <SourceLink source={PLANS.source} prefix="Why plans help" />
+      <SourceLink source={PLANS.source} prefix={w.whyPlans} />
       {editing ? (
         <PlanEditor initial={plan} onCancel={() => setEditing(false)} onSave={save} />
       ) : (
         <>
-          <ThemedText style={styles.sentence}>{planSentence(plan)}</ThemedText>
+          <ThemedText style={styles.sentence}>{planSentence(plan, t)}</ThemedText>
           <View style={styles.row}>
-            <Button title="Make it my plan" onPress={() => save(plan)} style={styles.flex} />
-            <Button title="Change it" variant="ghost" onPress={() => setEditing(true)} />
+            <Button title={w.makeItMine} onPress={() => save(plan)} style={styles.flex} />
+            <Button title={w.changeIt} variant="ghost" onPress={() => setEditing(true)} />
           </View>
-          <Button title="Not now" variant="link" onPress={() => setPref('planNudgeDismissedAt', Date.now())} style={styles.start} />
+          <Button title={w.notNow} variant="link" onPress={() => setPref('planNudgeDismissedAt', Date.now())} style={styles.start} />
         </>
       )}
     </View>

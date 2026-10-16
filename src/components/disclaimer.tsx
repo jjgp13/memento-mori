@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { LinkedText, Paragraphs } from '@/components/linked-text';
 import { ThemedText } from '@/components/themed-text';
-import { DISCLAIMER, SUPPORT } from '@/lib/legal';
+import { useT } from '@/i18n';
 
 /** A small underlined link to a screen in the app. */
 export function ScreenLink({ href, title }: { href: Href; title: string }) {
@@ -21,13 +21,15 @@ export function ScreenLink({ href, title }: { href: Href; title: string }) {
  * and a gentle support line. `full` lists each point (onboarding, How this works); otherwise one line.
  */
 export function Disclaimer({ full, links = true }: { full?: boolean; links?: boolean }) {
+  const t = useT();
+  const d = t.disclaimer;
   return (
     <View style={styles.root}>
-      {full ? <Paragraphs body={DISCLAIMER.points.map((p) => `- ${p}`)} /> : <ThemedText type="small">{DISCLAIMER.short}</ThemedText>}
+      {full ? <Paragraphs body={d.points.map((p) => `- ${p}`)} /> : <ThemedText type="small">{d.short}</ThemedText>}
       {links ? (
         <View style={styles.links}>
-          <ScreenLink href="/how-it-works" title="How this works" />
-          <ScreenLink href="/sources" title="Sources" />
+          <ScreenLink href="/how-it-works" title={d.howItWorks} />
+          <ScreenLink href="/sources" title={d.sources} />
         </View>
       ) : null}
       <SupportLine />
@@ -37,7 +39,7 @@ export function Disclaimer({ full, links = true }: { full?: boolean; links?: boo
 
 /** 988 in the US, findahelpline.com elsewhere. */
 export function SupportLine() {
-  return <LinkedText type="small" text={SUPPORT.text} />;
+  return <LinkedText type="small" text={useT().disclaimer.support} />;
 }
 
 const styles = StyleSheet.create({
