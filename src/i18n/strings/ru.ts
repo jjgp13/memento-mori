@@ -700,6 +700,16 @@ export const ru: Strings = {
     lived: { what: 'выходных уже прожито', sub: 'Некоторые были чудесными. Будь благодарен(-на) за них и оставь место для новых.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'История',
+    practice: 'Практика',
+    retoldFrom: (cite: string) => `Пересказ по: ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Можно',
+    someoneYouLove: 'близкий человек',
+    readIn: (translator: string) => `Читать в переводе: ${translator}`,
+  },
   opening: {
     lookBack: 'Оглянуться назад',
     todaysCount: 'Счёт дня',

@@ -1,8 +1,8 @@
 /**
  * What the app shows on each open: one "count" (an impact card) and the day's quote and question.
- * Bundled with the app, so it works offline and needs no account; the phrases library can move to a
- * database later. Ported from impactPool() and QUOTES/QUESTIONS in prototype/index.html; the quotes and
- * questions themselves are in the language catalogs (src/i18n), under `daily`.
+ * Ported from impactPool() and QUOTES/QUESTIONS in prototype/index.html. In English the quote and
+ * question come from the verified wisdom library (src/lib/wisdom.ts, docs/wisdom.md); other languages
+ * use the short lists in their catalogs (src/i18n, under `daily`) until the library is translated.
  */
 import type { Strings } from '@/i18n/strings/en';
 import { bestLever } from '@/lib/habit-impact';

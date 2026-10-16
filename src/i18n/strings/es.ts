@@ -698,6 +698,16 @@ export const es: Strings = {
     lived: { what: 'fines de semana ya vividos', sub: 'Algunos fueron maravillosos. Agradece esos, y haz espacio para más.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'Una historia',
+    practice: 'Una práctica',
+    retoldFrom: (cite: string) => `Contado a partir de ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Podrías',
+    someoneYouLove: 'alguien que quieres',
+    readIn: (translator: string) => `Léelo en la traducción de ${translator}`,
+  },
   opening: {
     lookBack: 'Mira atrás',
     todaysCount: 'La cuenta de hoy',

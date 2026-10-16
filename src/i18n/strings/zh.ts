@@ -670,6 +670,16 @@ export const zh: Strings = {
     lived: { what: '个已经度过的周末', sub: '其中有些很美好。为它们心怀感激，并为更多的美好腾出空间。' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: '一个故事',
+    practice: '一个练习',
+    retoldFrom: (cite: string) => `改写自 ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: '你可以',
+    someoneYouLove: '你爱的人',
+    readIn: (translator: string) => `阅读 ${translator} 的译本`,
+  },
   opening: {
     lookBack: '回望',
     todaysCount: '今天的数字',

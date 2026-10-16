@@ -670,6 +670,16 @@ export const ja: Strings = {
     lived: { what: 'すでに過ごした週末', sub: '中にはすばらしい週末もありました。それに感謝し、もっと多くのための余白をつくりましょう。' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'ある物語',
+    practice: 'ひとつの実践',
+    retoldFrom: (cite: string) => `${cite} より再話`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'できること：',
+    someoneYouLove: '大切な人',
+    readIn: (translator: string) => `${translator} の翻訳で読む`,
+  },
   opening: {
     lookBack: 'ふりかえる',
     todaysCount: '今日のかず',

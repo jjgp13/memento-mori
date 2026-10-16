@@ -694,6 +694,16 @@ export const id: Strings = {
     lived: { what: 'akhir pekan sudah dijalani', sub: 'Sebagian di antaranya indah. Syukuri itu, dan beri ruang untuk lebih banyak lagi.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'Sebuah kisah',
+    practice: 'Sebuah latihan',
+    retoldFrom: (cite: string) => `Diceritakan ulang dari ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Kamu bisa',
+    someoneYouLove: 'seseorang yang kamu sayangi',
+    readIn: (translator: string) => `Baca dalam terjemahan ${translator}`,
+  },
   opening: {
     lookBack: 'Menengok ke belakang',
     todaysCount: 'Hitungan hari ini',

@@ -690,6 +690,16 @@ export const bn: Strings = {
     lived: { what: 'সপ্তাহান্ত কেটে গেছে', sub: 'তার কিছু ছিল চমৎকার। সেগুলোর জন্য কৃতজ্ঞ থাকুন, আর আরও কিছুর জন্য জায়গা রাখুন।' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'একটি গল্প',
+    practice: 'একটি অনুশীলন',
+    retoldFrom: (cite: string) => `${cite} থেকে পুনর্কথিত`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'চাইলে আপনি',
+    someoneYouLove: 'প্রিয় কেউ',
+    readIn: (translator: string) => `${translator}-এর অনুবাদে পড়ুন`,
+  },
   opening: {
     lookBack: 'পেছনে তাকান',
     todaysCount: 'আজকের হিসাব',

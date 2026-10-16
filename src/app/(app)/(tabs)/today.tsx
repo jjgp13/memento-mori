@@ -18,7 +18,8 @@ import { useLang, useT, type Strings } from '@/i18n';
 import { dec1, fmt } from '@/i18n/format';
 import { localeOf } from '@/i18n/locale';
 import { RichText } from '@/components/rich-text';
-import { todaysImpact, todaysQuestion, todaysQuote } from '@/lib/daily';
+import { TodaysWords } from '@/components/wisdom-card';
+import { todaysImpact } from '@/lib/daily';
 import { allLevers } from '@/lib/habit-impact';
 import { loveCount, whoToReachOut, type Love } from '@/lib/loves';
 import { freshStart } from '@/lib/plans';
@@ -45,7 +46,6 @@ function Today({ profile }: { profile: Profile }) {
   const t = useT();
   const lang = useLang();
   const now = useNow(60_000);
-  const quote = todaysQuote(t, now);
   const loves = profile.loves ?? [];
   const impact = todaysImpact(profile, t, now);
   // Someone without a plan, and not already today's count, first; planned people have their row under This week.
@@ -74,17 +74,8 @@ function Today({ profile }: { profile: Profile }) {
         <TodaysCount profile={profile} impact={impact} now={now} onChangeLove={setLove} />
       </Animated.View>
 
-      <Animated.View entering={enter(2)} style={[styles.quote, { borderLeftColor: theme.accent }]}>
-        <ThemedText type="quote">{quote.text}</ThemedText>
-        <ThemedText type="eyebrow" themeColor="muted">
-          {quote.source}
-        </ThemedText>
-      </Animated.View>
-
       <Animated.View entering={enter(2)}>
-        <ThemedText type="subtitle" style={styles.question}>
-          {todaysQuestion(t, now)}
-        </ThemedText>
+        <TodaysWords profile={profile} now={now} love={impact.love} questionType="subtitle" questionStyle={styles.question} />
       </Animated.View>
 
       <Animated.View entering={enter(3)}>
@@ -133,11 +124,6 @@ function Today({ profile }: { profile: Profile }) {
 }
 
 const styles = StyleSheet.create({
-  quote: {
-    borderLeftWidth: 2,
-    paddingLeft: 18,
-    gap: 12,
-  },
   question: {
     fontSize: 21,
     lineHeight: 28,

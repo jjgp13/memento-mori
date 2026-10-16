@@ -689,6 +689,16 @@ export const hi: Strings = {
     lived: { what: 'वीकेंड जो बीत चुके हैं', sub: 'उनमें से कुछ बहुत सुंदर थे। उनके लिए आभारी रहें, और और के लिए जगह बनाएँ।' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'एक कहानी',
+    practice: 'एक अभ्यास',
+    retoldFrom: (cite: string) => `${cite} से पुनर्कथित`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'आप चाहें तो',
+    someoneYouLove: 'कोई अपना',
+    readIn: (translator: string) => `${translator} के अनुवाद में पढ़ें`,
+  },
   opening: {
     lookBack: 'पीछे मुड़कर देखें',
     todaysCount: 'आज की गिनती',

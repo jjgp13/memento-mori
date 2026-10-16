@@ -735,6 +735,16 @@ export const en = {
     lived: { what: 'weekends already lived', sub: 'Some of them were wonderful. Be grateful for those, and make room for more.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'A story',
+    practice: 'A practice',
+    retoldFrom: (cite: string) => `Retold from ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'You could',
+    someoneYouLove: 'someone you love',
+    readIn: (translator: string) => `Read it in ${translator}'s translation`,
+  },
   opening: {
     lookBack: 'Look back',
     todaysCount: "Today's count",
