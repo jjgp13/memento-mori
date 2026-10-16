@@ -10,13 +10,15 @@ import { SourceLink } from '@/components/source-link';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { impactAgency, todaysImpact, todaysQuestion, todaysQuote } from '@/lib/daily';
+import { WisdomCard } from '@/components/wisdom-card';
+import { impactAgency, todaysImpact } from '@/lib/daily';
 import { fmt } from '@/lib/life-views';
 import type { Profile } from '@/lib/profile';
+import { useTodaysWisdom } from '@/lib/wisdom';
 
 /**
- * Every open: today's count (often someone they love), then a Stoic quote and question, then the
- * calendar. One tap moves on; Skip closes it.
+ * Every open: today's count (often someone they love), then words from someone who lived before us
+ * with a question (src/lib/wisdom.ts), then the calendar. One tap moves on; Skip closes it.
  */
 export function OpeningSequence({ profile, onClose }: { profile: Profile; onClose: () => void }) {
   const theme = useTheme();
@@ -25,8 +27,7 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
 
   const impact = todaysImpact(profile, now);
   const agency = impactAgency(profile, impact, now);
-  const quote = todaysQuote(now);
-  const question = todaysQuestion(now);
+  const wisdom = useTodaysWisdom(profile, now, impact.love);
 
   const cards = [
     <Stagger key="impact">
@@ -53,13 +54,7 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
     </Stagger>,
     <Stagger key="quote">
       <ThemedText type="eyebrow">Today</ThemedText>
-      <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
-        <ThemedText type="quote">{quote.text}</ThemedText>
-        <ThemedText type="eyebrow" themeColor="muted" style={styles.cite}>
-          {quote.source}
-        </ThemedText>
-      </View>
-      <ThemedText style={styles.question}>{question}</ThemedText>
+      <WisdomCard entry={wisdom} profile={profile} now={now} love={impact.love} questionStyle={styles.question} />
       <ThemedText type="eyebrow" themeColor="muted">
         Tap to see your life
       </ThemedText>
@@ -153,14 +148,6 @@ const styles = StyleSheet.create({
   },
   num: {
     fontFamily: Fonts.monoMedium,
-  },
-  quote: {
-    borderLeftWidth: 2,
-    paddingLeft: 18,
-    gap: 12,
-  },
-  cite: {
-    letterSpacing: 0.8,
   },
   question: {
     fontFamily: Fonts.display,

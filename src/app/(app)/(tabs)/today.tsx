@@ -14,13 +14,15 @@ import { TodaysCount } from '@/components/todays-count';
 import { Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/use-now';
 import { useTheme } from '@/hooks/use-theme';
-import { todaysImpact, todaysQuestion, todaysQuote } from '@/lib/daily';
+import { WisdomCard } from '@/components/wisdom-card';
+import { todaysImpact } from '@/lib/daily';
 import { allLevers } from '@/lib/habit-impact';
 import { fmt } from '@/lib/life-views';
 import { loveCount, whoToReachOut, type Love } from '@/lib/loves';
 import { freshStart } from '@/lib/plans';
 import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
+import { useTodaysWisdom } from '@/lib/wisdom';
 
 const MONTH_MS = 30 * 864e5;
 
@@ -40,9 +42,9 @@ export default function TodayScreen() {
 function Today({ profile }: { profile: Profile }) {
   const theme = useTheme();
   const now = useNow(60_000);
-  const quote = todaysQuote(now);
   const loves = profile.loves ?? [];
   const impact = todaysImpact(profile, now);
+  const wisdom = useTodaysWisdom(profile, now, impact.love);
   // Someone without a plan, and not already today's count, first; planned people have their row under This week.
   const others = loves.filter((l) => l.id !== impact.love?.id);
   const person = whoToReachOut(others.filter((l) => !l.plan)) ?? whoToReachOut(others);
@@ -69,17 +71,15 @@ function Today({ profile }: { profile: Profile }) {
         <TodaysCount profile={profile} impact={impact} now={now} onChangeLove={setLove} />
       </Animated.View>
 
-      <Animated.View entering={enter(2)} style={[styles.quote, { borderLeftColor: theme.accent }]}>
-        <ThemedText type="quote">{quote.text}</ThemedText>
-        <ThemedText type="eyebrow" themeColor="muted">
-          {quote.source}
-        </ThemedText>
-      </Animated.View>
-
       <Animated.View entering={enter(2)}>
-        <ThemedText type="subtitle" style={styles.question}>
-          {todaysQuestion(now)}
-        </ThemedText>
+        <WisdomCard
+          entry={wisdom}
+          profile={profile}
+          now={now}
+          love={impact.love}
+          questionType="subtitle"
+          questionStyle={styles.question}
+        />
       </Animated.View>
 
       <Animated.View entering={enter(3)}>
@@ -138,11 +138,6 @@ function Today({ profile }: { profile: Profile }) {
 }
 
 const styles = StyleSheet.create({
-  quote: {
-    borderLeftWidth: 2,
-    paddingLeft: 18,
-    gap: 12,
-  },
   question: {
     fontSize: 21,
     lineHeight: 28,
