@@ -10,6 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { dec1, fmt, num } from '@/i18n/format';
 import { habitAnswer, habitOptions } from '@/i18n/labels';
+import { currentLocale } from '@/i18n/locale';
 import { COUNTRY_TABLES } from '@/lib/country-tables';
 import { GAIN_CAP, LIFE_TABLES, MODEL_SHAPE, PET_LIFESPANS, PHONE_TIME, WHAT_MATTERS } from '@/lib/evidence';
 import { MAX_TOTAL_GAIN } from '@/lib/habit-impact';
@@ -20,6 +21,8 @@ import { SWAP_HOURS, WAKING_HOURS, sleepHours } from '@/lib/time-use';
 /** ×1.29, ×0.85, ×2.2, ×1 in the reader's number style. */
 const times = (hr: number) => `×${num(hr)}`;
 const sci = (x: number) => x.toExponential(1);
+/** Model parameters keep their significant digits: 0.0012, 0.085. */
+const param = (x: number) => x.toLocaleString(currentLocale(), { maximumSignificantDigits: 3 });
 
 /**
  * How the numbers are made, in plain words: the curve, the life tables, each habit's multiplier and its
@@ -50,7 +53,7 @@ export default function HowItWorksScreen() {
 
       <DocSection title={m.placeTitle}>
         <Body>{m.placeBody(fmt(COUNTRY_TABLES.length))}</Body>
-        <Body>{m.placeUs(num(US_APPROX.m.A), sci(US_APPROX.m.B), num(US_APPROX.f.A), sci(US_APPROX.f.B), num(GOMPERTZ_B))}</Body>
+        <Body>{m.placeUs(param(US_APPROX.m.A), sci(US_APPROX.m.B), param(US_APPROX.f.A), sci(US_APPROX.f.B), param(GOMPERTZ_B))}</Body>
         <Body>{m.placeLeftOut}</Body>
         <SourceLink source={LIFE_TABLES.source} prefix={t.common.lifeTables} />
       </DocSection>
@@ -89,7 +92,7 @@ export default function HowItWorksScreen() {
 
       <DocSection title={m.rangeTitle}>
         <Body>{m.rangeBody}</Body>
-        <Body>{m.rangeRule(num(GOMPERTZ_B), fmt(Math.LN2 / GOMPERTZ_B), fmt(Math.LN2 / GOMPERTZ_B))}</Body>
+        <Body>{m.rangeRule(param(GOMPERTZ_B), fmt(Math.LN2 / GOMPERTZ_B), fmt(Math.LN2 / GOMPERTZ_B))}</Body>
       </DocSection>
 
       <DocSection title={m.combineTitle}>

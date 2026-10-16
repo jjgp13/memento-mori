@@ -22,7 +22,7 @@ To work out your estimate and your counts, the app asks for and keeps:
 - Your answers about smoking, exercise or daily steps, weight range, alcohol, sleep, and how often you see people you are close to.
 - How many hours a day you spend on your phone (your own estimate).
 - What matters most to you, and the people, pets and activities you love: names, how often you see or do them, their ages, and optionally a phone number; when you last talked; your plans and focus.
-- Small settings, such as whether the clock ticks, when you last opened the app, and when you agreed to these policies.
+- Small settings, such as your language, whether the clock ticks, when you last opened the app, and when you agreed to these policies.
 
 This is kept in the app’s storage on your device: the browser’s local storage on the web, or the app’s private storage on a phone. It is not sent to us or to anyone else. The app reads your device’s region setting once, on the device, to suggest your country.
 
