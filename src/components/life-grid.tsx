@@ -165,7 +165,7 @@ export function LifeGrid({ view, reachColors = [] }: { view: GridView; reachColo
           ) : null}
 
           <Svg width={w} height={h} style={StyleSheet.absoluteFill} pointerEvents="none">
-            {nowCell ? <NowCell {...nowCell} r={r} frac={view.frac} /> : null}
+            {nowCell ? <NowCell {...nowCell} r={r} frac={view.frac} pct={!view.noPct} /> : null}
 
             {labels.map((l) => (
               <SvgText
@@ -226,9 +226,9 @@ function Pulse({ trigger, children }: PropsWithChildren<{ trigger: number }>) {
   );
 }
 
-function NowCell({ cx, cy, r, frac }: { cx: number; cy: number; r: number; frac: number }) {
+function NowCell({ cx, cy, r, frac, pct }: { cx: number; cy: number; r: number; frac: number; pct: boolean }) {
   const theme = useTheme();
-  const showPct = r >= 10;
+  const showPct = pct && r >= 10;
 
   return (
     <>

@@ -42,7 +42,7 @@ export function FreshStart({ profile, now }: { profile: Profile; now: number }) 
   const theme = useTheme();
   const t = useT();
   const f = t.freshStart;
-  const { freshStartDismissedAt } = usePrefs();
+  const { freshStartDismissedAt, hideNumbers: hide } = usePrefs();
   const [text, setText] = useState('');
   const kind = freshStart(profile.dob, now);
   if (!kind || sameDay(freshStartDismissedAt, now)) return null;
@@ -59,7 +59,9 @@ export function FreshStart({ profile, now }: { profile: Profile; now: number }) 
       </ThemedText>
       <ThemedText>
         {kind === 'birthday'
-          ? f.birthday(profile.name, fmt(ageAt(profile.dob, now) * WEEKS_PER_YEAR))
+          ? hide
+            ? t.gentle.birthday(profile.name)
+            : f.birthday(profile.name, fmt(ageAt(profile.dob, now) * WEEKS_PER_YEAR))
           : f.prompt(kind === 'week', label)}
       </ThemedText>
       <View style={styles.chips}>

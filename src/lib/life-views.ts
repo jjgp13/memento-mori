@@ -68,6 +68,8 @@ export type GridView = {
   labelW: number;
   /** How far through the current unit we are, 0–1. */
   frac: number;
+  /** "Hide numbers": the current unit still fills like a pie, without its percentage. */
+  noPct?: boolean;
   /** Too many cells for outlines and dashes to read: draw likely weeks as dots, "maybe" ones as hollow rings. */
   dense?: boolean;
   state: (i: number) => CellState;
@@ -94,7 +96,45 @@ function segmentOf(gains: number[]) {
   };
 }
 
-export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t: Strings, layers: Layers = {}): GridView {
+/** How much of a likely life is ahead, in words for "Hide numbers": by the share of the median already lived. */
+export function aheadLevel(age: number, est: Survival): keyof Strings['gentle']['ahead'] {
+  if (age >= est.med) return 'gift';
+  const lived = age / est.med;
+  return lived < 0.5 ? 'most' : lived < 0.75 ? 'plenty' : 'some';
+}
+
+/** How far through a year or a day, in words. */
+const phase = (f: number) => (f < 0.4 ? 'early' : f < 0.8 ? 'middle' : 'late');
+
+function yearFraction(now: number) {
+  const Y = new Date(now).getFullYear();
+  const start = new Date(Y, 0, 1).getTime();
+  return (now - start) / (new Date(Y + 1, 0, 1).getTime() - start);
+}
+
+/**
+ * `hide` ("Hide numbers") keeps every circle and drops the age, week and hour labels; the caption, which is
+ * also the grid's accessibility label, becomes words.
+ */
+export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t: Strings, layers: Layers = {}, hide = false): GridView {
+  const view = gridView(zoom, dob, est, now, t, layers);
+  if (!hide) return view;
+  const g = t.gentle.caption;
+  const words =
+    zoom === 'life' || zoom === 'weeks'
+      ? g[zoom] +
+        t.gentle.ahead[aheadLevel(ageAt(dob, now), est)] +
+        (layers.health ? g.health : '') +
+        (layers.sleep || layers.phone ? g.layers(!!layers.phone) : '')
+      : zoom === 'year'
+        ? g.year[phase(yearFraction(now))]
+        : g.today[phase(new Date(now).getHours() / 24)];
+  // Month initials stay; ages, week numbers and hours go.
+  const rowLabel = zoom === 'year' ? view.rowLabel : undefined;
+  return { ...view, labelW: rowLabel ? view.labelW : 0, noPct: true, label: undefined, rowLabel, caption: [{ text: words }] };
+}
+
+function gridView(zoom: Zoom, dob: string, est: Survival, now: number, t: Strings, layers: Layers): GridView {
   const cap = t.life.caption;
   const age = ageAt(dob, now);
   const gains = layers.gains ?? [];

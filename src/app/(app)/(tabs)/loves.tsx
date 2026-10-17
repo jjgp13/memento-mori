@@ -17,6 +17,7 @@ import { useT } from '@/i18n';
 import { fmt } from '@/i18n/format';
 import { loveCount, loveCountLabel, loveCountReason, type Love } from '@/lib/loves';
 import { ageAt, estimate } from '@/lib/model';
+import { usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 
 const GROUPS = ['who', 'what'] as const;
@@ -94,9 +95,12 @@ function LoveCard({
 }) {
   const theme = useTheme();
   const t = useT();
+  const { hideNumbers } = usePrefs();
   const { times, years } = loveCount(love, profile, now);
   const label = loveCountLabel(love, t);
   const reason = loveCountReason(love, t);
+  // Without numbers: what it is first, then a little or a lot, never how many.
+  const howMany = t.gentle.howMany[times < 100 ? 'few' : 'many'];
 
   return (
     <Animated.View
@@ -105,13 +109,24 @@ function LoveCard({
       layout={LinearTransition}
       style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
       <View style={styles.top}>
-        <View accessible accessibilityLabel={t.loves.cardA11y(fmt(times), label, reason)} style={styles.top}>
+        <View
+          accessible
+          accessibilityLabel={hideNumbers ? `${label}. ${howMany} ${t.gentle.pace}` : t.loves.cardA11y(fmt(times), label, reason)}
+          style={styles.top}>
           <Ring fraction={Math.min(1, years / yearsLeft)} />
-          <View style={styles.text}>
-            <ThemedText style={styles.n}>{fmt(times)}</ThemedText>
-            <ThemedText>{label}</ThemedText>
-            <ThemedText type="small">{reason}</ThemedText>
-          </View>
+          {hideNumbers ? (
+            <View style={styles.text}>
+              <ThemedText style={styles.words}>{label}</ThemedText>
+              <ThemedText>{howMany}</ThemedText>
+              <ThemedText type="small">{t.gentle.pace}</ThemedText>
+            </View>
+          ) : (
+            <View style={styles.text}>
+              <ThemedText style={styles.n}>{fmt(times)}</ThemedText>
+              <ThemedText>{label}</ThemedText>
+              <ThemedText type="small">{reason}</ThemedText>
+            </View>
+          )}
         </View>
         <Button title={t.common.remove} variant="link" accessibilityLabel={t.common.removeA11y(love.name)} onPress={onRemove} />
       </View>
@@ -171,6 +186,12 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 36,
     fontVariant: ['tabular-nums'],
+  },
+  words: {
+    fontFamily: Fonts.display,
+    fontSize: 21,
+    lineHeight: 27,
+    letterSpacing: 1,
   },
   add: {
     gap: 12,

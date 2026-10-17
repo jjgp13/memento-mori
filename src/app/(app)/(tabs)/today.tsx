@@ -28,9 +28,9 @@ import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 const MONTH_MS = 30 * 864e5;
 
 /** For them specifically: what seeing people every week is worth in their estimate, or that they already do. */
-function connectionLine(profile: Profile, t: Strings, now: number) {
+function connectionLine(profile: Profile, t: Strings, now: number, hide: boolean) {
   const lever = allLevers(profile, now).find((l) => l.key === 'connection');
-  if (lever) return t.today.connectionLever(dec1(lever.years));
+  if (lever) return hide ? t.gentle.connectionLever : t.today.connectionLever(dec1(lever.years));
   if (profile.connection === 'often') return t.today.connectionOften;
   return '';
 }
@@ -54,7 +54,7 @@ function Today({ profile }: { profile: Profile }) {
   // Their only person is today's count, which already has Message and Call: no second card for them.
   const hasPeople = loves.some((l) => l.kind === 'person');
   // When they were last here, read once before this visit is recorded (for "welcome back").
-  const { lastSeen } = usePrefs();
+  const { lastSeen, hideNumbers: hide } = usePrefs();
   const [previousVisit] = useState(lastSeen);
   useEffect(() => setPref('lastSeen', Date.now()), []);
   const setLove = (next: Love) => saveProfile({ ...profile, loves: loves.map((l) => (l.id === next.id ? next : l)) });
@@ -105,10 +105,14 @@ function Today({ profile }: { profile: Profile }) {
               <ThemedText type="subtitle" style={styles.name}>
                 {person.name}
               </ThemedText>
-              <RichText parts={t.today.moreVisits(fmt(loveCount(person, profile, now).times))} />
+              {hide ? (
+                <ThemedText>{t.gentle.reachOut}</ThemedText>
+              ) : (
+                <RichText parts={t.today.moreVisits(fmt(loveCount(person, profile, now).times))} />
+              )}
               <ReachOut key={person.id} love={person} onChange={setLove} />
               <ThemedText type="small">
-                {t.today.isolation} {connectionLine(profile, t, now)}
+                {hide ? t.gentle.isolation : t.today.isolation} {connectionLine(profile, t, now, hide)}
               </ThemedText>
               <SourceLink of="connection" />
             </>
@@ -124,7 +128,13 @@ function Today({ profile }: { profile: Profile }) {
       {person ? (
         <Animated.View entering={enter(5)}>
           <ThemedText type="small">
-            {peopleThisMonth === 0 ? t.today.noneLogged : t.today.peopleThisMonth(peopleThisMonth)}
+            {peopleThisMonth === 0
+              ? hide
+                ? t.gentle.noneLogged
+                : t.today.noneLogged
+              : hide
+                ? t.gentle.someThisMonth
+                : t.today.peopleThisMonth(peopleThisMonth)}
           </ThemedText>
         </Animated.View>
       ) : null}

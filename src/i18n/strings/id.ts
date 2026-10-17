@@ -784,6 +784,92 @@ export const id: Strings = {
     next: 'Berikutnya',
   },
 
+  gentle: {
+    setting: 'Sembunyikan angka',
+    settingNote:
+      'Kata-kata sebagai ganti tahun, minggu, dan hitungan di Hidup, Yang Dicinta, Hari Ini, dan pembuka. Kalendernya tetap, tanpa angka.',
+    ahead: {
+      most: 'Sebagian besar hidupmu masih di depan.',
+      plenty: 'Kemungkinan masih banyak tahun baik di depan.',
+      some: 'Masih ada tahun-tahun baik di depan. Gunakan untuk yang kamu cintai.',
+      gift: 'Setiap hari mulai sekarang adalah hadiah. Gunakan untuk yang kamu cintai.',
+    },
+    caption: {
+      life: 'Tahun hidupmu ini sedang berjalan. ',
+      weeks: 'Minggu hidupmu ini sedang berjalan. ',
+      year: {
+        early: 'Sebagian besar tahun ini masih di depan.',
+        middle: 'Tahun ini sudah jauh berjalan. Masih ada waktu baik di dalamnya.',
+        late: 'Tahun ini hampir selesai. Buat minggu-minggu terakhirnya berarti.',
+      },
+      today: {
+        early: 'Sebagian besar hari ini masih di depan. Jalani dengan sengaja.',
+        middle: 'Hari ini sudah jauh berjalan. Jalani sisanya dengan sengaja.',
+        late: 'Hari ini hampir selesai. Jalani sisanya dengan sengaja.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Sebagian adalah tidur (waktu yang dipakai dengan baik) dan sebagian di ponsel; sisanya terjaga dan jauh dari ponsel.'
+          : ' Sebagian adalah tidur, waktu yang dipakai dengan baik; sisanya terjaga.',
+      health: ' Banyak di antaranya kemungkinan dijalani dengan kuat dan mandiri: pita hijau, yang memudar di bagian orang-orang berbeda.',
+    },
+    range:
+      'Sebuah rentang, bukan tanggal: lingkaran penuh kemungkinan besar, cincin jika keberuntungan mengizinkan, dan kebiasaan bisa menggesernya.',
+    whatIfA11y: (label) => `Bagaimana jika: ${label}, bisa menambah waktu`,
+    triedTotal: (several) =>
+      several
+        ? 'Bersama-sama bisa menambah waktu yang baik: kurang dari jumlahnya, karena efek kebiasaan saling tumpang tindih.'
+        : 'Ini bisa menambah waktu yang baik.',
+    phoneLine: (share) => `Ponselmu memakan ${share} jam terjagamu.`,
+    phoneSwap:
+      'Setengah jam lebih sedikit sehari bisa menjadi lebih banyak waktu dengan orang-orang yang kamu cintai. Dalam eksperimen, mengurangi media sosial berarti lebih banyak waktu dengan keluarga dan teman serta lebih sedikit kesepian.',
+    habitsEffect: (adds) => (adds ? 'Kebiasaanmu menambah waktu pada perkiraanmu.' : 'Kebiasaanmu mengurangi sedikit waktu dari perkiraanmu.'),
+    adds: 'menambah waktu',
+    costs: 'mengurangi waktu',
+    couldAdd: 'bisa menambah waktu yang baik',
+    together: (several) =>
+      several
+        ? 'Bersama-sama bisa menambah tahun-tahun baik. Coba di kalender dengan Bagaimana jika.'
+        : 'Coba di kalender dengan Bagaimana jika.',
+    howMany: {
+      few: 'Beberapa kali lagi, lebih dari yang kamu kira.',
+      many: 'Masih banyak kali lagi, jika kamu memberi ruang.',
+    },
+    pace: 'Dengan ritme sekarang.',
+    loveSub: 'Dengan ritme sekarang, selama waktu yang kemungkinan kamu punya.',
+    agency: (label) => `${label} bisa menambah lebih banyak lagi. Kamu bisa mencobanya di kalender Hidup.`,
+    moreVisits: (name) => `Lebih banyak kunjungan dengan ${name} daripada yang kamu kira, dengan ritme sekarang.`,
+    reachOut: 'Lebih banyak kunjungan daripada yang kamu kira, dengan ritme sekarang. Mengirim pesan hanya butuh semenit.',
+    smallStep: (label) => `${label} bisa menambah waktu yang baik. Ini langkah kecil ke sana.`,
+    suggestPerson: (name) =>
+      `Lebih banyak kunjungan dengan ${name} daripada yang kamu kira, dengan ritme sekarang. Rencana membuat kunjungan berikutnya lebih mungkin.`,
+    suggestLever: (label) => `${label} bisa menambah waktu yang baik. Rencana kecil adalah cara untuk mulai.`,
+    birthday: (name) =>
+      `Selamat ulang tahun${name ? `, ${name}` : ''}. Kamu sudah menjalani banyak minggu, sebagian di antaranya indah. Apa satu hal yang bisa kamu lakukan di tahun mendatang?`,
+    isolation: 'Orang yang tetap dekat dengan orang lain cenderung hidup lebih lama dan lebih sehat.',
+    connectionLever: 'Bagimu, bertemu orang-orang yang kamu cintai setiap minggu bisa menambah waktu yang baik.',
+    noneLogged: 'Belum ada telepon atau kunjungan yang dicatat sebulan terakhir.',
+    someThisMonth: 'Sebulan terakhir kamu berbicara dengan atau bertemu beberapa orang yang kamu cintai.',
+    healthy: {
+      years:
+        'Banyak tahun di depan kemungkinan dijalani dengan kuat dan mandiri: pita hijau di kalendermu, yang memudar di bagian orang-orang berbeda.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} bisa membuatmu kuat dan mandiri lebih lama: kaki lebih kuat, keseimbangan lebih baik, lebih jarang jatuh.`
+          : `${label} bisa menambah tahun-tahun sehat.`,
+      tried: ' Pita hijaunya juga bertambah.',
+      reveal: (lever) => 'Banyak dari minggu-minggu itu kemungkinan dijalani dengan kuat dan mandiri.' + (lever ? ` ${lever} bisa menambah lebih banyak lagi.` : ''),
+    },
+    reveal: {
+      fullLife: 'Hidup yang penuh adalah rangkaian panjang minggu, dan kamu sedang di perjalanan. Mari buat sisanya berarti.',
+      person: (label, howMany) => `Itu termasuk ${label}. ${howMany}`,
+      phone: 'Ponselmu memakan sebagian darinya. Setengah jam lebih sedikit sehari bisa menjadi lebih banyak waktu dengan orang-orang yang kamu cintai.',
+      lever: (label) => ` ${label} bisa menambah tahun-tahun baik.`,
+      range: (country) =>
+        `Ini rentang, bukan tanggal, dari berapa lama orang yang hidup sepertimu${country ? ` di ${country}` : ''} biasanya hidup. Bukan nasihat medis.`,
+    },
+  },
+
   account: {
     title: 'Kamu',
     edit: 'Ubah jawabanmu',

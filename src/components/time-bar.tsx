@@ -13,15 +13,17 @@ const ease = Easing.bezier(0.2, 0.7, 0.2, 1);
 
 /**
  * The weeks ahead as one bar (awake and free, phone, sleep, within reach) that eases to new sizes as
- * someone tries a change, right next to the controls they're touching.
+ * someone tries a change, right next to the controls they're touching. `hideNumbers` keeps the bar and
+ * names each part without its count.
  */
-export function TimeBar({ parts, unit }: { parts: BarPart[]; unit: string }) {
+export function TimeBar({ parts, unit, hideNumbers = false }: { parts: BarPart[]; unit: string; hideNumbers?: boolean }) {
   const theme = useTheme();
   const total = parts.reduce((t, p) => t + p.value, 0) || 1;
   const shown = parts.filter((p) => p.value >= 0.5);
+  const text = (p: BarPart) => (hideNumbers ? p.label : `${fmt(p.value)} ${p.label}`);
 
   return (
-    <View style={styles.wrap} accessible accessibilityLabel={shown.map((p) => `${fmt(p.value)} ${unit} ${p.label}`).join(', ')}>
+    <View style={styles.wrap} accessible accessibilityLabel={shown.map((p) => (hideNumbers ? p.label : `${fmt(p.value)} ${unit} ${p.label}`)).join(', ')}>
       <View style={[styles.bar, { backgroundColor: theme.maybe }]}>
         {parts.map((p) => (
           <Segment key={p.key} share={p.value / total} color={p.color} />
@@ -32,7 +34,7 @@ export function TimeBar({ parts, unit }: { parts: BarPart[]; unit: string }) {
           <View key={p.key} style={styles.key}>
             <View style={[styles.swatch, { backgroundColor: p.color }]} />
             <ThemedText type="mono" themeColor="muted" style={styles.keyText}>
-              {fmt(p.value)} {p.label}
+              {text(p)}
             </ThemedText>
           </View>
         ))}
