@@ -99,6 +99,12 @@ export const zh: Strings = {
       why: '当面相处或真正的交谈。亲密关系是长寿最有力的预测因素之一。',
       options: { often: '每周', sometimes: '每月几次', rarely: '很少；我常感到孤独' },
     },
+    strength: {
+      question: '你做力量训练吗？',
+      short: '力量',
+      why: '哑铃、弹力带或自身体重：深蹲、俯卧撑、提重物。它让你日后依然有力、站得稳。',
+      options: { none: '很少或从不', some: '大约每周一次', regular: '每周两次或以上' },
+    },
   },
 
   levers: {
@@ -109,6 +115,7 @@ export const zh: Strings = {
     sleep: '睡 6–9 小时',
     connection: '每周见你爱的人',
     steps: '每天走 10,000 步',
+    strength: '每周两次力量训练',
   },
 
   values: {
@@ -195,6 +202,12 @@ export const zh: Strings = {
     range: (med, q25, q75, country) =>
       `这是一个范围，而不是一个日期：${country ? `在${country}，` : ''}像你这样生活的人有一半能活到 ${med} 岁，大多数人在 ${q25} 到 ${q75} 岁之间。这不是医疗建议。`,
     seeLife: '看看你的一生',
+    healthy: (weeks, lever, years) => [
+      s('其中大约 '),
+      b(weeks),
+      s(' 周很可能在健康中度过：有力气，自己照顾自己。'),
+      ...(lever ? [s(`${lever}可能再增加约 `), b(`${years} 年`), s('。')] : []),
+    ],
   },
 
   alive: {
@@ -268,6 +281,11 @@ export const zh: Strings = {
         b(free),
         s(phone ? ` ${unit === 'years' ? '年' : '周'}是清醒且离开手机的时间。` : ` ${unit === 'years' ? '年' : '周'}是清醒的时间。`),
       ],
+      health: (unit, med, lo, hi) => [
+        s('其中大约 '),
+        b(med),
+        s(` ${unit === 'years' ? '年' : '周'}很可能健康、有力、独立：就是那条绿色的带子，在人与人不同的地方渐渐变淡（像你这样的大多数人是 ${lo}–${hi} ${unit === 'years' ? '年' : '周'}）。`),
+      ],
     },
     legend: {
       lived: '已度过',
@@ -277,11 +295,12 @@ export const zh: Strings = {
       maybe: '若命运允许',
       asleep: '睡眠',
       phone: '手机上',
+      healthy: '很可能健康',
     },
     shows: { all: '全部', awake: '清醒', free: '离开手机' },
     showA11y: '显示未来的时间',
     whatIf: '如果……点一下试试',
-    whatIfA11y: (label, years) => `如果：${label}，约 ${years} 年`,
+    whatIfA11y: (label, years, healthy) => `如果：${label}，约 ${years} 年，其中健康的多 ${healthy} 年`,
     whatIfYears: (years) => `+${years}年`,
     weeksAhead: '你未来的周',
     weeksUnit: '周',
@@ -293,7 +312,8 @@ export const zh: Strings = {
       s(`（${years} 年）`),
       s(several ? `：小于各自之和，因为习惯的效果有重叠${capped ? '，并设有上限' : ''}。` : '。'),
     ],
-    triedOne: (label, years) => `${label}：单独约 ${years} 年`,
+    triedOne: (label, years, healthy) => `${label}：单独约 ${years} 年，健康的 ${healthy} 年`,
+    triedHealthy: (years) => [s('绿色的带子增加约 '), b(`${years} 年健康时光`), s('。')],
     tapWhatIf: '点日历上的“如果”，看看一个改变能增加多少时间。',
     makePlan: '做一个小计划',
     makePlanA11y: (label) => `为此做一个小计划：${label}`,
@@ -321,6 +341,24 @@ export const zh: Strings = {
       s(`${capped ? '（有上限：各项习惯的效果有重叠）' : ''}。用“如果”在日历上试试吧。`),
     ],
     allGood: '你已经在做最能增加时间的事。坚持下去，并让你爱的人留在身边。',
+    healthy: {
+      eyebrow: '有力，独立',
+      years: (med, lo, hi) => [
+        s('其中大约 '),
+        b(`${med} 年`),
+        s(`很可能在健康中度过：有力气、站得稳、自己照顾自己。像你这样的大多数人是 ${lo}–${hi} 年。`),
+      ],
+      later: '晚年往往会有更多病痛，也会更多地依靠身边的人。会有多少、来得多早，部分掌握在你手中。',
+      lever: (label, years, why) => [
+        s(`${label}可能再增加约 `),
+        b(`${years} 年`),
+        s(why === 'strength' ? '：腿更有力，平衡更好，更少跌倒。' : why === 'more' ? '，比它增加的寿命还多。' : '。'),
+      ],
+      allGood: '你已经在做最能让人长久保持有力的事。坚持下去，也让你爱的人留在身边。',
+      askStrength: '你做力量训练吗？补充你的回答',
+      sourceHealthy: '健康年数',
+      sourceHabits: '习惯',
+    },
   },
 
   share: {
@@ -358,6 +396,10 @@ export const zh: Strings = {
     notInEstimate: '尚未计入你的估算；仅供参考方向。',
     howItWorks: '你的估算如何计算',
     strength: { strong: '强', moderate: '中等', emerging: '新兴' },
+    healthspan: '保持有力与独立',
+    healthspanNote: '让晚年保持健康的因素：你“人生”日历上的那条绿色带子。点一下查看数字和来源。',
+    strengthNote: (years) => `它更大的作用在于让你保持有力和独立：每周两次可能增加约 ${years} 年健康时光。`,
+    strengthKeep: '每周两次让你更长久地保持有力、站得稳。继续保持。',
   },
 
   evidence: {
@@ -389,8 +431,9 @@ export const zh: Strings = {
     },
     strength: {
       title: '力量训练',
-      summary: '每周 30–60 分钟与死亡率降低 10–17% 相关。',
-      detail: '是在有氧运动之外，而非替代。每周超过约一小时的益处尚不明确。',
+      summary: '每周 30–60 分钟与死亡率降低 10–17% 相关，也与更长久地保持有力和独立相关。',
+      detail:
+        '作为有氧运动的补充，而不是替代；每周超过约一小时是否更有益尚不清楚。它更大的作用在晚年：力量和平衡练习意味着更少跌倒、更少失能（见“保持有力与独立”）。在本应用中，每周两次对死亡风险计 ×0.85，对失去健康的风险计 ×0.82。',
     },
     purpose: {
       title: '人生目标感',
@@ -417,6 +460,30 @@ export const zh: Strings = {
       summary: '实验中，减少社交媒体意味着更多时间陪伴家人朋友，也更少孤独。',
       detail: '停用 Facebook 4 周提升了幸福感，也增加了与亲友的线下时间。连续 3 周把社交媒体限制在每天约 30 分钟，降低了孤独感和抑郁。',
     },
+    healthyHabits: {
+      title: '健康习惯带来健康的年岁',
+      summary: '50 岁时，有 4–5 个健康习惯的人，无癌症、心脏病和糖尿病的年数多约 10.7 年（女性）和 7.6 年（男性）。',
+      detail:
+        '在哈佛的两个大型队列中，总寿命增加得差不多一样多（女性 +9.4，男性 +8.1）：多出的时间几乎都是健康的时间，带病生活的年数几乎没变。这些习惯是：不吸烟、健康体重、每天 30 分钟以上活动、少喝或不喝酒、良好饮食。本应用会随你的习惯相应移动你的健康年数。',
+    },
+    falls: {
+      title: '运动预防跌倒',
+      summary: '运动使老年人跌倒减少 23%；包含力量和平衡练习的项目减少约三分之一。',
+      detail:
+        'Cochrane 综述，108 项试验（23,407 名居家的 60 岁以上老人）。总体发生率比 0.77（高确定性证据）；平衡和功能性练习 0.76；多种运动结合，通常是平衡加力量，0.66（中等确定性）。',
+    },
+    mobility: {
+      title: '能自己走路',
+      summary: '在一项针对 1,635 名 70–89 岁老人的试验中，步行结合力量与平衡练习使严重行动障碍减少 18%。',
+      detail:
+        'LIFE 试验：结构化的中等强度项目（步行、力量、柔韧、平衡）对比健康教育，为期 2.6 年。失去步行 400 米的能力：30.1% 对比 35.5%（HR 0.82）。这是一项综合项目的大型试验，单靠力量的作用有多大尚不清楚。本应用对每周两次力量训练采用 0.82。',
+    },
+    grip: {
+      title: '握力',
+      summary: '60 岁以上握力弱的人，在随访期间丧失身体功能和死亡的可能性约为 1.8 倍。',
+      detail:
+        '对 34 项居家 60 岁以上人群研究的荟萃分析：握力低与高相比，身体功能下降的合并比值为 1.78，死亡为 1.79。握力是整体力量的标志；这是观察性研究，更多说明谁有风险而非该怎么做，但力量要靠训练来保持。',
+    },
   },
 
   howItWorks: [
@@ -425,6 +492,8 @@ export const zh: Strings = {
     '我们从你今天的年龄开始逐月推算这一风险。像你这样的人有一半去世时的年龄，就是你的中位数；25% 和 75% 的位置给出你的范围。',
     '经验法则：年数 ≈ ln(风险倍数) ÷ 0.085。所以风险翻倍大约少 8 年，而戒烟大约能换回 9 年。',
     '多项改变合起来的效果小于各自之和，我们把总增益上限设为 14 年，这是一项美国大型研究中所有习惯带来的最大差距。',
+    '健康年数以你所在国家的健康预期寿命为起点（世卫组织，2023）：即你这个年龄的人在未来岁月中健康度过的比例。我们把不太健康的时间放在最后，因为大部分就落在那里，所以它显示为一条渐渐变淡的带子，而不是一个日期。',
+    '习惯对健康年数的影响与对总寿命的影响差不多，正如一项大型哈佛研究所示；力量训练更多：它让人保持有力、平稳和独立。同样适用 14 年的上限。',
     '这些是人群研究中的关联，并非因果，也不是医疗建议。',
   ],
 
@@ -460,6 +529,7 @@ export const zh: Strings = {
       morning: '早上',
       cigarette: '想抽烟的时候',
       atLunch: '午饭时',
+      coffee: '喝完早上的咖啡后',
     },
     call: (name) => `给${name}打电话`,
     messageOrCall: (name) => `给${name}发消息或打电话`,
@@ -470,6 +540,7 @@ export const zh: Strings = {
       smoke: '先走 5 分钟',
       drink: '先喝一杯气泡水',
       plate: '让盘子里一半是蔬菜',
+      strength: '做 10 分钟深蹲、俯卧撑和负重行走',
     },
     withAnchor: (action, anchor) => `${anchor}${action}`,
     capitalize: (s) => s,

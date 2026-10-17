@@ -175,6 +175,7 @@ const HABIT_DEFAULTS: Record<Lever['key'], { days: Weekday[]; time: string; anch
   smoke: { days: [0, 1, 2, 3, 4, 5, 6], time: '09:00', anchor: 'cigarette', action: 'smoke' },
   alcohol: { days: [5], time: '18:00', anchor: 'work', action: 'drink' },
   bmi: { days: [1, 2, 3, 4, 5], time: '12:30', anchor: 'atLunch', action: 'plate' },
+  strength: { days: [1, 4], time: '07:30', anchor: 'coffee', action: 'strength' },
 };
 
 export function defaultHabitPlan(habit: Lever['key'], t: Strings, now = Date.now()): HabitPlan {

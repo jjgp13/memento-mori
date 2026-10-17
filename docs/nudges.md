@@ -126,7 +126,11 @@ love, with the next step under it. The "Awake / Off phone" view counts sleep as 
 - Fresh-start moments: Monday "one thing this week", 1st of the month, **birthday look-back**.
 
 ### Tone rules
-- Every "time left" is paired with a doable action (§1g).
+- Every "time left" is paired with a doable action (§1g). That includes healthy years: the "Strong and
+  independent" card on Life always ends with one change and a small plan for it (strength training twice
+  a week first, "after my morning coffee, 10 minutes of squats, push-ups and carries"), never with the
+  later years alone. Later years are described gently ("often lean a little more on the people around
+  you"), as a fading band, never as an age.
 - "Could", not "should" (§1i). No guilt, no streaks that break; warm welcome-backs (§1e).
 - Show the science behind a claim one tap away (already done with source links).
 - The barrier-busting facts go where the hesitation is: next to Message (§1h).

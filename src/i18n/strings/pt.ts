@@ -102,6 +102,12 @@ export const pt: Strings = {
       why: 'Pessoalmente ou numa conversa de verdade. Relações próximas estão entre os melhores preditores de uma vida longa.',
       options: { often: 'Toda semana', sometimes: 'Algumas vezes por mês', rarely: 'Raramente; muitas vezes me sinto só' },
     },
+    strength: {
+      question: 'Você faz treino de força?',
+      short: 'Força',
+      why: 'Pesos, elásticos ou o próprio corpo: agachamentos, flexões, carregar sacolas pesadas. Mantém você forte e firme mais tarde.',
+      options: { none: 'Raramente ou nunca', some: 'Cerca de uma vez por semana', regular: 'Duas vezes por semana ou mais' },
+    },
   },
 
   levers: {
@@ -112,6 +118,7 @@ export const pt: Strings = {
     sleep: 'Dormir 6–9 horas',
     connection: 'Ver toda semana as pessoas que você ama',
     steps: 'Caminhar 10.000 passos por dia',
+    strength: 'Treinar força duas vezes por semana',
   },
 
   values: {
@@ -204,6 +211,12 @@ export const pt: Strings = {
     range: (med, q25, q75, country) =>
       `Isto é uma faixa, não uma data: metade das pessoas que vivem como você${country ? ` (${country})` : ''} chega aos ${med}, e a maioria fica entre ${q25} e ${q75}. Não é orientação médica.`,
     seeLife: 'Ver sua vida',
+    healthy: (weeks, lever, years) => [
+      s('Cerca de '),
+      b(weeks),
+      s(' dessas semanas devem ser com boa saúde: forte e fazendo as coisas por conta própria.'),
+      ...(lever ? [s(` ${lever} pode somar cerca de `), b(`${years} anos`), s(' delas.')] : []),
+    ],
   },
 
   alive: {
@@ -277,6 +290,11 @@ export const pt: Strings = {
         b(free),
         s(phone ? ' acordado e longe do celular.' : ' acordado.'),
       ],
+      health: (unit, med, lo, hi) => [
+        s(' Cerca de '),
+        b(med),
+        s(` ${unit === 'years' ? 'deles' : 'delas'} devem ser com boa saúde, forte e independente: a faixa verde, que esmaece onde as pessoas variam (para a maioria como você, ${lo}–${hi} ${unit === 'years' ? 'anos' : 'semanas'}).`),
+      ],
     },
     legend: {
       lived: 'Vivido',
@@ -286,11 +304,12 @@ export const pt: Strings = {
       maybe: 'Se a sorte permitir',
       asleep: 'Dormindo',
       phone: 'No celular',
+      healthy: 'Provavelmente com boa saúde',
     },
     shows: { all: 'Tudo', awake: 'Acordado', free: 'Fora do celular' },
     showA11y: 'Mostrar o tempo pela frente',
     whatIf: 'E se… toque para testar',
-    whatIfA11y: (label, years) => `E se: ${label}, cerca de ${years} anos`,
+    whatIfA11y: (label, years, healthy) => `E se: ${label}, cerca de ${years} anos, ${healthy} a mais com boa saúde`,
     whatIfYears: (years) => `+${years}a`,
     weeksAhead: 'Suas semanas pela frente',
     weeksUnit: 'semanas',
@@ -302,7 +321,8 @@ export const pt: Strings = {
       s(` (${years} anos)`),
       s(several ? `: menos que a soma, porque os efeitos dos hábitos se sobrepõem${capped ? ', e com teto' : ''}.` : '.'),
     ],
-    triedOne: (label, years) => `${label}: cerca de ${years} anos sozinho`,
+    triedOne: (label, years, healthy) => `${label}: cerca de ${years} anos sozinho, ${healthy} com boa saúde`,
+    triedHealthy: (years) => [s(' A faixa verde cresce cerca de '), b(`${years} anos com boa saúde`), s('.')],
     tapWhatIf: 'Toque num “E se” no calendário para ver o que uma mudança poderia somar.',
     makePlan: 'Fazer um pequeno plano',
     makePlanA11y: (label) => `Fazer um pequeno plano para: ${label}`,
@@ -332,6 +352,25 @@ export const pt: Strings = {
       s(`${capped ? ' (com teto: os efeitos dos hábitos se sobrepõem)' : ''}. Teste no calendário com “E se”.`),
     ],
     allGood: 'Você já faz o que mais acrescenta tempo. Continue assim, e mantenha sua gente por perto.',
+    healthy: {
+      eyebrow: 'Forte e independente',
+      years: (med, lo, hi) => [
+        s('Cerca de '),
+        b(`${med} desses anos`),
+        s(` devem ser com boa saúde: forte, firme e fazendo as coisas por conta própria. Para a maioria das pessoas como você, ${lo}–${hi}.`),
+      ],
+      later:
+        'Os anos mais tardios costumam trazer mais dores e doenças, e se apoiar um pouco mais em quem está por perto. Quantos, e quando, depende em parte de você.',
+      lever: (label, years, why) => [
+        s(`${label} pode somar cerca de `),
+        b(`${years} deles`),
+        s(why === 'strength' ? ': pernas mais fortes, mais equilíbrio, menos quedas.' : why === 'more' ? ', mais do que soma à sua vida.' : '.'),
+      ],
+      allGood: 'Você já faz o que mantém as pessoas fortes por mais tempo. Continue, e mantenha sua gente por perto.',
+      askStrength: 'Você faz treino de força? Adicione sua resposta',
+      sourceHealthy: 'Anos com saúde',
+      sourceHabits: 'Hábitos',
+    },
   },
 
   share: {
@@ -371,6 +410,11 @@ export const pt: Strings = {
     notInEstimate: 'Ainda não está na sua estimativa; aparece como direção.',
     howItWorks: 'COMO FUNCIONA SUA ESTIMATIVA',
     strength: { strong: 'forte', moderate: 'moderada', emerging: 'emergente' },
+    healthspan: 'CONTINUAR FORTE E INDEPENDENTE',
+    healthspanNote: 'O que mantém os últimos anos saudáveis: a faixa verde do seu calendário Vida. Toque em um para ver os números e a fonte.',
+    strengthNote: (years) =>
+      `O maior efeito é manter você forte e independente: duas vezes por semana pode somar cerca de ${years} anos com boa saúde.`,
+    strengthKeep: 'Duas vezes por semana mantém você mais forte e firme por mais tempo. Continue.',
   },
 
   evidence: {
@@ -405,8 +449,9 @@ export const pt: Strings = {
     },
     strength: {
       title: 'Treino de força',
-      summary: '30–60 minutos por semana estão ligados a 10–17% menos mortalidade.',
-      detail: 'Além do exercício aeróbico, não no lugar dele. Os benefícios além de cerca de uma hora por semana não são claros.',
+      summary: '30–60 minutos por semana estão ligados a 10–17% menos mortalidade, e a continuar forte e independente por mais tempo.',
+      detail:
+        'Além do exercício aeróbico, não no lugar dele; benefícios acima de cerca de uma hora por semana são incertos. O maior efeito é nos últimos anos: força e equilíbrio significam menos quedas e menos incapacidade (veja "Continuar forte e independente"). Neste app, duas vezes por semana conta ×0,85 no risco de morrer e ×0,82 no risco de perder a boa saúde.',
     },
     purpose: {
       title: 'Um senso de propósito',
@@ -436,6 +481,30 @@ export const pt: Strings = {
       detail:
         'Desativar o Facebook por 4 semanas aumentou o bem-estar e o tempo offline com amigos e família. Limitar as redes sociais a cerca de 30 minutos por dia por 3 semanas reduziu a solidão e a depressão.',
     },
+    healthyHabits: {
+      title: 'Hábitos saudáveis somam anos com saúde',
+      summary: 'Aos 50, 4–5 hábitos saudáveis vieram com cerca de 10,7 (mulheres) e 7,6 (homens) anos a mais sem câncer, doença cardíaca e diabetes.',
+      detail:
+        'Em duas grandes coortes de Harvard, o total de anos subiu quase o mesmo (+9,4 mulheres, +8,1 homens): quase todo o tempo extra foi tempo com saúde, e os anos vividos com doença mal mudaram. Os hábitos: não fumar, peso saudável, 30+ minutos de atividade por dia, beber pouco ou nada, boa alimentação. O app move seus anos com saúde de acordo com seus hábitos.',
+    },
+    falls: {
+      title: 'Exercício previne quedas',
+      summary: 'O exercício reduziu as quedas em idosos em 23%; programas com força e equilíbrio, em cerca de um terço.',
+      detail:
+        'Revisão Cochrane de 108 ensaios (23.407 pessoas acima de 60 que moram em casa). Razão de taxas geral 0,77 (evidência de alta certeza); equilíbrio e exercício funcional 0,76; vários tipos juntos, em geral equilíbrio mais força, 0,66 (certeza moderada).',
+    },
+    mobility: {
+      title: 'Continuar andando sozinho',
+      summary: 'Num ensaio com 1.635 pessoas de 70–89 anos, caminhada com força e equilíbrio reduziu em 18% a incapacidade grave de locomoção.',
+      detail:
+        'O ensaio LIFE: um programa moderado e estruturado (caminhada, força, flexibilidade, equilíbrio) contra educação em saúde, por 2,6 anos. Perder a capacidade de andar 400 m: 30,1% contra 35,5% (HR 0,82). Um único grande ensaio de um programa combinado, então a parte devida só à força é desconhecida. O app usa 0,82 para treino de força duas vezes por semana.',
+    },
+    grip: {
+      title: 'Força de preensão',
+      summary: 'Pessoas acima de 60 com aperto de mão fraco tiveram cerca de 1,8× mais chance de perder função, e de morrer, no acompanhamento.',
+      detail:
+        'Meta-análise de 34 estudos de pessoas com 60 ou mais que moram em casa: razão combinada de 1,78 para declínio físico e 1,79 para mortalidade, preensão baixa contra alta. A preensão é um marcador da força geral; é observacional, então mostra quem está em risco mais do que o que fazer, mas força se mantém treinando.',
+    },
   },
 
   howItWorks: [
@@ -444,6 +513,8 @@ export const pt: Strings = {
     'Acompanhamos esse risco mês a mês a partir da sua idade hoje. A idade em que metade das pessoas como você já morreu é a sua mediana; as marcas de 25% e 75% dão a sua faixa.',
     'Regra prática: anos ≈ ln(multiplicador de risco) ÷ 0,085. Por isso dobrar o risco custa cerca de 8 anos, e parar de fumar pode devolver cerca de 9.',
     'Várias mudanças juntas somam menos que a soma de cada uma, e limitamos o total a 14 anos, a maior diferença de todos os hábitos encontrada num grande estudo dos EUA.',
+    'Os anos com saúde partem da expectativa de vida saudável do seu país (OMS, 2023): a parte dos anos à frente que as pessoas da sua idade passam com boa saúde. Juntamos o tempo menos saudável no fim, onde cai a maior parte, então aparece como uma faixa que esmaece, não uma data.',
+    'Os hábitos movem os anos com saúde quase tanto quanto o total, como num grande estudo de Harvard, e o treino de força ainda mais: mantém as pessoas fortes, firmes e independentes. O mesmo limite de 14 anos vale.',
     'São associações de estudos populacionais, não causas, e não são orientação médica.',
   ],
 
@@ -485,6 +556,7 @@ export const pt: Strings = {
       morning: 'de manhã',
       cigarette: 'quando der vontade de fumar',
       atLunch: 'no almoço',
+      coffee: 'depois do meu café da manhã',
     },
     call: (name) => `ligar para ${name}`,
     messageOrCall: (name) => `mandar mensagem ou ligar para ${name}`,
@@ -495,6 +567,7 @@ export const pt: Strings = {
       smoke: 'caminhar 5 minutos antes',
       drink: 'tomar antes um copo de água com gás',
       plate: 'encher metade do prato com verduras e legumes',
+      strength: 'fazer 10 minutos de agachamentos, flexões e carregar peso',
     },
     withAnchor: (action, anchor) => `${action} ${anchor}`,
     capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),

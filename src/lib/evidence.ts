@@ -16,7 +16,11 @@ export type EvidenceKey =
   | 'sleep'
   | 'alcohol'
   | 'helping'
-  | 'scrolling';
+  | 'scrolling'
+  | 'healthyHabits'
+  | 'falls'
+  | 'mobility'
+  | 'grip';
 
 export type Evidence = {
   key: EvidenceKey;
@@ -61,7 +65,7 @@ export const WHAT_MATTERS: Evidence[] = [
     key: 'strength',
     strength: 'moderate',
     source: { label: 'Momma et al., Br J Sports Med 2022', url: 'https://bjsm.bmj.com/content/56/13/755' },
-    inEstimate: false,
+    inEstimate: true,
   },
   {
     key: 'purpose',
@@ -94,6 +98,42 @@ export const WHAT_MATTERS: Evidence[] = [
     inEstimate: false,
   },
 ];
+
+/**
+ * Staying strong and independent: how habits move healthy years (healthspan), on the Habits screen and behind the
+ * healthy band on Life. Keep in step with docs/science.md §1. Text is in the catalogs, under `evidence`.
+ */
+export const HEALTHSPAN: Evidence[] = [
+  {
+    key: 'healthyHabits',
+    strength: 'strong',
+    source: { label: 'Li et al., BMJ 2020', url: 'https://www.bmj.com/content/368/bmj.l6669' },
+    inEstimate: true,
+  },
+  {
+    key: 'falls',
+    strength: 'strong',
+    source: { label: 'Sherrington et al., Cochrane 2019', url: 'https://bjsm.bmj.com/content/54/15/885' },
+    inEstimate: false,
+  },
+  {
+    key: 'mobility',
+    strength: 'moderate',
+    source: { label: 'Pahor et al., JAMA 2014', url: 'https://pubmed.ncbi.nlm.nih.gov/24866862/' },
+    inEstimate: true,
+  },
+  {
+    key: 'grip',
+    strength: 'moderate',
+    source: { label: 'Rijk et al., Geriatr Gerontol Int 2016', url: 'https://pubmed.ncbi.nlm.nih.gov/26016893/' },
+    inEstimate: false,
+  },
+];
+
+/** Where healthy years start from: each country's healthy life expectancy (src/lib/health-tables.ts). */
+export const HEALTHY_LIFE_TABLES = {
+  source: { label: 'WHO Global Health Observatory', url: 'https://data.who.int/indicators/i/C64284D' },
+};
 
 /** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */
 export const LIFE_TABLES = {
@@ -150,9 +190,10 @@ const EVIDENCE_FOR: Record<string, string> = {
   sleep: 'sleep',
   connection: 'relationships',
   phone: 'scrolling',
+  healthy: 'healthyHabits',
 };
 
 export function evidenceFor(key: string): Evidence | undefined {
   const k = EVIDENCE_FOR[key] ?? key;
-  return WHAT_MATTERS.find((e) => e.key === k);
+  return WHAT_MATTERS.find((e) => e.key === k) ?? HEALTHSPAN.find((e) => e.key === k);
 }

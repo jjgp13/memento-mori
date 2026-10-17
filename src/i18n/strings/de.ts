@@ -102,6 +102,12 @@ export const de: Strings = {
       why: 'Persönlich oder in einem echten Gespräch. Enge Beziehungen gehören zu den stärksten Vorhersagen für ein langes Leben.',
       options: { often: 'Jede Woche', sometimes: 'Ein paar Mal im Monat', rarely: 'Selten; ich fühle mich oft allein' },
     },
+    strength: {
+      question: 'Machst du Krafttraining?',
+      short: 'Kraft',
+      why: 'Gewichte, Bänder oder das eigene Körpergewicht: Kniebeugen, Liegestütze, schwere Taschen tragen. Es hält dich später stark und standfest.',
+      options: { none: 'Selten oder nie', some: 'Etwa einmal pro Woche', regular: 'Zweimal pro Woche oder öfter' },
+    },
   },
 
   levers: {
@@ -112,6 +118,7 @@ export const de: Strings = {
     sleep: '6–9 Stunden schlafen',
     connection: 'Jede Woche die Menschen sehen, die du liebst',
     steps: '10.000 Schritte am Tag gehen',
+    strength: 'Zweimal pro Woche Krafttraining',
   },
 
   values: {
@@ -204,6 +211,12 @@ export const de: Strings = {
     range: (med, q25, q75, country) =>
       `Das ist eine Spanne, kein Datum: Die Hälfte der Menschen, die so leben wie du${country ? ` (${country})` : ''}, wird ${med}, und die meisten landen zwischen ${q25} und ${q75}. Keine medizinische Beratung.`,
     seeLife: 'Dein Leben ansehen',
+    healthy: (weeks, lever, years) => [
+      s('Etwa '),
+      b(weeks),
+      s(' dieser Wochen wirst du wahrscheinlich in guter Gesundheit leben: stark und selbstständig.'),
+      ...(lever ? [s(` ${lever} könnte davon etwa `), b(`${years} Jahre`), s(' hinzufügen.')] : []),
+    ],
   },
 
   alive: {
@@ -277,6 +290,11 @@ export const de: Strings = {
         b(free),
         s(phone ? ' wach und ohne Handy.' : ' wach.'),
       ],
+      health: (unit, med, lo, hi) => [
+        s(' Etwa '),
+        b(med),
+        s(` davon wahrscheinlich in guter Gesundheit, stark und selbstständig: das grüne Band, das dort verblasst, wo Menschen verschieden sind (bei den meisten wie dir ${lo}–${hi} ${unit === 'years' ? 'Jahre' : 'Wochen'}).`),
+      ],
     },
     legend: {
       lived: 'Gelebt',
@@ -286,11 +304,12 @@ export const de: Strings = {
       maybe: 'Wenn das Glück es will',
       asleep: 'Schlaf',
       phone: 'Am Handy',
+      healthy: 'Wahrscheinlich gesund',
     },
     shows: { all: 'Alles', awake: 'Wach', free: 'Ohne Handy' },
     showA11y: 'Verbleibende Zeit anzeigen',
     whatIf: 'Was wäre, wenn … zum Ausprobieren tippen',
-    whatIfA11y: (label, years) => `Was wäre, wenn: ${label}, etwa ${years} Jahre`,
+    whatIfA11y: (label, years, healthy) => `Was wäre wenn: ${label}, etwa ${years} Jahre, ${healthy} mehr in guter Gesundheit`,
     whatIfYears: (years) => `+${years} J.`,
     weeksAhead: 'Deine Wochen vor dir',
     weeksUnit: 'Wochen',
@@ -302,7 +321,8 @@ export const de: Strings = {
       s(` (${years} Jahre)`),
       s(several ? `: weniger als die Summe, weil sich Gewohnheiten überschneiden${capped ? ', und gedeckelt' : ''}.` : '.'),
     ],
-    triedOne: (label, years) => `${label}: allein etwa ${years} Jahre`,
+    triedOne: (label, years, healthy) => `${label}: etwa ${years} Jahre für sich allein, ${healthy} in guter Gesundheit`,
+    triedHealthy: (years) => [s(' Das grüne Band wächst um etwa '), b(`${years} Jahre in guter Gesundheit`), s('.')],
     tapWhatIf: 'Tippe im Kalender auf ein „Was wäre, wenn“, um zu sehen, was eine Änderung bringen könnte.',
     makePlan: 'Einen kleinen Plan machen',
     makePlanA11y: (label) => `Einen kleinen Plan machen für: ${label}`,
@@ -336,6 +356,25 @@ export const de: Strings = {
       s(`${capped ? ' (gedeckelt: die Effekte überschneiden sich)' : ''}. Probiere sie im Kalender mit „Was wäre, wenn“ aus.`),
     ],
     allGood: 'Du tust schon das, was am meisten Zeit bringt. Bleib dabei, und halte deine Menschen nah.',
+    healthy: {
+      eyebrow: 'Stark und selbstständig',
+      years: (med, lo, hi) => [
+        s('Etwa '),
+        b(`${med} dieser Jahre`),
+        s(` wirst du wahrscheinlich in guter Gesundheit leben: stark, standfest und selbstständig. Bei den meisten Menschen wie dir ${lo}–${hi}.`),
+      ],
+      later:
+        'Spätere Jahre bringen oft mehr Beschwerden und Krankheiten und stützen sich etwas mehr auf die Menschen um dich. Wie viele, und wie bald, liegt zum Teil in deiner Hand.',
+      lever: (label, years, why) => [
+        s(`${label} könnte etwa `),
+        b(`${years} davon`),
+        s(why === 'strength' ? ' hinzufügen: stärkere Beine, besseres Gleichgewicht, weniger Stürze.' : why === 'more' ? ' hinzufügen, mehr als zu deiner Lebenszeit.' : ' hinzufügen.'),
+      ],
+      allGood: 'Du tust schon, was Menschen am längsten stark hält. Bleib dabei, und halte deine Menschen nah.',
+      askStrength: 'Machst du Krafttraining? Antwort ergänzen',
+      sourceHealthy: 'Gesunde Jahre',
+      sourceHabits: 'Gewohnheiten',
+    },
   },
 
   share: {
@@ -375,6 +414,11 @@ export const de: Strings = {
     notInEstimate: 'Noch nicht in deiner Schätzung; zur Orientierung gezeigt.',
     howItWorks: 'WIE DEINE SCHÄTZUNG FUNKTIONIERT',
     strength: { strong: 'stark', moderate: 'mittel', emerging: 'neu' },
+    healthspan: 'STARK UND SELBSTSTÄNDIG BLEIBEN',
+    healthspanNote: 'Was die späteren Jahre gesund hält: das grüne Band in deinem Lebenskalender. Tippe auf einen Eintrag für Zahlen und Quelle.',
+    strengthNote: (years) =>
+      `Die größere Wirkung hat es darauf, stark und selbstständig zu bleiben: Zweimal pro Woche könnte etwa ${years} Jahre in guter Gesundheit hinzufügen.`,
+    strengthKeep: 'Zweimal pro Woche hält dich länger stark und standfest. Bleib dabei.',
   },
 
   evidence: {
@@ -409,8 +453,9 @@ export const de: Strings = {
     },
     strength: {
       title: 'Krafttraining',
-      summary: '30–60 Minuten pro Woche gehen mit 10–17 % geringerer Sterblichkeit einher.',
-      detail: 'Zusätzlich zu Ausdauertraining, nicht stattdessen. Der Nutzen über etwa eine Stunde pro Woche hinaus ist unklar.',
+      summary: '30–60 Minuten pro Woche gehen mit 10–17 % geringerer Sterblichkeit einher, und damit, länger stark und selbstständig zu bleiben.',
+      detail:
+        'Zusätzlich zu Ausdauertraining, nicht stattdessen; ob mehr als etwa eine Stunde pro Woche mehr bringt, ist unklar. Die größere Wirkung betrifft die späteren Jahre: Kraft- und Gleichgewichtstraining bedeutet weniger Stürze und weniger Behinderung (siehe „Stark und selbstständig bleiben“). In dieser App zählt zweimal pro Woche ×0,85 beim Sterberisiko und ×0,82 beim Risiko, die gute Gesundheit zu verlieren.',
     },
     purpose: {
       title: 'Ein Sinn im Leben',
@@ -440,6 +485,30 @@ export const de: Strings = {
       detail:
         'Facebook 4 Wochen lang zu deaktivieren steigerte das Wohlbefinden und die Offline-Zeit mit Freunden und Familie. Social Media 3 Wochen lang auf etwa 30 Minuten am Tag zu begrenzen senkte Einsamkeit und Depression.',
     },
+    healthyHabits: {
+      title: 'Gesunde Gewohnheiten bringen gesunde Jahre',
+      summary: 'Mit 50 gingen 4–5 gesunde Gewohnheiten mit etwa 10,7 (Frauen) und 7,6 (Männer) mehr Jahren ohne Krebs, Herzkrankheit und Diabetes einher.',
+      detail:
+        'In zwei großen Harvard-Kohorten stiegen die Lebensjahre insgesamt etwa genauso (+9,4 Frauen, +8,1 Männer): Fast die ganze zusätzliche Zeit war gesunde Zeit, und die Jahre mit Krankheit änderten sich kaum. Die Gewohnheiten: nicht rauchen, gesundes Gewicht, täglich 30+ Minuten Bewegung, wenig oder kein Alkohol, gute Ernährung. Die App bewegt deine gesunden Jahre entsprechend mit deinen Gewohnheiten.',
+    },
+    falls: {
+      title: 'Bewegung verhindert Stürze',
+      summary: 'Training senkte Stürze bei älteren Menschen um 23 %; Programme mit Kraft und Gleichgewicht um etwa ein Drittel.',
+      detail:
+        'Cochrane-Review von 108 Studien (23.407 Menschen über 60, die zu Hause leben). Ratenverhältnis insgesamt 0,77 (hohe Vertrauenswürdigkeit); Gleichgewichts- und Funktionstraining 0,76; mehrere Arten zusammen, meist Gleichgewicht plus Kraft, 0,66 (mittlere Vertrauenswürdigkeit).',
+    },
+    mobility: {
+      title: 'Selbst gehen können',
+      summary: 'In einer Studie mit 1.635 Menschen von 70–89 senkte Gehen mit Kraft- und Gleichgewichtstraining schwere Gehbehinderung um 18 %.',
+      detail:
+        'Die LIFE-Studie: ein strukturiertes, moderates Programm (Gehen, Kraft, Beweglichkeit, Gleichgewicht) gegen Gesundheitsschulung, über 2,6 Jahre. Nicht mehr 400 m gehen können: 30,1 % gegen 35,5 % (HR 0,82). Eine einzelne große Studie eines kombinierten Programms; der Anteil der Kraft allein ist unbekannt. Die App nutzt 0,82 für Krafttraining zweimal pro Woche.',
+    },
+    grip: {
+      title: 'Griffkraft',
+      summary: 'Menschen über 60 mit schwachem Griff verloren etwa 1,8-mal so oft Funktionen, und starben ebenso häufiger, im Beobachtungszeitraum.',
+      detail:
+        'Metaanalyse von 34 Studien mit Menschen ab 60, die zu Hause leben: gepooltes Verhältnis 1,78 für körperlichen Abbau und 1,79 für Sterblichkeit, schwacher gegen starker Griff. Griffkraft ist ein Marker für die Gesamtkraft; beobachtend, zeigt also eher, wer gefährdet ist, als was zu tun ist, aber Kraft erhält man durch Training.',
+    },
   },
 
   howItWorks: [
@@ -448,6 +517,8 @@ export const de: Strings = {
     'Wir verfolgen dieses Risiko Monat für Monat ab deinem heutigen Alter. Das Alter, bis zu dem die Hälfte der Menschen wie du gestorben ist, ist dein Median; die 25-%- und 75-%-Marken ergeben deine Spanne.',
     'Faustregel: Jahre ≈ ln(Risikofaktor) ÷ 0,085. Deshalb kostet ein verdoppeltes Risiko etwa 8 Jahre, und Aufhören mit dem Rauchen kann etwa 9 zurückgeben.',
     'Mehrere Änderungen zusammen bringen weniger als ihre Summe, und wir begrenzen den Gesamtgewinn auf 14 Jahre, den größten Unterschied über alle Gewohnheiten aus einer großen US-Studie.',
+    'Gesunde Jahre beginnen bei der gesunden Lebenserwartung deines Landes (WHO, 2023): dem Anteil der kommenden Jahre, den Menschen deines Alters in guter Gesundheit verbringen. Die weniger gesunde Zeit legen wir ans Ende, wo das meiste davon liegt, darum erscheint sie als verblassendes Band, nicht als Datum.',
+    'Gewohnheiten bewegen gesunde Jahre etwa so stark wie die Lebensjahre insgesamt, wie in einer großen Harvard-Studie, und Krafttraining noch mehr: Es hält Menschen stark, standfest und selbstständig. Dieselbe Obergrenze von 14 Jahren gilt.',
     'Das sind Zusammenhänge aus Bevölkerungsstudien, keine Ursachen, und keine medizinische Beratung.',
   ],
 
@@ -488,6 +559,7 @@ export const de: Strings = {
       morning: 'am Morgen',
       cigarette: 'wenn ich eine Zigarette will',
       atLunch: 'beim Mittagessen',
+      coffee: 'nach meinem Morgenkaffee',
     },
     call: (name) => `${name} anrufen`,
     messageOrCall: (name) => `${name} schreiben oder anrufen`,
@@ -498,6 +570,7 @@ export const de: Strings = {
       smoke: 'erst 5 Minuten gehen',
       drink: 'erst ein Glas Sprudelwasser trinken',
       plate: 'meinen Teller zur Hälfte mit Gemüse füllen',
+      strength: '10 Minuten Kniebeugen, Liegestütze und Tragen machen',
     },
     withAnchor: (action, anchor) => `${anchor} ${action}`,
     capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),

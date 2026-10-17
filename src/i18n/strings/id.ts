@@ -101,6 +101,12 @@ export const id: Strings = {
       why: 'Bertemu langsung atau percakapan sungguhan. Hubungan dekat adalah salah satu prediktor terkuat umur panjang.',
       options: { often: 'Setiap minggu', sometimes: 'Beberapa kali sebulan', rarely: 'Jarang; aku sering merasa sendirian' },
     },
+    strength: {
+      question: 'Apakah kamu latihan kekuatan?',
+      short: 'Kekuatan',
+      why: 'Beban, karet elastis, atau berat badan sendiri: squat, push-up, membawa tas berat. Ini menjagamu tetap kuat dan stabil nanti.',
+      options: { none: 'Jarang atau tidak pernah', some: 'Sekitar seminggu sekali', regular: 'Dua kali seminggu atau lebih' },
+    },
   },
 
   levers: {
@@ -111,6 +117,7 @@ export const id: Strings = {
     sleep: 'Tidur 6–9 jam',
     connection: 'Bertemu orang-orang tercinta setiap minggu',
     steps: 'Berjalan 10.000 langkah sehari',
+    strength: 'Latihan kekuatan dua kali seminggu',
   },
 
   values: {
@@ -203,6 +210,12 @@ export const id: Strings = {
     range: (med, q25, q75, country) =>
       `Ini rentang, bukan tanggal: separuh orang yang hidup sepertimu${country ? ` di ${country}` : ''} mencapai usia ${med}, dan kebanyakan berada di antara ${q25} dan ${q75}. Bukan nasihat medis.`,
     seeLife: 'Lihat hidupmu',
+    healthy: (weeks, lever, years) => [
+      s('Sekitar '),
+      b(weeks),
+      s(' dari minggu-minggu itu kemungkinan dijalani dengan sehat: kuat dan mandiri.'),
+      ...(lever ? [s(` ${lever} bisa menambah sekitar `), b(`${years} tahun`), s(' di antaranya.')] : []),
+    ],
   },
 
   alive: {
@@ -276,6 +289,11 @@ export const id: Strings = {
         b(free),
         s(phone ? ' saat terjaga dan jauh dari ponsel.' : ' saat terjaga.'),
       ],
+      health: (unit, med, lo, hi) => [
+        s(' Sekitar '),
+        b(med),
+        s(` di antaranya kemungkinan dijalani dengan sehat, kuat dan mandiri: pita hijau, yang memudar di tempat orang berbeda-beda (bagi kebanyakan orang sepertimu, ${lo}–${hi} ${unit === 'years' ? 'tahun' : 'minggu'}).`),
+      ],
     },
     legend: {
       lived: 'Sudah dijalani',
@@ -285,11 +303,12 @@ export const id: Strings = {
       maybe: 'Jika nasib mengizinkan',
       asleep: 'Tidur',
       phone: 'Di ponsel',
+      healthy: 'Kemungkinan sehat',
     },
     shows: { all: 'Semua', awake: 'Terjaga', free: 'Tanpa ponsel' },
     showA11y: 'Tampilkan waktu ke depan',
     whatIf: 'Bagaimana jika… ketuk untuk mencoba',
-    whatIfA11y: (label, years) => `Bagaimana jika: ${label}, sekitar ${years} tahun`,
+    whatIfA11y: (label, years, healthy) => `Bagaimana jika: ${label}, sekitar ${years} tahun, ${healthy} lebih banyak dalam keadaan sehat`,
     whatIfYears: (years) => `+${years} thn`,
     weeksAhead: 'Minggu-minggumu ke depan',
     weeksUnit: 'minggu',
@@ -301,7 +320,8 @@ export const id: Strings = {
       s(` (${years} tahun)`),
       s(several ? `: kurang dari jumlahnya, karena efek kebiasaan saling tumpang tindih${capped ? ', dan dibatasi' : ''}.` : '.'),
     ],
-    triedOne: (label, years) => `${label}: sekitar ${years} tahun jika sendiri`,
+    triedOne: (label, years, healthy) => `${label}: sekitar ${years} tahun sendiri, ${healthy} dalam keadaan sehat`,
+    triedHealthy: (years) => [s(' Pita hijau bertambah sekitar '), b(`${years} tahun dalam keadaan sehat`), s('.')],
     tapWhatIf: 'Ketuk “Bagaimana jika” di kalender untuk melihat apa yang bisa ditambahkan sebuah perubahan.',
     makePlan: 'Buat rencana kecil',
     makePlanA11y: (label) => `Buat rencana kecil untuk: ${label}`,
@@ -331,6 +351,25 @@ export const id: Strings = {
       s(`${capped ? ' (dibatasi: efek kebiasaan saling tumpang tindih)' : ''}. Coba di kalender dengan “Bagaimana jika”.`),
     ],
     allGood: 'Kamu sudah melakukan hal-hal yang paling menambah waktu. Pertahankan, dan jaga orang-orang tercintamu tetap dekat.',
+    healthy: {
+      eyebrow: 'Kuat dan mandiri',
+      years: (med, lo, hi) => [
+        s('Sekitar '),
+        b(`${med} dari tahun-tahun itu`),
+        s(` kemungkinan dijalani dengan sehat: kuat, stabil, dan mengurus diri sendiri. Bagi kebanyakan orang sepertimu, ${lo}–${hi}.`),
+      ],
+      later:
+        'Tahun-tahun kemudian sering membawa lebih banyak pegal dan penyakit, dan sedikit lebih bergantung pada orang di sekitarmu. Berapa banyak, dan seberapa cepat, sebagian ada di tanganmu.',
+      lever: (label, years, why) => [
+        s(`${label} bisa menambah sekitar `),
+        b(`${years} di antaranya`),
+        s(why === 'strength' ? ': kaki lebih kuat, keseimbangan lebih baik, lebih jarang jatuh.' : why === 'more' ? ', lebih banyak daripada yang ditambahkannya pada usiamu.' : '.'),
+      ],
+      allGood: 'Kamu sudah melakukan hal-hal yang paling lama menjaga orang tetap kuat. Pertahankan, dan jaga orang-orangmu tetap dekat.',
+      askStrength: 'Apakah kamu latihan kekuatan? Tambahkan jawabanmu',
+      sourceHealthy: 'Tahun sehat',
+      sourceHabits: 'Kebiasaan',
+    },
   },
 
   share: {
@@ -369,6 +408,11 @@ export const id: Strings = {
     notInEstimate: 'Belum masuk perkiraanmu; ditampilkan sebagai arah.',
     howItWorks: 'CARA KERJA PERKIRAANMU',
     strength: { strong: 'kuat', moderate: 'sedang', emerging: 'baru' },
+    healthspan: 'TETAP KUAT DAN MANDIRI',
+    healthspanNote: 'Yang menjaga tahun-tahun akhir tetap sehat: pita hijau di kalender Hidup-mu. Ketuk salah satu untuk melihat angka dan sumbernya.',
+    strengthNote: (years) =>
+      `Efek terbesarnya adalah menjagamu tetap kuat dan mandiri: dua kali seminggu bisa menambah sekitar ${years} tahun dalam keadaan sehat.`,
+    strengthKeep: 'Dua kali seminggu menjagamu lebih kuat dan stabil lebih lama. Pertahankan.',
   },
 
   evidence: {
@@ -403,8 +447,9 @@ export const id: Strings = {
     },
     strength: {
       title: 'Latihan kekuatan',
-      summary: '30–60 menit seminggu dikaitkan dengan angka kematian 10–17% lebih rendah.',
-      detail: 'Sebagai tambahan latihan aerobik, bukan penggantinya. Manfaat di atas sekitar satu jam seminggu belum jelas.',
+      summary: '30–60 menit seminggu dikaitkan dengan kematian 10–17% lebih rendah, dan tetap kuat dan mandiri lebih lama.',
+      detail:
+        'Sebagai tambahan latihan aerobik, bukan penggantinya; manfaat di atas sekitar satu jam seminggu belum jelas. Efek terbesarnya pada tahun-tahun akhir: latihan kekuatan dan keseimbangan berarti lebih jarang jatuh dan lebih sedikit disabilitas (lihat "Tetap kuat dan mandiri"). Di aplikasi ini, dua kali seminggu dihitung ×0,85 pada risiko kematian dan ×0,82 pada risiko kehilangan kesehatan yang baik.',
     },
     purpose: {
       title: 'Rasa punya tujuan',
@@ -434,6 +479,30 @@ export const id: Strings = {
       detail:
         'Menonaktifkan Facebook selama 4 minggu meningkatkan kesejahteraan dan waktu luring bersama teman dan keluarga. Membatasi media sosial sekitar 30 menit sehari selama 3 minggu menurunkan kesepian dan depresi.',
     },
+    healthyHabits: {
+      title: 'Kebiasaan sehat menambah tahun sehat',
+      summary: 'Di usia 50, 4–5 kebiasaan sehat disertai sekitar 10,7 (perempuan) dan 7,6 (laki-laki) tahun lebih bebas kanker, penyakit jantung, dan diabetes.',
+      detail:
+        'Di dua kohort besar Harvard, total tahun naik hampir sama (+9,4 perempuan, +8,1 laki-laki): hampir semua waktu tambahan adalah waktu sehat, dan tahun-tahun dengan penyakit hampir tidak berubah. Kebiasaannya: tidak merokok, berat badan sehat, 30+ menit aktivitas sehari, sedikit atau tanpa alkohol, pola makan baik. Aplikasi ini menggeser tahun sehatmu sesuai kebiasaanmu.',
+    },
+    falls: {
+      title: 'Olahraga mencegah jatuh',
+      summary: 'Olahraga mengurangi jatuh pada lansia sebesar 23%; program dengan kekuatan dan keseimbangan sekitar sepertiga.',
+      detail:
+        'Tinjauan Cochrane atas 108 uji (23.407 orang di atas 60 yang tinggal di rumah). Rasio laju keseluruhan 0,77 (bukti kepastian tinggi); latihan keseimbangan dan fungsional 0,76; beberapa jenis sekaligus, biasanya keseimbangan plus kekuatan, 0,66 (kepastian sedang).',
+    },
+    mobility: {
+      title: 'Tetap bisa berjalan sendiri',
+      summary: 'Dalam uji pada 1.635 orang berusia 70–89, berjalan disertai latihan kekuatan dan keseimbangan mengurangi disabilitas mobilitas berat sebesar 18%.',
+      detail:
+        'Uji LIFE: program sedang yang terstruktur (jalan kaki, kekuatan, kelenturan, keseimbangan) dibanding edukasi kesehatan, selama 2,6 tahun. Kehilangan kemampuan berjalan 400 m: 30,1% vs 35,5% (HR 0,82). Satu uji besar atas program gabungan, jadi porsi dari kekuatan saja tidak diketahui. Aplikasi ini memakai 0,82 untuk latihan kekuatan dua kali seminggu.',
+    },
+    grip: {
+      title: 'Kekuatan genggaman',
+      summary: 'Orang di atas 60 dengan genggaman lemah sekitar 1,8× lebih mungkin kehilangan fungsi, dan meninggal, selama pemantauan.',
+      detail:
+        'Meta-analisis 34 studi pada orang berusia 60 ke atas yang tinggal di rumah: rasio gabungan 1,78 untuk penurunan fungsi fisik dan 1,79 untuk kematian, genggaman lemah vs kuat. Genggaman adalah penanda kekuatan keseluruhan; ini observasional, jadi lebih menunjukkan siapa yang berisiko daripada apa yang harus dilakukan, tetapi kekuatan dijaga dengan berlatih.',
+    },
   },
 
   howItWorks: [
@@ -442,6 +511,8 @@ export const id: Strings = {
     'Kami mengikuti risiko itu bulan demi bulan dari usiamu sekarang. Usia saat separuh orang sepertimu telah meninggal adalah median-mu; tanda 25% dan 75% memberi rentangmu.',
     'Aturan praktis: tahun ≈ ln(pengali risiko) ÷ 0,085. Karena itu risiko dua kali lipat mengurangi sekitar 8 tahun, dan berhenti merokok bisa mengembalikan sekitar 9.',
     'Beberapa perubahan sekaligus menambah lebih sedikit dari jumlah masing-masing, dan kami membatasi totalnya 14 tahun, selisih terbesar dari semua kebiasaan dalam sebuah studi besar di AS.',
+    'Tahun sehat berangkat dari harapan hidup sehat negaramu (WHO, 2023): bagian dari tahun-tahun ke depan yang dijalani orang seusiamu dalam keadaan sehat. Waktu yang kurang sehat kami kumpulkan di akhir, tempat sebagian besarnya jatuh, sehingga tampak sebagai pita yang memudar, bukan tanggal.',
+    'Kebiasaan menggeser tahun sehat hampir sebesar total tahun, seperti dalam sebuah studi besar Harvard, dan latihan kekuatan lebih lagi: menjaga orang tetap kuat, stabil, dan mandiri. Batas 14 tahun yang sama berlaku.',
     'Ini adalah keterkaitan dari studi populasi, bukan sebab-akibat, dan bukan nasihat medis.',
   ],
 
@@ -481,6 +552,7 @@ export const id: Strings = {
       morning: 'pagi hari',
       cigarette: 'saat ingin merokok',
       atLunch: 'saat makan siang',
+      coffee: 'setelah kopi pagiku',
     },
     call: (name) => `menelepon ${name}`,
     messageOrCall: (name) => `mengirim pesan atau menelepon ${name}`,
@@ -491,6 +563,7 @@ export const id: Strings = {
       smoke: 'jalan kaki 5 menit dulu',
       drink: 'minum segelas air soda dulu',
       plate: 'mengisi setengah piring dengan sayuran',
+      strength: 'melakukan 10 menit squat, push-up, dan mengangkat beban',
     },
     withAnchor: (action, anchor) => `${action} ${anchor}`,
     capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),

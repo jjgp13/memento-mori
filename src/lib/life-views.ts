@@ -5,7 +5,7 @@
 import { dec1, fmt } from '@/i18n/format';
 import type { Rich } from '@/i18n/rich';
 import type { Strings } from '@/i18n/strings/en';
-import { DAY_MS, WEEK_MS, WEEKS_PER_YEAR, ageAt, birthTime, type Survival } from '@/lib/model';
+import { DAY_MS, WEEK_MS, WEEKS_PER_YEAR, ageAt, birthTime, type Healthspan, type Survival } from '@/lib/model';
 
 export type Zoom = 'life' | 'weeks' | 'year' | 'today';
 export const ZOOMS: Zoom[] = ['life', 'weeks', 'year', 'today'];
@@ -25,7 +25,23 @@ export type Layers = {
   sleep?: number;
   /** Share of each day on the phone (0–1). */
   phone?: number;
+  /** Ages good health likely lasts to (with any changes being tried): a band that fades from q25 to q75. */
+  health?: Pick<Healthspan, 'q25' | 'med' | 'q75'>;
 };
+
+/** How likely the time at `age` is lived in good health, as a soft band: 1 before q25, fading to 0 at q75. */
+function healthLevel(health: Layers['health']) {
+  if (!health) return undefined;
+  const { q25, q75 } = health;
+  return (age: number) => (age < q25 ? 1 : age >= q75 ? 0 : (q75 - age) / Math.max(1e-6, q75 - q25));
+}
+
+/** "About 28 of them are likely in good health…" Doubles as the band's text alternative. */
+function healthCaption(t: Strings, age: number, unit: 'years' | 'weeks', perYear: number, health: Layers['health']): Rich {
+  if (!health) return [];
+  const left = (to: number) => fmt(Math.max(0, to - age) * perYear);
+  return t.life.caption.health(unit, left(health.med), left(health.q25), left(health.q75));
+}
 
 /** Likely-ahead cells [from, to): the first part stays free, then phone time, then sleep, added up. */
 function splitAhead(from: number, to: number, { sleep = 0, phone = 0 }: Layers) {
@@ -57,6 +73,8 @@ export type GridView = {
   state: (i: number) => CellState;
   /** For a 'reach' cell: which of `Layers.gains` it belongs to. */
   reachOf?: (i: number) => number;
+  /** For a 'likely' cell: how likely it's lived in good health, 0–1 (the healthy band). */
+  health?: (i: number) => number;
   label?: (i: number) => string;
   rowLabel?: (row: number) => string;
   caption: Rich;
@@ -82,6 +100,7 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t:
   const gains = layers.gains ?? [];
   const gain = gains.reduce((sum, g) => sum + g, 0);
   const segment = segmentOf(gains);
+  const level = healthLevel(layers.health);
 
   if (zoom === 'life') {
     const a = Math.floor(age);
@@ -95,9 +114,14 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t:
       state: (i) =>
         i < a ? 'lived' : i === a ? 'now' : i < est.med ? ahead(i) : i < est.med + gain ? 'reach' : i < est.q75 ? 'maybe' : 'none',
       reachOf: (i) => segment(i - est.med),
+      health: level && ((i) => level(i + 0.5)),
       label: (i) => (i % 5 === 0 ? String(i) : ''),
       rowLabel: (row) => String(row * 10),
-      caption: [...cap.life(a + 1, pct(frac), fmt(est.med - age)), ...layersCaption(t, est.med - age, 'years', layers)],
+      caption: [
+        ...cap.life(a + 1, pct(frac), fmt(est.med - age)),
+        ...healthCaption(t, age, 'years', 1, layers.health),
+        ...layersCaption(t, est.med - age, 'years', layers),
+      ],
     };
   }
 
@@ -115,9 +139,11 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t:
       frac: weeksLived - w,
       state: (i) => (i < w ? 'lived' : i === w ? 'now' : i < med ? ahead(i) : i < reach ? 'reach' : 'maybe'),
       reachOf: (i) => segment((i - med) / WEEKS_PER_YEAR),
+      health: level && ((i) => level((i + 0.5) / WEEKS_PER_YEAR)),
       rowLabel: (row) => (row % 10 === 0 ? String(row) : ''),
       caption: [
         ...cap.weeks(fmt(w + 1), pct(weeksLived - w), fmt(med - weeksLived)),
+        ...healthCaption(t, age, 'weeks', WEEKS_PER_YEAR, layers.health),
         ...layersCaption(t, med - weeksLived, 'weeks', layers),
       ],
     };
