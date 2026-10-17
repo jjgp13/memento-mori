@@ -724,6 +724,11 @@ export const id: Strings = {
     keep: 'Simpan dataku',
     deleteAll: 'Hapus semua di perangkat ini',
     signOutFailed: 'Tidak bisa keluar.',
+    exportButton: 'Unduh dataku',
+    exportNote: 'Salinan semua yang disimpan aplikasi ini di perangkat ini, dalam file yang bisa dibuka dengan editor teks apa pun.',
+    exportDone: (name: string) => `Salinanmu siap: ${name}. Isinya jawaban kesehatanmu, jadi simpan di tempat yang pribadi.`,
+    exportFailed: 'Tidak bisa membuat file. Coba lagi.',
+    exportAbout: 'Semua yang disimpan Memento Mori di perangkat ini. "profile" berisi jawaban dan hal yang kamu cintai; "settings" berisi pengaturan kecil aplikasi.',
     disclaimer:
       'Perkiraan ini berasal dari studi populasi. Ia menunjukkan arah dan perkiraan besarnya, bukan janji, dan bukan nasihat medis.',
   },

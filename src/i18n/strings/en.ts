@@ -767,6 +767,12 @@ export const en = {
     keep: 'Keep my data',
     deleteAll: 'Delete everything on this device',
     signOutFailed: 'Could not sign out.',
+    exportButton: 'Download my data',
+    exportNote: 'A copy of everything this app keeps on this device, as a file you can open in any text editor.',
+    exportDone: (name: string) => `Your copy is ready: ${name}. It holds your health answers, so keep it somewhere private.`,
+    exportFailed: 'Could not make the file. Please try again.',
+    /** Written at the top of the exported file, so it explains itself. */
+    exportAbout: 'Everything Memento Mori keeps on this device. "profile" holds your answers and loves; "settings" holds small app settings.',
     disclaimer:
       'Estimates come from population studies. They show direction and rough size, not a promise, and are not medical advice.',
   },

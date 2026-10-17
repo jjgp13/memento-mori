@@ -11,8 +11,10 @@ import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { signOut } from '@/lib/auth';
+import { dataExport } from '@/lib/data-export';
 import { clearPrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
+import { shareFile } from '@/lib/share-file';
 import { useAuth } from '@/providers/auth-provider';
 
 /**
@@ -26,6 +28,22 @@ export default function YouScreen() {
   const { session } = useAuth();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exported, setExported] = useState<{ ok: boolean; name: string } | null>(null);
+
+  async function downloadData() {
+    setExporting(true);
+    setExported(null);
+    const { name, content, type } = dataExport(a.exportAbout);
+    let ok = false;
+    try {
+      ok = await shareFile(name, content, type, a.exportButton);
+    } catch {
+      // Falls through to the "could not" line.
+    }
+    setExported({ ok, name });
+    setExporting(false);
+  }
 
   async function deleteEverything() {
     setError(null);
@@ -60,6 +78,16 @@ export default function YouScreen() {
             {a.dataBody}
           </ThemedText>
           {session ? <ThemedText type="small">{a.guestNote(!!session.user.is_anonymous)}</ThemedText> : null}
+          <ThemedText type="small">{a.exportNote}</ThemedText>
+          <Button title={a.exportButton} variant="ghost" loading={exporting} onPress={downloadData} />
+          {exported ? (
+            <ThemedText
+              type="small"
+              themeColor={exported.ok ? 'fg' : 'danger'}
+              accessibilityLiveRegion="polite">
+              {exported.ok ? a.exportDone(exported.name) : a.exportFailed}
+            </ThemedText>
+          ) : null}
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>

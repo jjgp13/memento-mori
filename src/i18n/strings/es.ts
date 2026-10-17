@@ -729,6 +729,11 @@ export const es: Strings = {
     keep: 'Conservar mis datos',
     deleteAll: 'Borrar todo en este dispositivo',
     signOutFailed: 'No se pudo cerrar la sesión.',
+    exportButton: 'Descargar mis datos',
+    exportNote: 'Una copia de todo lo que esta app guarda en este dispositivo, en un archivo que puedes abrir con cualquier editor de texto.',
+    exportDone: (name: string) => `Tu copia está lista: ${name}. Contiene tus respuestas de salud, así que guárdala en un lugar privado.`,
+    exportFailed: 'No se pudo crear el archivo. Inténtalo de nuevo.',
+    exportAbout: 'Todo lo que Memento Mori guarda en este dispositivo. "profile" tiene tus respuestas y lo que amas; "settings", pequeños ajustes de la app.',
     disclaimer:
       'Las estimaciones vienen de estudios de población. Muestran la dirección y el tamaño aproximado, no son una promesa ni un consejo médico.',
   },

@@ -4,7 +4,7 @@
 
 > **This is a draft. It has not yet been reviewed by a lawyer and may change before Memento Mori launches.** Fill in every [BRACKETED] placeholder before launch.
 
-_What Memento Mori stores, where, and what it never does with it._ Version 2026-10-15-draft.
+_What Memento Mori stores, where, and what it never does with it._ Version 2026-10-16-draft.
 
 ## The short version
 
@@ -60,7 +60,7 @@ Depending on where you live, laws such as the EU and UK GDPR, the California Con
 Because your information stays on your device, you can do most of this yourself:
 - See and correct it: everything is shown in the app; You → Edit your answers.
 - Delete it: You → Delete everything on this device.
-- Take a copy: it is on your device; an export button is planned.
+- Take a copy: You → Download my data saves everything the app keeps on your device as one readable file (JSON, which any text editor opens). On a phone it opens your share sheet, so you choose where the file goes; it holds your health answers, so keep it somewhere private.
 
 For anything else, including a guest account from an early test, email [CONTACT EMAIL]. We will answer within 30 days (45 days where the law allows), and we won’t ask for more information than we need to confirm the request is yours. In the EU or UK you can also complain to your local data protection authority.
 
@@ -95,4 +95,4 @@ If we change this policy we will update the effective date, and if the change ma
 - Guest accounts: signOut() does not delete the Supabase auth user or the empty profiles row. Consider an in-app account deletion (Edge Function) or retiring the guest accounts before launch.
 - GitHub Pages logs: confirm the disclosure is enough, or move hosting if needed.
 - CCPA thresholds probably don’t apply to a free app with no revenue; the section is included for transparency. Confirm.
-- An in-app data export is promised as planned; add it before launch if the right to portability requires it.
+- Take a copy: You → Download my data exports the profile (mm.profile.v1) and settings (mm.prefs.v1) as JSON, which is “structured, commonly used and machine-readable” (GDPR Art. 20; CCPA “readily usable format”). It does not include a guest account’s sign-in session; data held by Supabase for early guest accounts still needs an emailed request. Confirm this is enough.

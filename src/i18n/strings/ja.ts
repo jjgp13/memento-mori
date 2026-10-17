@@ -699,6 +699,11 @@ export const ja: Strings = {
     keep: 'データを残す',
     deleteAll: 'この端末のデータをすべて削除',
     signOutFailed: 'サインアウトできませんでした。',
+    exportButton: 'データをダウンロード',
+    exportNote: 'このアプリがこの端末に保存しているすべてのコピーです。どのテキストエディタでも開けるファイルです。',
+    exportDone: (name: string) => `コピーができました：${name}。健康に関する回答が含まれるので、人目につかない場所に保管してください。`,
+    exportFailed: 'ファイルを作成できませんでした。もう一度お試しください。',
+    exportAbout: 'Memento Mori がこの端末に保存しているすべて。「profile」はあなたの回答と大切な人やこと、「settings」はアプリの小さな設定です。',
     disclaimer: '推定は集団研究にもとづきます。方向と大きさの目安であり、約束ではなく、医療上の助言でもありません。',
   },
 

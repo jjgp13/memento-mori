@@ -699,6 +699,11 @@ export const zh: Strings = {
     keep: '保留我的数据',
     deleteAll: '删除这台设备上的所有内容',
     signOutFailed: '无法退出登录。',
+    exportButton: '下载我的数据',
+    exportNote: '本应用在此设备上保存的全部内容的副本，可用任何文本编辑器打开。',
+    exportDone: (name: string) => `副本已准备好：${name}。其中包含你的健康回答，请妥善私密保存。`,
+    exportFailed: '无法生成文件，请再试一次。',
+    exportAbout: 'Memento Mori 在此设备上保存的全部内容。“profile”是你的回答和你爱的人与事；“settings”是应用的小设置。',
     disclaimer: '估算来自人群研究。它们显示方向和大致幅度，并非承诺，也不是医疗建议。',
   },
 

@@ -4,7 +4,7 @@
 
 > **This is a draft. It has not yet been reviewed by a lawyer and may change before Memento Mori launches.** Fill in every [BRACKETED] placeholder before launch.
 
-_For Washington’s My Health My Data Act and similar laws: the health-related data the app uses, and your rights._ Version 2026-10-15-draft.
+_For Washington’s My Health My Data Act and similar laws: the health-related data the app uses, and your rights._ Version 2026-10-16-draft.
 
 ## Why this policy exists
 
@@ -38,7 +38,7 @@ If we ever offer optional backup or sync, we will ask for your separate, explici
 ## Your rights
 
 You have the right to confirm whether we collect, share or sell your consumer health data; to see it; to get a list of anyone we have shared it with (there is no one); to withdraw consent; and to have it deleted.
-- See it: it is all shown in the app, and You → Edit your answers lets you change it.
+- See it: it is all shown in the app, and You → Edit your answers lets you change it. You → Download my data saves a copy as a readable file.
 - Withdraw consent and delete it: You → Delete everything on this device erases it at once. Uninstalling the app or clearing your browser’s site data also erases it.
 - Ask us: email [CONTACT EMAIL]. We will respond within 45 days. If we can’t do what you ask, we will explain why, and you may appeal by replying with “Appeal” in the subject; we will answer the appeal within 45 days. If you are not satisfied, you can contact the [Washington State Attorney General](https://www.atg.wa.gov/file-complaint).
 
