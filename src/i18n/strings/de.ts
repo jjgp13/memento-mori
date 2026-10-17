@@ -736,4 +736,152 @@ export const de: Strings = {
     disclaimer:
       'Die Schätzungen beruhen auf Bevölkerungsstudien. Sie zeigen Richtung und ungefähre Größe, kein Versprechen, und sind keine medizinische Beratung.',
   },
+
+  disclaimer: {
+    short: 'Eine Schätzung aus Bevölkerungsdurchschnitten, zum Nachdenken und Lernen. Keine Vorhersage deines Todes und keine medizinische Beratung.',
+    points: [
+      'Das ist eine Schätzung aus Bevölkerungsdurchschnitten, keine Vorhersage, wann du stirbst. Das kann niemand wissen.',
+      'Es ist keine medizinische Beratung, Diagnose oder Behandlung. Bei Fragen zu deiner Gesundheit sprich mit einer Ärztin, einem Arzt oder einer anderen Fachperson.',
+      'Es ist zum Nachdenken und Lernen da: damit du die Zeit, die du hast, dem widmest, was dir wichtig ist.',
+    ],
+    support:
+      'Wenn dich der Gedanke an den Tod gerade belastet, musst du das nicht allein tragen. In Deutschland erreichst du die TelefonSeelsorge kostenlos und rund um die Uhr unter [0800 111 0 111](tel:08001110111). In den USA: Anruf oder SMS an [988](https://988lifeline.org). Anderswo listet [findahelpline.com](https://findahelpline.com) kostenlose, vertrauliche Hilfe in deiner Nähe. Im Notfall ruf die örtliche Notrufnummer an.',
+    howItWorks: 'So funktioniert es',
+    sources: 'Quellen',
+    beforeEyebrow: 'Bevor du es siehst',
+    beforeTitle: 'Ein paar ehrliche Worte',
+    understand: 'Verstanden',
+  },
+
+  legal: {
+    terms: 'Nutzungsbedingungen',
+    privacy: 'Datenschutzerklärung',
+    health: 'Datenschutzerklärung für Gesundheitsdaten',
+    eyebrow: 'Rechtliches',
+    draft: 'Entwurf',
+    draftNotice: 'Dies ist ein Entwurf. Er wurde noch nicht anwaltlich geprüft und kann sich vor dem Start von Memento Mori ändern.',
+    englishOnly: 'Dieses Dokument gibt es vorerst nur auf Englisch. Es wird übersetzt, sobald die englische Fassung anwaltlich geprüft ist.',
+    version: (v) => `Version ${v}`,
+    notFound: 'Nicht gefunden',
+    notFoundBody: 'Hier gibt es kein Dokument.',
+    agree:
+      'Mit dem Start stimmst du den [Nutzungsbedingungen](/legal/terms) zu und bestätigst, dass du mindestens 18 bist. Deine Antworten, auch zu Gesundheitsgewohnheiten, verlassen nie dieses Gerät: siehe [Datenschutzerklärung](/legal/privacy) und [Datenschutzerklärung für Gesundheitsdaten](/legal/health-data).',
+  },
+
+  sources: {
+    eyebrow: 'Quellen',
+    title: 'Die Forschung hinter der App',
+    lede: (n) => `Alle ${n} Studien und Datensätze, die die App zitiert, nach ihrem Zweck geordnet. Tippe auf eine, um sie zu öffnen.`,
+    usedFor: (what) => `Verwendet für: ${what}`,
+    opens: 'Öffnet sich im Browser.',
+    topics: {
+      model: { title: 'Wie die Schätzung entsteht', blurb: 'Die Sterblichkeitskurve, die Sterbetafeln, an die sie angepasst ist, und die Obergrenze für kombinierte Gewinne.' },
+      habits: { title: 'Gewohnheiten in deiner Schätzung', blurb: 'Woher der Risikofaktor jeder Gewohnheit kommt.' },
+      direction: {
+        title: 'Zur Orientierung, nicht in der Schätzung',
+        blurb: 'Befunde auf dem Gewohnheiten-Bildschirm, die die Richtung zeigen, aber noch nicht in die Zahlen eingehen.',
+      },
+      behavior: { title: 'Pläne, Erinnerungen und sich melden', blurb: 'Verhaltensforschung hinter Plänen, Neuanfängen und Willkommen-zurück.' },
+      time: { title: 'Wohin die Stunden gehen', blurb: 'Zeit am Handy und was es bringen kann, etwas davon zurückzuholen.' },
+      loves: { title: 'Was du liebst: „noch N-mal“', blurb: 'Typische Lebensdauern, um die Zeit mit Haustieren zu zählen.' },
+    },
+    uses: {
+      gompertz1825: 'Die Form der Kurve: Das jährliche Sterberisiko steigt exponentiell mit dem Alter.',
+      makeham1860: 'Der konstante, altersunabhängige Teil des Risikos (der „A“-Term).',
+      wpp2024: 'Dein Ausgangspunkt: die Sterbetafel für dein Land und Geschlecht.',
+      li2018: 'Die 14-Jahre-Obergrenze für kombinierte Gewinne; Nichtrauchen als größter Hebel.',
+      holtLunstad2015: 'Verbundenheit: nahestehende Menschen selten sehen ×1,29.',
+      holtLunstad2010: 'Starke soziale Bindungen und etwa 1,5-fache Überlebenschance (148 Studien).',
+      paluch2022: 'Bewegung und tägliche Schritte.',
+      mandsager2018: 'Ausdauerfitness als einer der stärksten Prädiktoren fürs Überleben.',
+      li2020: 'Gesundes Gewicht und Jahre ohne chronische Krankheit.',
+      cappuccio2010: 'Schlaf: unter 6 Stunden ×1,15.',
+      zhao2023: 'Alkohol: viel trinken ×1,4; wenig trinken schützt nicht.',
+      fadnes2022: 'Was du isst.',
+      momma2022: 'Krafttraining.',
+      cohen2016: 'Ein Sinn im Leben.',
+      lee2019: 'Optimismus und 85 werden.',
+      okun2013: 'Anderen helfen.',
+      waldinger2016: 'Zufriedenheit in Beziehungen mit 50 und Gesundheit mit 80.',
+      allcott2020: 'Weniger scrollen, mehr Zeit mit Menschen.',
+      hunt2018: 'Soziale Medien auf 30 Minuten am Tag begrenzen.',
+      phoneTime2025: 'Der Startwert von 4 Stunden bei der Handy-Frage (Schätzungen schwanken).',
+      liu2023: 'Sich bei Menschen melden.',
+      gollwitzer2006: 'Wenn-dann-Pläne.',
+      dai2014: 'Neuanfänge: Montage, der Monatserste, Geburtstage.',
+      milkman2021: 'Willkommen zurück nach einer Pause statt Serien.',
+      parkes2008: 'Menschen ihre eigenen Zahlen zeigen.',
+      buffey2022: 'Kurze Spaziergänge nach dem Essen.',
+      oneill2013: 'Hunde: mittlere Lebensdauer etwa 12 Jahre.',
+      mcmillan2024: 'Hunde: mittlere Lebenserwartung 12,5 Jahre (584.734 Hunde im Vereinigten Königreich).',
+      oneill2015: 'Katzen: mittlere Lebensdauer 14 Jahre.',
+    },
+    quotesHeading: 'Zitate',
+    quotes:
+      'Mark Aurel (Selbstbetrachtungen, engl. Übers. George Long, 1862), Seneca (Briefe und Von der Kürze des Lebens, engl. Übers. Richard M. Gummere, 1917–25, u. a.) und Epiktet (Handbüchlein, engl. Übers. Thomas Wentworth Higginson, 1865). Gemeinfreie Übersetzungen, teils leicht angepasst.',
+    footnote:
+      'Manche Links führen zu einer Zusammenfassung oder Pressemitteilung, wenn der volle Artikel kostenpflichtig ist. Zusammenhänge aus Bevölkerungsstudien beweisen keine Ursache, und nichts hier ist medizinische Beratung.',
+  },
+
+  methods: {
+    eyebrow: 'So funktioniert es',
+    title: 'Woher deine Zahlen kommen',
+    lede: 'Alles, was die App zeigt, wird auf deinem Gerät aus deinen Antworten und veröffentlichter Forschung berechnet. Hier ist jeder Schritt und die Studie dahinter.',
+    everyStep: 'Jeder Schritt, mit Quellen',
+    accountHeading: 'SO FUNKTIONIERT ES',
+    curveTitle: '1 · Die Kurve, von der alle ausgehen',
+    curveIntro:
+      'Bei Erwachsenen steigt das jährliche Sterberisiko mit dem Alter stetig an und verdoppelt sich etwa alle 7 bis 8 Jahre. Versicherungsmathematiker beschreiben das seit zwei Jahrhunderten als Gompertz-Makeham-Kurve:',
+    curveParts: (child, youth) =>
+      `B · e^(b·x) ist der Teil, der mit dem Alter x wächst (Gompertz); A ist ein kleines Risiko, das nicht vom Alter abhängt, etwa Unfälle (Makeham). Todesfälle in Kindheit und Jugend folgen dieser Form nicht, deshalb kommen zwei konstante Terme dazu: einer vor dem Alter von ${child} und einer von ${child} bis ${youth}.`,
+    placeTitle: '2 · Wo du lebst',
+    placeBody: (n) =>
+      `Wo du lebst, wiegt mehr als jede Gewohnheit: 2023 reichte das mittlere Sterbealter je nach Land von etwa 59 bis über 90 Jahre. Deshalb wird die Kurve für jedes Geschlecht in jedem der ${n} Länder und Gebiete einzeln an die Sterbetafeln der Vereinten Nationen für 2023 angepasst (World Population Prospects 2024). A, B und b stammen aus den Sterberaten im Alter von 30 bis 100; die Terme für Kindheit und Jugend sorgen dafür, dass das Überleben bis 15 und bis 30 genau zur Tafel passt. In allen Ländern und für beide Geschlechter liegt das mittlere Sterbealter des Modells ab Geburt weniger als ein Jahr neben dem der UN-Tafel.`,
+    placeUs: (mA, mB, fA, fB, b) =>
+      `Ohne Land nutzt die App eine ältere Annäherung an US-Tafeln: A = ${mA}, B = ${mB} für Männer; A = ${fA}, B = ${fB} für Frauen; b = ${b} (etwa 75 und 81 Jahre bei Geburt).`,
+    placeLeftOut:
+      'Einkommen und Bildung sagen die Lebensdauer innerhalb eines Landes ebenfalls voraus. Sie bleiben bewusst draußen: Du kannst hier nichts daran ändern, und sie klingen wie ein Urteil.',
+    habitsTitle: '3 · Deine Gewohnheiten',
+    habitsIntro:
+      'Jede Antwort multipliziert das jährliche Risiko in jedem Alter. ×1 heißt keine Änderung, ×2 doppeltes Risiko. Die Faktoren sind aus großen Studien und Übersichtsarbeiten gerundet: Es sind Näherungen, und sie stammen aus Zusammenhängen, nicht aus Experimenten.',
+    habitsConnection: (middle) =>
+      `Bei Verbundenheit liegt die mittlere Antwort (${middle}) zwischen den gemessenen Stufen; sie selbst wurde nicht gemessen. Die Studie berichtet Odds Ratios, die hier als Risikofaktoren dienen, eine gute Näherung.`,
+    habitsSteps: (at4k, at10k) =>
+      `Tägliche Schritte ersetzen, wenn du sie eingibst, die Antwort zu Sport, damit Bewegung nie doppelt zählt. Das Risiko sinkt um etwa 7 % pro 1.000 zusätzliche Schritte, gemessen ab 6.000 am Tag, und flacht bei 10.000 ab: Faktor = e^(−0,072 × (Schritte − 6.000) ÷ 1.000). 4.000 Schritte ergeben also ${at4k}, 10.000 ergeben ${at10k}.`,
+    rangeTitle: '4 · Vom Risiko zur Spanne',
+    rangeBody:
+      'Ab deinem heutigen Alter verfolgt die App das Risiko Monat für Monat bis 121, multipliziert mit deinen Gewohnheiten. Das Alter, bis zu dem die Hälfte der Menschen wie du gestorben ist, ist dein Median. Die Alter, bis zu denen ein Viertel und drei Viertel gestorben sind, ergeben die wahrscheinliche Spanne. Sie zeigt auch die Chance, 80 zu werden.',
+    rangeRule: (b, years, doubling) =>
+      `Eine Faustregel hinter den Zahlen zu Gewohnheiten: gewonnene Jahre ≈ ln(1 ÷ Faktor) ÷ ${b}. Dein Risiko zu halbieren bringt etwa ${years} Jahre, weil sich das Risiko bei b = ${b} etwa alle ${doubling} Lebensjahre verdoppelt (die angepassten Länderkurven sind etwas steiler). Die Bildschirme rechnen den echten Unterschied, nicht die Abkürzung.`,
+    combineTitle: '5 · Was wäre, wenn: Änderungen kombinieren',
+    combineBody: (cap) =>
+      `Jedes „Was wäre, wenn“ ist der Unterschied zwischen deinem Median jetzt und deinem Median mit geänderter Gewohnheit. Mehrere Änderungen multiplizieren sich, bringen also weniger als die Summe der einzelnen, weil sich die Wirkungen überschneiden. Außerdem ist die Summe auf ${cap} Jahre begrenzt.`,
+    capClaim: (cap) =>
+      `${cap} Jahre: der größte Unterschied zwischen Menschen mit allen fünf gesunden Gewohnheiten und Menschen ohne eine davon, in zwei großen US-Kohorten.`,
+    combineCalendar:
+      'Im Kalender wird der kombinierte Gewinn im Verhältnis dazu aufgeteilt, was jede Änderung allein bringen würde, sodass jede ihre eigene Farbe bekommt.',
+    notInEstimate: (items) =>
+      `Manches auf dem Gewohnheiten-Bildschirm dient nur der Orientierung und steckt noch nicht in deinen Zahlen: ${items}.`,
+    timeTitle: '6 · Handy und Schlaf',
+    timePhone: (waking) =>
+      `Die Handyzeit ist deine eigene Schätzung in Stunden pro Tag (sie beginnt bei 4, nahe gängigen Schätzungen für Erwachsene in den USA). Über die Jahre, die du wahrscheinlich noch hast, ergibt das Stunden × Jahre ÷ 24. Als Anteil deines wachen Tages sind es Stunden ÷ ${waking}.`,
+    timeSleep: (ok, short) =>
+      `Die Ansichten „Wach“ und „Ohne Handy“ nehmen den Schlaf aus dem Kalender: etwa ${ok} Stunden pro Nacht, oder ${short}, wenn du unter 6 angegeben hast. Schlaf ist gut genutzte Zeit, keine verlorene.`,
+    timeSwap: (minutes) =>
+      `Der Tausch schlägt vor, dir ${minutes} Minuten am Tag vom Handy zurückzuholen, und zeigt, was daraus werden könnte, etwa tägliche Spaziergänge mit deinem Hund in den Jahren, die ihr wahrscheinlich zusammen habt.`,
+    lovesTitle: '7 · Was du liebst: „noch N-mal“',
+    lovesBody:
+      'Für jeden Menschen, jedes Tier und jede Tätigkeit zählt die App die Jahre, die ihr wahrscheinlich teilt, und multipliziert sie damit, wie oft du sie siehst oder es tust. Diese Jahre enden beim frühesten von: deinem Medianalter; dem Alter, mit dem du eine Tätigkeit aufhören willst; dem Medianalter des anderen Menschen (aus seinem Alter, über beide Geschlechter gemittelt, weil die App nicht fragt, und angenommen, er lebt in deinem Land); oder der typischen Lebensdauer eines Tiers.',
+    lovesPets: (dog, cat) =>
+      `Typische Lebensdauern: Hunde etwa ${dog} Jahre, Katzen etwa ${cat}, aus britischen Tierarztdaten. Rasse und Größe machen viel aus. Ein älteres Tier zählt immer mit mindestens einem halben Jahr.`,
+    limitsTitle: '8 · Was sie dir nicht sagen kann',
+    limits: [
+      'Das sind Bevölkerungsdurchschnitte. Sie beschreiben, wie lange Gruppen von Menschen mit ähnlichen Antworten gelebt haben, nicht, was mit dir passieren wird. Sie wissen nichts über deine Krankengeschichte, deine Gene oder deine Versorgung.',
+      'Die Zusammenhänge zwischen Gewohnheiten und Lebensdauer stammen aus Beobachtungsstudien: Wer X tut, lebt oft länger, teils wegen X und teils wegen allem, was damit einhergeht. Eine Gewohnheit zu ändern, ändert deine Lebensdauer womöglich nicht um den gezeigten Betrag.',
+      'Darum zeigt die App eine Spanne, nie ein Datum. Die Hälfte der Menschen wie du lebt länger als der Median, viele deutlich länger.',
+    ],
+    versionTitle: 'Modellversion',
+    versionBody: 'Das Modell ändert sich nur bei starker Evidenz, etwa Metaanalysen, und jede Änderung bekommt eine neue Version.',
+    allSources: 'Alle Quellen, vollständig',
+  },
 };

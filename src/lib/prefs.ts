@@ -19,6 +19,11 @@ export type Prefs = {
   planNudgeDismissedAt: number;
   /** When today's fresh-start offer was waved off. */
   freshStartDismissedAt: number;
+  /** Which Terms/policies version they agreed to at the start of onboarding (LEGAL_VERSION), and when. */
+  agreedVersion: string;
+  agreedAt: number;
+  /** When they acknowledged "not medical advice, not a prediction" before their first estimate. */
+  disclaimerAt: number;
 };
 
 const KEY = 'mm.prefs.v1';
@@ -29,6 +34,9 @@ const DEFAULTS: Prefs = {
   lastSeen: 0,
   planNudgeDismissedAt: 0,
   freshStartDismissedAt: 0,
+  agreedVersion: '',
+  agreedAt: 0,
+  disclaimerAt: 0,
 };
 const listeners = new Set<() => void>();
 let current: Prefs = read();
@@ -63,4 +71,15 @@ export function usePrefs() {
     () => current,
     () => current,
   );
+}
+
+/** Forgets every setting on this device (part of "Delete everything"). */
+export function clearPrefs() {
+  current = DEFAULTS;
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    // Nothing stored, or storage unavailable.
+  }
+  listeners.forEach((l) => l());
 }
