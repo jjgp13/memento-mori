@@ -10,16 +10,44 @@ import { whoToReachOut, type Love } from '@/lib/loves';
 import { freshStart } from '@/lib/plans';
 import { setPrefs, usePrefs } from '@/lib/prefs';
 import type { Profile } from '@/lib/profile';
-import { AUTHORS, SOURCES, WISDOM, type Theme, type Wisdom } from '@/lib/wisdom-data';
+import { AUTHORS, SOURCES, WISDOM, type Theme, type Wisdom, type WisdomLanguage } from '@/lib/wisdom-data';
+import { ES } from '@/lib/wisdom-es';
 
 export { AUTHORS, SOURCES, WISDOM, type Wisdom };
 
+const LANGUAGES: Partial<Record<Lang, WisdomLanguage>> = { es: ES };
+
 /**
- * The library in each language. Entries quote English public-domain translations, so only English has
- * it for now; other languages show the short quote list in their catalog until entries are translated
- * (docs/wisdom.md §5).
+ * The same entries in another language: its own public-domain translation where it has one (quoted
+ * and cited as such), otherwise our translation of the English, citing the translation it comes from.
  */
-export const LIBRARY: Partial<Record<Lang, Wisdom[]>> = { en: WISDOM };
+function localize(l: WisdomLanguage): Wisdom[] {
+  return WISDOM.map((w) => {
+    const e = l.entries[w.id];
+    const own = !e.source && w.licence === 'public-domain';
+    return {
+      ...w,
+      text: e.text,
+      modern: e.modern,
+      question: e.question,
+      action: e.action,
+      work: l.works[w.work] ?? w.work,
+      locus: (l.locus ?? []).reduce((loc, [en, here]) => loc.replace(en, here), w.locus),
+      source: e.source ?? w.source,
+      licence: own ? 'own-words' : w.licence,
+      translated: own || undefined,
+    };
+  });
+}
+
+/**
+ * The library in each language that has it (docs/wisdom.md §5). The others show the short quote list in
+ * their catalog until their entries are translated.
+ */
+export const LIBRARY: Partial<Record<Lang, Wisdom[]>> = {
+  en: WISDOM,
+  ...Object.fromEntries(Object.entries(LANGUAGES).map(([lang, l]) => [lang, localize(l)])),
+};
 const SEEN_MAX = 300;
 
 /** Local calendar day, so the entry changes at the person's midnight, not UTC's. */
@@ -107,11 +135,11 @@ export function useTodaysWisdom(profile: Profile, now: number, lang: Lang, love?
 /** What to show: today's English when we have it, otherwise the translation as written. */
 export const wisdomText = (w: Wisdom) => w.modern ?? w.text;
 
-/** "Marcus Aurelius · Meditations IV.17", "Ecclesiastes 3:1–2". */
-export function wisdomCite(w: Wisdom) {
+/** "Marcus Aurelius · Meditations IV.17", "Ecclesiastes 3:1–2", in the language of the entry. */
+export function wisdomCite(w: Wisdom, lang: Lang) {
   const author = AUTHORS[w.author];
   const where = `${w.work} ${w.locus}`;
-  return author.workOnly ? where : `${author.name} · ${where}`;
+  return author.workOnly ? where : `${LANGUAGES[lang]?.authors[w.author] ?? author.name} · ${where}`;
 }
 
 /** Where to read it in full: the exact letter or chapter when the source is split that way. */
@@ -123,7 +151,15 @@ export function wisdomSource(w: Wisdom, t: Strings) {
     const [book, chapter] = w.locus.split('.');
     url = `${s.url}/Book_${['I', 'II', 'III', 'IV'].indexOf(book) + 1}/Chapter_${parseInt(chapter, 10)}`;
   }
-  const label = w.licence === 'own-words' ? t.wisdom.readIn(s.translator) : `${s.translator}, ${s.year}`;
+  if (w.source === 'reina-valera-1909') {
+    const chapter = parseInt(w.locus, 10);
+    url = w.author === 'psalms' ? `${s.url}PSA${String(chapter).padStart(3, '0')}.htm` : `${s.url}ECC${String(chapter).padStart(2, '0')}.htm`;
+  }
+  const label = w.translated
+    ? t.wisdom.ourTranslation(s.translator, s.year)
+    : w.licence === 'own-words'
+      ? t.wisdom.readIn(s.translator)
+      : `${s.translator}, ${s.year}`;
   return { label, url };
 }
 

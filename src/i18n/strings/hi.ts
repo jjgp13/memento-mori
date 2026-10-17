@@ -698,6 +698,7 @@ export const hi: Strings = {
     youCould: 'आप चाहें तो',
     someoneYouLove: 'कोई अपना',
     readIn: (translator: string) => `${translator} के अनुवाद में पढ़ें`,
+    ourTranslation: (translator: string, year: string) => `हमारा अनुवाद, ${translator} के अंग्रेज़ी अनुवाद (${year}) से`,
   },
   opening: {
     lookBack: 'पीछे मुड़कर देखें',

@@ -711,6 +711,7 @@ export const de: Strings = {
     youCould: 'Du könntest',
     someoneYouLove: 'einen Menschen, den du liebst',
     readIn: (translator: string) => `In der Übersetzung von ${translator} lesen`,
+    ourTranslation: (translator: string, year: string) => `Unsere Übersetzung, nach der englischen von ${translator} (${year})`,
   },
   opening: {
     lookBack: 'Zurückblicken',

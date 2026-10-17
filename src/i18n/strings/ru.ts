@@ -709,6 +709,7 @@ export const ru: Strings = {
     youCould: 'Можно',
     someoneYouLove: 'близкий человек',
     readIn: (translator: string) => `Читать в переводе: ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Наш перевод с английского перевода: ${translator} (${year})`,
   },
   opening: {
     lookBack: 'Оглянуться назад',

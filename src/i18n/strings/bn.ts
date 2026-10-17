@@ -699,6 +699,7 @@ export const bn: Strings = {
     youCould: 'চাইলে আপনি',
     someoneYouLove: 'প্রিয় কেউ',
     readIn: (translator: string) => `${translator}-এর অনুবাদে পড়ুন`,
+    ourTranslation: (translator: string, year: string) => `আমাদের অনুবাদ, ${translator}-এর ইংরেজি অনুবাদ (${year}) থেকে`,
   },
   opening: {
     lookBack: 'পেছনে তাকান',

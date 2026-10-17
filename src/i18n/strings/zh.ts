@@ -679,6 +679,7 @@ export const zh: Strings = {
     youCould: '你可以',
     someoneYouLove: '你爱的人',
     readIn: (translator: string) => `阅读 ${translator} 的译本`,
+    ourTranslation: (translator: string, year: string) => `我们的译文，译自 ${translator} 的英译本（${year}）`,
   },
   opening: {
     lookBack: '回望',

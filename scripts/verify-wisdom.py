@@ -8,6 +8,10 @@ Quotes must appear word for word (case, punctuation and footnote marks ignored; 
 order), and the cited book/letter/section/chapter/verse is recomputed from the markers in the source
 and must match. Stories and practices in our own words are checked by an anchor phrase from the passage
 they retell (ANCHORS below), at the cited place.
+
+Other languages (src/lib/wisdom-<lang>.ts): every entry that quotes a public-domain translation in that
+language (`source`) is checked the same way against it. Entries we translated ourselves have nothing to
+check against, beyond the English.
 """
 import html
 import json
@@ -80,9 +84,13 @@ def clean(t):
     return t.replace("'", '')
 
 
-def words_with_state(text):
+# Words: ASCII for the English sources (accents there are only in names), any letter for other languages.
+WORD = {'en': r'[a-z0-9]+', 'other': r'[^\W_]+'}
+
+
+def words_with_state(text, word=WORD['en']):
     words, states, state = [], [], {}
-    for tok in re.findall(r'zzmark[a-z]+[0-9x]*zz|[a-z0-9]+', clean(text)):
+    for tok in re.findall(r'zzmark[a-z]+[0-9x]*zz|' + word, clean(text)):
         m = re.fullmatch(r'zzmark([a-z]+)([0-9x]*)zz', tok)
         if not m:
             words.append(tok)
@@ -186,6 +194,15 @@ class Sources:
         start = self.after(L, lambda l: l == 'CHAPTER I.', 0)
         return self.scan(L, [(r'^CHAPTER ([IVXL]+)\.$', 'c', r2i, True)], start)
 
+    def reina_valera(self, book):
+        code = {'Ecclesiastes': 'ECC', 'Psalms': 'PSA'}[book]
+        out = []
+        for line in read(os.path.join(self.dir, 'rv1909', 'spaRV1909_vpl.txt')).split('\n'):
+            m = re.match(r'^(\w+) (\d+):(\d+) (.*)$', line)
+            if m and m.group(1) == code:
+                out.append(mark('v', f'{m.group(2)}x{m.group(3)}') + m.group(4))
+        return '\n'.join(out)
+
     def montaigne(self):
         L = self.lines('pg3600.txt')
         start = self.after(L, lambda l: l == 'BOOK THE FIRST', 0)
@@ -215,13 +232,16 @@ class Sources:
         elif s == 'kjv':
             key = (s, work)
             make = lambda: self.kjv(work)
+        elif s == 'reina-valera-1909':
+            key = (s, work)
+            make = lambda: self.reina_valera(work)
         else:
             key = (s,)
             make = {'long-meditations': self.meditations, 'long-encheiridion': self.encheiridion,
                     'muller-dhammapada': self.dhammapada, 'legge-tao': self.tao, 'giles-zhuangzi': self.giles,
                     'cotton-montaigne': self.montaigne, 'james-boethius': self.boethius}[s]
         if key not in self.cache:
-            self.cache[key] = words_with_state(make())
+            self.cache[key] = words_with_state(make(), WORD['other' if s in NOT_ENGLISH else 'en'])
         return self.cache[key]
 
 
@@ -237,7 +257,7 @@ def locus_at(e, st):
         return str(st.get('c'))
     if s == 'long-discourses':
         return e['locus']  # one file per chapter
-    if s == 'kjv':
+    if s in ('kjv', 'reina-valera-1909'):
         return st.get('v', '?').replace('x', ':')
     if s == 'muller-dhammapada':
         return st.get('v', '?')
@@ -266,7 +286,7 @@ def locus_ok(e, first, last):
         return first.rsplit('.', 1)[0] == a.rsplit('.', 1)[0] and num(a.rsplit('.', 1)[-1]) <= num(first.rsplit('.', 1)[-1]) <= num(b)
     if first != a:
         return False
-    sep = ':' if e['source'] == 'kjv' else '.'
+    sep = ':' if e['source'] in ('kjv', 'reina-valera-1909') else '.'
     return last.rsplit(sep, 1)[0] == a.rsplit(sep, 1)[0] and num(a.rsplit(sep, 1)[1]) <= num(last.rsplit(sep, 1)[1]) <= num(b)
 
 
@@ -278,18 +298,33 @@ def find(words, seg, start):
     return -1
 
 
+# Languages with their own wisdom file, and the sources that aren't in English.
+LANGS = {'es': ('wisdom-es.ts', 'ES')}
+NOT_ENGLISH = {'reina-valera-1909'}
+
+
+def load(file, name):
+    js = f"import('./src/lib/{file}').then(m => process.stdout.write(JSON.stringify(m.{name})))"
+    out = subprocess.run(['node', '-e', js], cwd=ROOT, capture_output=True, check=True).stdout
+    return json.loads(out.decode('utf-8'))
+
+
 def main():
     if len(sys.argv) != 2:
         sys.exit(__doc__)
-    js = "import('./src/lib/wisdom-data.ts').then(m => process.stdout.write(JSON.stringify(m.WISDOM)))"
-    out = subprocess.run(['node', '-e', js], cwd=ROOT, capture_output=True, check=True).stdout
-    entries = json.loads(out.decode('utf-8'))
+    entries = load('wisdom-data.ts', 'WISDOM')
+    # The same entry in another language, where it quotes that language's own public-domain translation.
+    for lang, (file, name) in LANGS.items():
+        tr = load(file, name)['entries']
+        entries += [{**e, 'id': f"{lang}/{e['id']}", 'text': tr[e['id']]['text'], 'source': tr[e['id']]['source']}
+                    for e in list(entries) if '/' not in e['id'] and tr.get(e['id'], {}).get('source')]
     src = Sources(sys.argv[1])
     bad = 0
     for e in entries:
         words, states = src.get(e)
         phrases = e['text'].split('…') if e['licence'] == 'public-domain' else ANCHORS.get(e['id'], [])
-        segs = [s for s in (re.findall(r'[a-z0-9]+', clean(p)) for p in phrases) if s]
+        word = WORD['other' if e['source'] in NOT_ENGLISH else 'en']
+        segs = [s for s in (re.findall(word, clean(p)) for p in phrases) if s]
         if not segs:
             print(f'{e["id"]}: retold entry needs an anchor phrase in ANCHORS')
             bad += 1

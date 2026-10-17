@@ -11,6 +11,10 @@ for id in 15877 10661 2017 216 14328 3600 59709 10 64576; do
   curl -sfL -A "$ua" -o "$dir/pg$id.txt" "https://www.gutenberg.org/cache/epub/$id/pg$id.txt"
 done
 
+# Spanish: Reina-Valera 1909 from eBible.org, one verse per line.
+curl -sfL -A "$ua" -o "$dir/rv1909.zip" "https://ebible.org/Scriptures/spaRV1909_vpl.zip"
+unzip -oq "$dir/rv1909.zip" spaRV1909_vpl.txt -d "$dir/rv1909"
+
 # Wikisource: Gummere's Seneca letters and Long's Epictetus Discourses, one page each (rendered HTML).
 fetch() { # url out
   for _ in 1 2 3 4; do
