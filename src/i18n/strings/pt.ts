@@ -723,13 +723,15 @@ export const pt: Strings = {
     dataBody:
       'Tudo o que você digita fica neste aparelho. Não há conta, nem anúncios, nem rastreamento. Sua estimativa é calculada aqui mesmo, no seu celular ou no seu navegador.',
     guestNote: (guest) =>
-      `Você também tem uma ${guest ? 'conta de visitante' : 'conta conectada'} de um teste anterior. Ela só guarda um perfil vazio; apagar abaixo encerra a sessão.`,
+      `Você também tem uma ${guest ? 'conta de visitante' : 'conta conectada'} de um teste anterior. Ela só guarda um perfil vazio; apagar abaixo também a exclui.`,
     confirm:
       'Isso apaga suas respostas, as pessoas e coisas que você ama, e todo o resto neste aparelho. Não dá para desfazer.',
     yesDelete: 'Sim, apagar tudo',
     keep: 'Manter meus dados',
     deleteAll: 'Apagar tudo neste aparelho',
-    signOutFailed: 'Não foi possível sair.',
+    accountFailed:
+      'Não conseguimos falar com o servidor para apagar sua conta do teste anterior, então nada foi apagado ainda. Você pode tentar de novo ou apagar só neste aparelho; a conta vazia fica até você nos escrever pedindo para apagá-la.',
+    deviceOnly: 'Apagar só neste aparelho',
     disclaimer:
       'As estimativas vêm de estudos populacionais. Mostram a direção e o tamanho aproximado, não são uma promessa nem orientação médica.',
   },

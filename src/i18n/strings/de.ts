@@ -726,13 +726,15 @@ export const de: Strings = {
     dataBody:
       'Alles, was du eingibst, bleibt auf diesem Gerät. Kein Konto, keine Werbung, kein Tracking. Deine Schätzung wird genau hier berechnet, auf deinem Handy oder in deinem Browser.',
     guestNote: (guest) =>
-      `Du hast außerdem ein ${guest ? 'Gastkonto' : 'angemeldetes Konto'} aus einem früheren Test. Es enthält nur ein leeres Profil; Löschen unten meldet es ab.`,
+      `Du hast außerdem ein ${guest ? 'Gastkonto' : 'angemeldetes Konto'} aus einem früheren Test. Es enthält nur ein leeres Profil; Löschen unten löscht es mit.`,
     confirm:
       'Das löscht deine Antworten, die Menschen und Dinge, die du liebst, und alles andere auf diesem Gerät. Es lässt sich nicht rückgängig machen.',
     yesDelete: 'Ja, alles löschen',
     keep: 'Meine Daten behalten',
     deleteAll: 'Alles auf diesem Gerät löschen',
-    signOutFailed: 'Abmelden fehlgeschlagen.',
+    accountFailed:
+      'Der Server war nicht erreichbar, um dein Konto aus dem früheren Test zu löschen, daher ist noch nichts gelöscht. Du kannst es noch einmal versuchen oder nur auf diesem Gerät löschen; das leere Konto bleibt dann, bis du uns per E-Mail bittest, es zu löschen.',
+    deviceOnly: 'Nur auf diesem Gerät löschen',
     disclaimer:
       'Die Schätzungen beruhen auf Bevölkerungsstudien. Sie zeigen Richtung und ungefähre Größe, kein Versprechen, und sind keine medizinische Beratung.',
   },

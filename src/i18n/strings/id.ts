@@ -718,12 +718,14 @@ export const id: Strings = {
     dataBody:
       'Semua yang kamu masukkan tetap di perangkat ini. Tidak ada akun, iklan, atau pelacakan. Perkiraanmu dihitung di sini, di ponsel atau browser-mu.',
     guestNote: (guest) =>
-      `Kamu juga punya ${guest ? 'akun tamu' : 'akun yang sudah masuk'} dari uji coba sebelumnya. Isinya hanya profil kosong; menghapus di bawah akan mengeluarkannya.`,
+      `Kamu juga punya ${guest ? 'akun tamu' : 'akun yang sudah masuk'} dari uji coba sebelumnya. Isinya hanya profil kosong; menghapus di bawah juga akan menghapusnya.`,
     confirm: 'Ini menghapus jawabanmu, orang dan hal yang kamu cintai, dan semua hal lain di perangkat ini. Tidak bisa dibatalkan.',
     yesDelete: 'Ya, hapus semuanya',
     keep: 'Simpan dataku',
     deleteAll: 'Hapus semua di perangkat ini',
-    signOutFailed: 'Tidak bisa keluar.',
+    accountFailed:
+      'Server tidak bisa dihubungi untuk menghapus akunmu dari uji coba sebelumnya, jadi belum ada yang dihapus. Kamu bisa coba lagi, atau hapus di perangkat ini saja; akun kosong itu akan tetap ada sampai kamu meminta kami menghapusnya lewat email.',
+    deviceOnly: 'Hapus di perangkat ini saja',
     disclaimer:
       'Perkiraan ini berasal dari studi populasi. Ia menunjukkan arah dan perkiraan besarnya, bukan janji, dan bukan nasihat medis.',
   },

@@ -722,13 +722,15 @@ export const fr: Strings = {
     dataBody:
       'Tout ce que tu saisis reste sur cet appareil. Pas de compte, pas de pub, pas de pistage. Ton estimation est calculée ici même, sur ton téléphone ou dans ton navigateur.',
     guestNote: (guest) =>
-      `Tu as aussi un ${guest ? 'compte invité' : 'compte connecté'} d’un test précédent. Il ne contient qu’un profil vide ; la suppression ci-dessous t’en déconnecte.`,
+      `Tu as aussi un ${guest ? 'compte invité' : 'compte connecté'} d’un test précédent. Il ne contient qu’un profil vide ; la suppression ci-dessous l’efface aussi.`,
     confirm:
       'Cela efface tes réponses, les personnes et les choses que tu aimes, et tout le reste sur cet appareil. C’est irréversible.',
     yesDelete: 'Oui, tout effacer',
     keep: 'Garder mes données',
     deleteAll: 'Tout effacer sur cet appareil',
-    signOutFailed: 'Impossible de se déconnecter.',
+    accountFailed:
+      'Impossible de joindre le serveur pour effacer ton compte du test précédent, donc rien n’a encore été effacé. Tu peux réessayer, ou effacer seulement sur cet appareil ; le compte vide restera alors jusqu’à ce que tu nous écrives pour l’effacer.',
+    deviceOnly: 'Effacer seulement sur cet appareil',
     disclaimer:
       'Les estimations viennent d’études de population. Elles indiquent une direction et un ordre de grandeur, pas une promesse, et ne sont pas un avis médical.',
   },
