@@ -729,7 +729,160 @@ export const es: Strings = {
     keep: 'Conservar mis datos',
     deleteAll: 'Borrar todo en este dispositivo',
     signOutFailed: 'No se pudo cerrar la sesión.',
+    exportButton: 'Descargar mis datos',
+    exportNote: 'Una copia de todo lo que esta app guarda en este dispositivo, en un archivo que puedes abrir con cualquier editor de texto.',
+    exportDone: (name: string) => `Tu copia está lista: ${name}. Contiene tus respuestas de salud, así que guárdala en un lugar privado.`,
+    exportFailed: 'No se pudo crear el archivo. Inténtalo de nuevo.',
+    exportAbout: 'Todo lo que Memento Mori guarda en este dispositivo. "profile" tiene tus respuestas y lo que amas; "settings", pequeños ajustes de la app.',
     disclaimer:
       'Las estimaciones vienen de estudios de población. Muestran la dirección y el tamaño aproximado, no son una promesa ni un consejo médico.',
+  },
+
+  disclaimer: {
+    short: 'Una estimación a partir de promedios de población, para reflexionar y aprender. No es una predicción de tu muerte ni un consejo médico.',
+    points: [
+      'Es una estimación a partir de promedios de población, no una predicción de cuándo vas a morir. Nadie puede saber eso.',
+      'No es consejo, diagnóstico ni tratamiento médico. Para dudas sobre tu salud, habla con un médico u otro profesional calificado.',
+      'Está aquí para reflexionar y aprender: para ayudarte a dedicar el tiempo que tienes a lo que te importa.',
+    ],
+    support:
+      'Si pensar en la muerte se siente pesado ahora, no tienes por qué cargarlo en soledad. En México, llama a la Línea de la Vida: [800 911 2000](tel:8009112000). En EE. UU., llama o escribe al [988](https://988lifeline.org). En otros lugares, [findahelpline.com](https://findahelpline.com) reúne apoyo gratuito y confidencial cerca de ti. En una emergencia, llama al número de emergencias local.',
+    howItWorks: 'Cómo funciona',
+    sources: 'Fuentes',
+    beforeEyebrow: 'Antes de verlo',
+    beforeTitle: 'Unas palabras honestas',
+    understand: 'Entiendo',
+  },
+
+  legal: {
+    terms: 'Términos de uso',
+    privacy: 'Aviso de privacidad',
+    health: 'Política de privacidad de datos de salud',
+    eyebrow: 'Legal',
+    draft: 'Borrador',
+    draftNotice: 'Esto es un borrador. Todavía no lo revisa un abogado y puede cambiar antes del lanzamiento de Memento Mori.',
+    englishOnly: 'Por ahora este documento está en inglés. Lo traduciremos cuando un abogado haya revisado la versión en inglés.',
+    version: (v) => `Versión ${v}`,
+    notFound: 'No encontrado',
+    notFoundBody: 'Aquí no hay ningún documento.',
+    agree:
+      'Al empezar, aceptas los [Términos de uso](/legal/terms) y confirmas que tienes 18 años o más. Tus respuestas, incluidos tus hábitos de salud, nunca salen de este dispositivo: consulta el [Aviso de privacidad](/legal/privacy) y la [Política de privacidad de datos de salud](/legal/health-data).',
+  },
+
+  sources: {
+    eyebrow: 'Fuentes',
+    title: 'La investigación detrás de la app',
+    lede: (n) => `Los ${n} estudios y conjuntos de datos que cita la app, agrupados según para qué se usan. Toca uno para abrirlo.`,
+    usedFor: (what) => `Se usa para: ${what}`,
+    opens: 'Se abre en el navegador.',
+    topics: {
+      model: { title: 'Cómo se construye la estimación', blurb: 'La curva de mortalidad, las tablas de vida a las que se ajusta y el tope a las ganancias combinadas.' },
+      habits: { title: 'Hábitos en tu estimación', blurb: 'De dónde sale el multiplicador de riesgo de cada hábito.' },
+      direction: {
+        title: 'Para orientar, no en la estimación',
+        blurb: 'Hallazgos de la pantalla Hábitos que señalan el camino pero aún no forman parte de los números.',
+      },
+      behavior: { title: 'Planes, recordatorios y buscar a otros', blurb: 'La ciencia del comportamiento detrás de los planes, los nuevos comienzos y las bienvenidas.' },
+      time: { title: 'A dónde se van las horas', blurb: 'El tiempo en el teléfono y lo que puede dar recuperar un poco.' },
+      loves: { title: 'Lo que amas: “N veces más”', blurb: 'Esperanzas de vida típicas para contar el tiempo con tus mascotas.' },
+    },
+    uses: {
+      gompertz1825: 'La forma de la curva: el riesgo anual de morir crece de forma exponencial con la edad.',
+      makeham1860: 'La parte constante del riesgo, que no depende de la edad (el término “A”).',
+      wpp2024: 'Tu punto de partida: la tabla de vida de tu país y sexo.',
+      li2018: 'El tope de 14 años a las ganancias combinadas; no fumar como la palanca más grande.',
+      holtLunstad2015: 'Conexión: ver poco a la gente cercana ×1.29.',
+      holtLunstad2010: 'Lazos sociales fuertes y unas 1.5 veces las probabilidades de sobrevivir (148 estudios).',
+      paluch2022: 'Ejercicio y pasos diarios.',
+      mandsager2018: 'La condición cardiovascular como uno de los mejores predictores de supervivencia.',
+      li2020: 'Peso saludable y años libres de enfermedades crónicas.',
+      cappuccio2010: 'Sueño: menos de 6 horas ×1.15.',
+      zhao2023: 'Alcohol: beber mucho ×1.4; beber poco no protege.',
+      fadnes2022: 'Lo que comes.',
+      momma2022: 'Entrenamiento de fuerza.',
+      cohen2016: 'Un sentido de propósito.',
+      lee2019: 'Optimismo y llegar a los 85.',
+      okun2013: 'Ayudar a otros.',
+      waldinger2016: 'Satisfacción en las relaciones a los 50 y salud a los 80.',
+      allcott2020: 'Menos scroll, más tiempo con la gente.',
+      hunt2018: 'Limitar las redes sociales a 30 minutos al día.',
+      phoneTime2025: 'Las 4 horas de inicio en la pregunta del teléfono (las estimaciones varían).',
+      liu2023: 'Buscar a la gente.',
+      gollwitzer2006: 'Planes “si… entonces”.',
+      dai2014: 'Nuevos comienzos: lunes, día 1, cumpleaños.',
+      milkman2021: 'Bienvenidas después de un tiempo fuera, en vez de rachas.',
+      parkes2008: 'Mostrarle a la gente sus propios números.',
+      buffey2022: 'Caminatas cortas después de comer.',
+      oneill2013: 'Perros: longevidad mediana de unos 12 años.',
+      mcmillan2024: 'Perros: esperanza de vida mediana de 12.5 años (584,734 perros del Reino Unido).',
+      oneill2015: 'Gatos: longevidad mediana de 14 años.',
+    },
+    quotesHeading: 'Citas',
+    quotes:
+      'Marco Aurelio (Meditaciones, trad. al inglés de George Long, 1862), Séneca (Cartas y Sobre la brevedad de la vida, trad. al inglés de Richard M. Gummere, 1917–25, y otros) y Epicteto (Enquiridión, trad. al inglés de Thomas Wentworth Higginson, 1865). Traducciones de dominio público, algunas ligeramente adaptadas.',
+    footnote:
+      'Algunos enlaces llevan a un resumen o comunicado de prensa cuando el artículo completo es de pago. Las asociaciones de los estudios de población no prueban una causa, y nada de esto es consejo médico.',
+  },
+
+  methods: {
+    eyebrow: 'Cómo funciona',
+    title: 'De dónde salen tus números',
+    lede: 'Todo lo que muestra la app se calcula en tu dispositivo a partir de tus respuestas y de investigación publicada. Aquí está cada paso y el estudio que lo respalda.',
+    everyStep: 'Cada paso, con sus fuentes',
+    accountHeading: 'CÓMO FUNCIONA',
+    curveTitle: '1 · La curva de la que todos partimos',
+    curveIntro:
+      'En los adultos, el riesgo anual de morir sube con la edad de forma constante: se duplica más o menos cada 7 u 8 años. Los actuarios lo describen desde hace dos siglos como una curva de Gompertz–Makeham:',
+    curveParts: (child, youth) =>
+      `B · e^(b·x) es la parte que crece con la edad x (Gompertz); A es un riesgo pequeño que no depende de la edad, como los accidentes (Makeham). Las muertes en la niñez y la juventud no siguen esa forma, así que se suman dos términos constantes: uno antes de los ${child} años y otro de los ${child} a los ${youth}.`,
+    placeTitle: '2 · Dónde vives',
+    placeBody: (n) =>
+      `Dónde vives pesa más que cualquier hábito: en 2023 la edad mediana al morir iba de unos 59 a más de 90 años según el país. Por eso la curva se ajusta por separado para cada sexo en cada uno de ${n} países y territorios, a las tablas de vida de Naciones Unidas para 2023 (World Population Prospects 2024). A, B y b salen de las tasas de mortalidad entre los 30 y los 100 años; los términos de la niñez y la juventud hacen que la supervivencia a los 15 y a los 30 coincida exactamente con la tabla. En todos los países y ambos sexos, la edad mediana al morir que da el modelo desde el nacimiento queda a menos de un año de la de la tabla de la ONU.`,
+    placeUs: (mA, mB, fA, fB, b) =>
+      `Sin país, la app usa una aproximación anterior de las tablas de EE. UU.: A = ${mA}, B = ${mB} para hombres; A = ${fA}, B = ${fB} para mujeres; b = ${b} (unos 75 y 81 años al nacer).`,
+    placeLeftOut:
+      'El ingreso y la escolaridad también predicen la esperanza de vida dentro de un país. Se dejan fuera a propósito: no son algo sobre lo que puedas actuar aquí y suenan a sentencia.',
+    habitsTitle: '3 · Tus hábitos',
+    habitsIntro:
+      'Cada respuesta multiplica el riesgo anual a cualquier edad. ×1 significa sin cambio; ×2, el doble de riesgo. Los multiplicadores están redondeados a partir de estudios y revisiones grandes: son aproximaciones y vienen de asociaciones, no de experimentos.',
+    habitsConnection: (middle) =>
+      `En conexión, la respuesta intermedia (${middle}) está entre los niveles medidos; no se midió por sí misma. El estudio reporta momios (odds), que aquí se usan como multiplicadores de riesgo, una aproximación cercana.`,
+    habitsSteps: (at4k, at10k) =>
+      `Los pasos diarios, si los anotas, reemplazan la respuesta de ejercicio, así que el movimiento nunca se cuenta dos veces. El riesgo baja cerca de 7% por cada 1,000 pasos extra, medido desde 6,000 al día y se estabiliza en 10,000: multiplicador = e^(−0.072 × (pasos − 6,000) ÷ 1,000). Así, 4,000 pasos es ${at4k} y 10,000 es ${at10k}.`,
+    rangeTitle: '4 · Del riesgo a un rango',
+    rangeBody:
+      'Desde tu edad de hoy, la app sigue el riesgo mes a mes hasta los 121 años, multiplicado por tus hábitos. La edad a la que ha muerto la mitad de las personas como tú es tu mediana. Las edades a las que ha muerto una cuarta parte y tres cuartas partes dan el rango probable. También muestra la probabilidad de llegar a los 80.',
+    rangeRule: (b, years, doubling) =>
+      `Una regla práctica detrás de los números de los hábitos: años ganados ≈ ln(1 ÷ multiplicador) ÷ ${b}. Reducir tu riesgo a la mitad suma unos ${years} años, porque con b = ${b} el riesgo se duplica cada ${doubling} años de edad, más o menos (las curvas ajustadas por país son un poco más empinadas). Las pantallas calculan la diferencia real, no el atajo.`,
+    combineTitle: '5 · ¿Y si…? Combinar cambios',
+    combineBody: (cap) =>
+      `Cada “¿y si…?” es la diferencia entre tu mediana actual y tu mediana con ese hábito cambiado. Varios cambios juntos se multiplican, así que suman menos que cada uno por separado, porque los efectos de los hábitos se traslapan. Además, el total tiene un tope de ${cap} años.`,
+    capClaim: (cap) =>
+      `${cap} años: la mayor diferencia entre quienes tenían los cinco hábitos saludables y quienes no tenían ninguno, en dos grandes cohortes de EE. UU.`,
+    combineCalendar:
+      'En el calendario, la ganancia combinada se reparte entre los cambios que pruebas en proporción a lo que sumaría cada uno por separado, así que cada uno tiene su propio color.',
+    notInEstimate: (items) =>
+      `Algunas cosas de la pantalla Hábitos se muestran solo para orientar y todavía no están en tus números: ${items}.`,
+    timeTitle: '6 · Teléfono y sueño',
+    timePhone: (waking) =>
+      `El tiempo en el teléfono es tu propia estimación, en horas al día (empieza en 4, cerca de las estimaciones comunes para adultos en EE. UU.). A lo largo de los años que probablemente te quedan, suma horas × años ÷ 24. Como parte de tu día despierto, es horas ÷ ${waking}.`,
+    timeSleep: (ok, short) =>
+      `Las vistas “Despierto” y “Sin teléfono” quitan el sueño del calendario: unas ${ok} horas por noche, o ${short} si dijiste menos de 6. Dormir es tiempo bien usado, no perdido.`,
+    timeSwap: (minutes) =>
+      `El intercambio propone recuperar ${minutes} minutos al día del teléfono y muestra en qué podrían convertirse, por ejemplo paseos diarios con tu perro durante los años que probablemente tienen juntos.`,
+    lovesTitle: '7 · Lo que amas: “N veces más”',
+    lovesBody:
+      'Para cada persona, mascota o actividad, la app cuenta los años que probablemente compartan y los multiplica por qué tan seguido se ven o lo haces. Esos años terminan en lo que llegue primero: tu edad mediana; la edad a la que dijiste que dejarías una actividad; la edad mediana de la otra persona (según su edad, promediando ambos sexos porque la app no lo pregunta, y suponiendo que vive en tu país); o la esperanza de vida típica de una mascota.',
+    lovesPets: (dog, cat) =>
+      `Esperanzas de vida típicas: perros unos ${dog} años, gatos unos ${cat}, según registros veterinarios del Reino Unido. La raza y el tamaño importan mucho. A una mascota mayor siempre se le cuenta al menos medio año.`,
+    limitsTitle: '8 · Lo que no puede decirte',
+    limits: [
+      'Son promedios de población. Describen cuánto solían vivir grupos de personas con respuestas como las tuyas, no lo que te pasará a ti. No saben nada de tu historial de salud, tus genes ni tu atención médica.',
+      'La relación entre hábitos y esperanza de vida viene de estudios observacionales: quienes hacen X suelen vivir más, en parte por X y en parte por todo lo que viene con ello. Cambiar un hábito puede no cambiar tu vida en la cantidad mostrada.',
+      'Por eso la app muestra un rango, nunca una fecha. La mitad de las personas como tú viven más allá de la mediana; muchas, bastante más.',
+    ],
+    versionTitle: 'Versión del modelo',
+    versionBody: 'El modelo solo cambia con evidencia sólida, como metaanálisis, y cada cambio recibe una versión nueva.',
+    allSources: 'Todas las fuentes, completas',
   },
 };

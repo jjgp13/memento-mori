@@ -7,6 +7,7 @@
  */
 import { b, s, type Rich } from '@/i18n/rich';
 import type { Per } from '@/lib/loves';
+import type { StudyId, Topic } from '@/lib/sources';
 
 type Unit = 'visits' | 'days' | 'times';
 
@@ -766,8 +767,169 @@ export const en = {
     keep: 'Keep my data',
     deleteAll: 'Delete everything on this device',
     signOutFailed: 'Could not sign out.',
+    exportButton: 'Download my data',
+    exportNote: 'A copy of everything this app keeps on this device, as a file you can open in any text editor.',
+    exportDone: (name: string) => `Your copy is ready: ${name}. It holds your health answers, so keep it somewhere private.`,
+    exportFailed: 'Could not make the file. Please try again.',
+    /** Written at the top of the exported file, so it explains itself. */
+    exportAbout: 'Everything Memento Mori keeps on this device. "profile" holds your answers and loves; "settings" holds small app settings.',
     disclaimer:
       'Estimates come from population studies. They show direction and rough size, not a promise, and are not medical advice.',
+  },
+
+  /** "Not a prediction, not medical advice", and the support line (components/disclaimer.tsx). */
+  disclaimer: {
+    short: 'An estimate from population averages, for reflection and education. Not a prediction of your death, and not medical advice.',
+    points: [
+      'This is an estimate from population averages, not a prediction of when you will die. Nobody can know that.',
+      'It is not medical advice, diagnosis or treatment. For questions about your health, talk with a doctor or other qualified professional.',
+      'It is here for reflection and education: to help you spend the time you have on what matters to you.',
+    ],
+    /** [label](href) runs are links. */
+    support:
+      'If thinking about death feels heavy right now, you don’t have to carry it alone. In the US, call or text [988](https://988lifeline.org) (Suicide & Crisis Lifeline). Elsewhere, [findahelpline.com](https://findahelpline.com) lists free, confidential support near you. In an emergency, call your local emergency number.',
+    howItWorks: 'How this works',
+    sources: 'Sources',
+    beforeEyebrow: 'Before you see it',
+    beforeTitle: 'A few honest words',
+    understand: 'I understand',
+  },
+
+  /** Around the legal documents. Their bodies (lib/legal.ts) are English until a lawyer has reviewed them. */
+  legal: {
+    terms: 'Terms of Use',
+    privacy: 'Privacy Policy',
+    health: 'Consumer Health Data Privacy Policy',
+    eyebrow: 'Legal',
+    draft: 'Draft',
+    draftNotice: 'This is a draft. It has not yet been reviewed by a lawyer and may change before Memento Mori launches.',
+    /** Shown above a document in every language but English. */
+    englishOnly: '',
+    version: (v: string) => `Version ${v}`,
+    notFound: 'Not found',
+    notFoundBody: 'There is no document here.',
+    /** Welcome screen; [label](href) runs are links. */
+    agree:
+      'By beginning, you agree to the [Terms of Use](/legal/terms) and confirm you are 18 or older. Your answers, including health habits, never leave this device: see the [Privacy Policy](/legal/privacy) and [Consumer Health Data Privacy Policy](/legal/health-data).',
+  },
+
+  /** The Sources screen. Authors, titles and journals stay as published (lib/sources.ts). */
+  sources: {
+    eyebrow: 'Sources',
+    title: 'The research behind the app',
+    lede: (n: string) => `All ${n} studies and data sets the app cites, grouped by what they are used for. Tap one to open it.`,
+    usedFor: (what: string) => `Used for: ${what}`,
+    opens: 'Opens in browser.',
+    topics: {
+      model: { title: 'How the estimate is built', blurb: 'The mortality curve, the life tables it is fitted to, and the cap on combined gains.' },
+      habits: { title: 'Habits in your estimate', blurb: 'Where each habit’s risk multiplier comes from.' },
+      direction: {
+        title: 'Shown for direction, not in the estimate',
+        blurb: 'Findings on the Habits screen that point the way but are not yet part of the numbers.',
+      },
+      behavior: { title: 'Plans, prompts and reaching out', blurb: 'Behavior science behind plans, fresh starts and welcome-backs.' },
+      time: { title: 'Where the hours go', blurb: 'Phone time and what taking some back can do.' },
+      loves: { title: 'Loves: “N more times”', blurb: 'Typical lifespans used to count time with pets.' },
+    } satisfies Record<Topic, { title: string; blurb: string }>,
+    uses: {
+      gompertz1825: 'The shape of the curve: yearly risk of dying rises exponentially with age.',
+      makeham1860: 'The constant, age-independent part of the risk (the “A” term).',
+      wpp2024: 'Your baseline: the life table for your country and sex.',
+      li2018: 'The 14-year cap on combined gains; not smoking as the largest lever.',
+      holtLunstad2015: 'Connection: rarely seeing close people ×1.29.',
+      holtLunstad2010: 'Strong social ties and about 1.5× the odds of survival (148 studies).',
+      paluch2022: 'Exercise and daily steps.',
+      mandsager2018: 'Cardio fitness as one of the strongest predictors of survival.',
+      li2020: 'Healthy weight, and years free of chronic disease.',
+      cappuccio2010: 'Sleep: under 6 hours ×1.15.',
+      zhao2023: 'Alcohol: heavy drinking ×1.4; light drinking not protective.',
+      fadnes2022: 'What you eat.',
+      momma2022: 'Strength training.',
+      cohen2016: 'A sense of purpose.',
+      lee2019: 'Optimism and reaching 85.',
+      okun2013: 'Helping others.',
+      waldinger2016: 'Relationship satisfaction at 50 and health at 80.',
+      allcott2020: 'Less scrolling, more time with people.',
+      hunt2018: 'Limiting social media to 30 minutes a day.',
+      phoneTime2025: 'The 4-hour starting point for the phone question (estimates vary).',
+      liu2023: 'Reaching out to people.',
+      gollwitzer2006: 'If-then plans.',
+      dai2014: 'Fresh starts: Mondays, the 1st, birthdays.',
+      milkman2021: 'Welcome-backs after time away, instead of streaks.',
+      parkes2008: 'Showing people their own numbers.',
+      buffey2022: 'Short walks after meals.',
+      oneill2013: 'Dogs: median longevity about 12 years.',
+      mcmillan2024: 'Dogs: median life expectancy 12.5 years (584,734 UK dogs).',
+      oneill2015: 'Cats: median longevity 14 years.',
+    } satisfies Record<StudyId, string>,
+    quotesHeading: 'Quotes',
+    quotes:
+      'Marcus Aurelius (Meditations, tr. George Long, 1862), Seneca (Letters and On the Shortness of Life, tr. Richard M. Gummere, 1917–25, and others) and Epictetus (Enchiridion, tr. Thomas Wentworth Higginson, 1865). Public-domain translations, some lightly adapted.',
+    footnote:
+      'Some links go to a summary or press release when the full paper is behind a paywall. Associations from population studies are not proof of cause, and nothing here is medical advice.',
+  },
+
+  /** The How this works screen (app/how-it-works.tsx). Numbers come in already formatted. */
+  methods: {
+    eyebrow: 'How this works',
+    title: 'Where your numbers come from',
+    lede: 'Everything the app shows is worked out on your device from your answers and published research. Here is each step, and the study behind it.',
+    everyStep: 'Every step, with sources',
+    accountHeading: 'HOW IT WORKS',
+    curveTitle: '1 · The curve everyone starts from',
+    curveIntro:
+      'For adults, the yearly risk of dying rises steadily with age, roughly doubling every 7 to 8 years. Actuaries have described this for two centuries as a Gompertz–Makeham curve:',
+    curveParts: (child: string, youth: string) =>
+      `B · e^(b·x) is the part that grows with age x (Gompertz); A is a small risk that doesn’t depend on age, like accidents (Makeham). Childhood and youth deaths don’t follow that shape, so two constant terms are added: one before age ${child} and one from ${child} to ${youth}.`,
+    placeTitle: '2 · Where you live',
+    placeBody: (n: string) =>
+      `Where you live matters more than any habit: in 2023 the median age at death ran from about 59 to over 90 across countries. So the curve is fitted separately for each sex in each of ${n} countries and areas, to the United Nations’ life tables for 2023 (World Population Prospects 2024). A, B and b come from death rates at ages 30 to 100; the early-life terms make survival to 15 and to 30 match the table exactly. Across every country and sex, the model’s median age at death from birth lands within a year of the UN table’s.`,
+    placeUs: (mA: string, mB: string, fA: string, fB: string, b: string) =>
+      `Without a country, the app uses an older approximation of US tables: A = ${mA}, B = ${mB} for men; A = ${fA}, B = ${fB} for women; b = ${b} (about 75 and 81 years at birth).`,
+    placeLeftOut:
+      'Income and education also predict lifespan within a country. They are left out on purpose: they aren’t something you can act on here, and they read like a verdict.',
+    habitsTitle: '3 · Your habits',
+    habitsIntro:
+      'Each answer multiplies the yearly risk at every age. ×1 means no change; ×2 means twice the risk. The multipliers are rounded from large studies and reviews: they are approximations, and they come from associations, not experiments.',
+    habitsConnection: (middle: string) =>
+      `For connection, the middle answer (${middle}) sits between the measured levels; it isn’t measured itself. The study reports odds, used here as risk multipliers, which is a close approximation.`,
+    habitsSteps: (at4k: string, at10k: string) =>
+      `Daily steps, when you enter them, replace the exercise answer, so movement is never counted twice. Risk falls about 7% for every extra 1,000 steps, measured from 6,000 a day and leveling off at 10,000: multiplier = e^(−0.072 × (steps − 6,000) ÷ 1,000). So 4,000 steps is ${at4k} and 10,000 is ${at10k}.`,
+    rangeTitle: '4 · From risk to a range',
+    rangeBody:
+      'Starting from your age today, the app follows the risk month by month to age 121, multiplied by your habits. The age by which half of people like you have died is your median. The ages by which a quarter and three quarters have died give the likely range. It also shows the chance of reaching 80.',
+    rangeRule: (b: string, years: string, doubling: string) =>
+      `A rule of thumb behind the habit numbers: years gained ≈ ln(1 ÷ multiplier) ÷ ${b}. Halving your risk adds about ${years} years, because at b = ${b} risk doubles about every ${doubling} years of age (the fitted country curves are a little steeper). The screens compute the real difference rather than using the shortcut.`,
+    combineTitle: '5 · What if: combining changes',
+    combineBody: (cap: string) =>
+      `Each “what if” is the difference between your median now and your median with that habit changed. Several changes together multiply, so they add less than the sum of each alone, since habit effects overlap. The total is also capped at ${cap} years.`,
+    capClaim: (cap: string) =>
+      `${cap} years: the largest difference between people with all five healthy habits and none, in two large US cohorts.`,
+    combineCalendar:
+      'On the calendar, the combined gain is split between the changes you try in proportion to what each would add alone, so each gets its own color.',
+    notInEstimate: (items: string) =>
+      `Some things on the Habits screen are shown for direction only and aren’t in your numbers yet: ${items}.`,
+    timeTitle: '6 · Phone and sleep time',
+    timePhone: (waking: string) =>
+      `Phone time is your own estimate, in hours a day (it starts at 4, near common estimates for US adults). Over the years you likely have left, it adds up to hours × years ÷ 24. As a share of your waking day, it is hours ÷ ${waking}.`,
+    timeSleep: (ok: string, short: string) =>
+      `The “Awake” and “Off phone” views take sleep out of the calendar: about ${ok} hours a night, or ${short} if you said under 6. Sleep is time well spent, not lost.`,
+    timeSwap: (minutes: string) =>
+      `The swap suggests taking ${minutes} minutes a day back from the phone and shows what it could become, for example daily walks with your dog over the years you both likely have.`,
+    lovesTitle: '7 · Loves: “N more times”',
+    lovesBody:
+      'For each person, pet or activity, the app counts the years you likely share, then multiplies by how often you see them or do it. The years shared end at the earliest of: your median age; the age you said you’d stop an activity; a person’s own median age (from their age, averaged over both sexes, since the app doesn’t ask, and assumed to live in your country); or a pet’s typical lifespan.',
+    lovesPets: (dog: string, cat: string) =>
+      `Typical lifespans: dogs about ${dog} years, cats about ${cat}, from UK veterinary records. Breed and size matter a lot. An older pet is always counted as having at least half a year.`,
+    limitsTitle: '8 · What it can’t tell you',
+    limits: [
+      'These are population averages. They describe how long groups of people with answers like yours tended to live, not what will happen to you. They know nothing of your health history, your genes or your medical care.',
+      'The links between habits and lifespan come from observational studies: people who do X tend to live longer, partly because of X and partly because of everything that travels with it. Changing a habit may not change your lifespan by the amount shown.',
+      'That’s why the app shows a range, never a date. Half of people like you live past the median; many live far longer.',
+    ],
+    versionTitle: 'Model version',
+    versionBody: 'The model changes only on strong evidence, such as meta-analyses, and each change gets a new version.',
+    allSources: 'Every source, in full',
   },
 };
 

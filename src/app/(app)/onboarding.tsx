@@ -16,6 +16,8 @@ import { Button } from '@/components/button';
 import { Choices } from '@/components/choices';
 import { CountryPicker } from '@/components/country-picker';
 import { DatePicker } from '@/components/date-picker';
+import { Disclaimer, ScreenLink } from '@/components/disclaimer';
+import { LinkedText } from '@/components/linked-text';
 import { LanguagePicker } from '@/components/language-picker';
 import { AliveTimeline } from '@/components/onboarding/alive-timeline';
 import { CountUp } from '@/components/onboarding/count-up';
@@ -36,6 +38,7 @@ import { countryName, deviceCountry } from '@/lib/country';
 import { LIFE_TABLES } from '@/lib/evidence';
 import { bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
+import { LEGAL_VERSION } from '@/lib/legal';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
   HABIT_KEYS,
@@ -46,6 +49,7 @@ import {
   type ModelInput,
   type Sex,
 } from '@/lib/model';
+import { setPref } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 import { shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 import { MAX_VALUES, VALUES, type ValueKey } from '@/lib/values';
@@ -61,6 +65,7 @@ type StepKey =
   | 'values'
   | 'people'
   | 'activities'
+  | 'disclaimer'
   | 'compute'
   | 'reveal';
 
@@ -75,6 +80,7 @@ const FIRST_RUN: StepKey[] = [
   'values',
   'people',
   'activities',
+  'disclaimer',
   'compute',
   'reveal',
 ];
@@ -188,9 +194,19 @@ export default function OnboardingScreen() {
       <ThemedText key="m" type="small">
         {o.welcomeNote}
       </ThemedText>,
+      <LinkedText key="g" type="small" text={t.legal.agree} />,
       <LanguagePicker key="l" />,
     ];
-    footer = <Button title={o.begin} onPress={next} />;
+    footer = (
+      <Button
+        title={o.begin}
+        onPress={() => {
+          setPref('agreedVersion', LEGAL_VERSION);
+          setPref('agreedAt', Date.now());
+          next();
+        }}
+      />
+    );
   } else if (step === 'name') {
     body = [
       <ThemedText key="e" type="eyebrow">
@@ -365,6 +381,25 @@ export default function OnboardingScreen() {
     ];
     const last = editing && index === steps.length - 1;
     footer = continueButton(last ? t.common.save : any ? t.common.continue : t.common.skipForNow);
+  } else if (step === 'disclaimer') {
+    body = [
+      <ThemedText key="e" type="eyebrow">
+        {t.disclaimer.beforeEyebrow}
+      </ThemedText>,
+      <ThemedText key="t" type="subtitle">
+        {t.disclaimer.beforeTitle}
+      </ThemedText>,
+      <Disclaimer key="d" full />,
+    ];
+    footer = (
+      <Button
+        title={t.disclaimer.understand}
+        onPress={() => {
+          setPref('disclaimerAt', Date.now());
+          next();
+        }}
+      />
+    );
   } else if (step === 'compute') {
     body = [<Computing key="c" />];
   } else if (step === 'reveal' && me) {
@@ -493,6 +528,7 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
     <ThemedText key="r" type="small">
       {r.range(Math.round(est.med), Math.round(est.q25), Math.round(est.q75), countryName(me.country) ?? null)}
     </ThemedText>,
+    <ScreenLink key="w" href="/how-it-works" title={t.disclaimer.howItWorks} />,
     <Button key="b" title={r.seeLife} onPress={onDone} />,
   );
 

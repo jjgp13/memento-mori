@@ -730,7 +730,160 @@ export const pt: Strings = {
     keep: 'Manter meus dados',
     deleteAll: 'Apagar tudo neste aparelho',
     signOutFailed: 'Não foi possível sair.',
+    exportButton: 'Baixar meus dados',
+    exportNote: 'Uma cópia de tudo o que o app guarda neste aparelho, num arquivo que você abre em qualquer editor de texto.',
+    exportDone: (name: string) => `Sua cópia está pronta: ${name}. Ela tem suas respostas de saúde, então guarde-a em um lugar privado.`,
+    exportFailed: 'Não foi possível criar o arquivo. Tente de novo.',
+    exportAbout: 'Tudo o que o Memento Mori guarda neste aparelho. "profile" tem suas respostas e o que você ama; "settings", pequenos ajustes do app.',
     disclaimer:
       'As estimativas vêm de estudos populacionais. Mostram a direção e o tamanho aproximado, não são uma promessa nem orientação médica.',
+  },
+
+  disclaimer: {
+    short: 'Uma estimativa a partir de médias populacionais, para refletir e aprender. Não é uma previsão da sua morte nem orientação médica.',
+    points: [
+      'É uma estimativa a partir de médias populacionais, não uma previsão de quando você vai morrer. Ninguém pode saber isso.',
+      'Não é orientação, diagnóstico nem tratamento médico. Para dúvidas sobre sua saúde, converse com um médico ou outro profissional qualificado.',
+      'Está aqui para refletir e aprender: para ajudar você a dedicar o tempo que tem ao que importa para você.',
+    ],
+    support:
+      'Se pensar na morte está pesado agora, você não precisa carregar isso sem apoio. No Brasil, ligue para o CVV no [188](tel:188), de graça e a qualquer hora. Nos EUA, ligue ou mande mensagem para o [988](https://988lifeline.org). Em outros lugares, o [findahelpline.com](https://findahelpline.com) reúne apoio gratuito e confidencial perto de você. Em uma emergência, ligue para o número de emergência local.',
+    howItWorks: 'Como funciona',
+    sources: 'Fontes',
+    beforeEyebrow: 'Antes de ver',
+    beforeTitle: 'Algumas palavras honestas',
+    understand: 'Entendi',
+  },
+
+  legal: {
+    terms: 'Termos de uso',
+    privacy: 'Política de privacidade',
+    health: 'Política de privacidade de dados de saúde',
+    eyebrow: 'Jurídico',
+    draft: 'Rascunho',
+    draftNotice: 'Este é um rascunho. Ainda não foi revisado por um advogado e pode mudar antes do lançamento do Memento Mori.',
+    englishOnly: 'Por enquanto este documento está em inglês. Ele será traduzido depois que um advogado revisar a versão em inglês.',
+    version: (v) => `Versão ${v}`,
+    notFound: 'Não encontrado',
+    notFoundBody: 'Não há nenhum documento aqui.',
+    agree:
+      'Ao começar, você aceita os [Termos de uso](/legal/terms) e confirma que tem 18 anos ou mais. Suas respostas, incluindo hábitos de saúde, nunca saem deste aparelho: veja a [Política de privacidade](/legal/privacy) e a [Política de privacidade de dados de saúde](/legal/health-data).',
+  },
+
+  sources: {
+    eyebrow: 'Fontes',
+    title: 'A pesquisa por trás do app',
+    lede: (n) => `Os ${n} estudos e conjuntos de dados que o app cita, agrupados pelo uso. Toque em um para abrir.`,
+    usedFor: (what) => `Usado para: ${what}`,
+    opens: 'Abre no navegador.',
+    topics: {
+      model: { title: 'Como a estimativa é construída', blurb: 'A curva de mortalidade, as tábuas de vida a que ela é ajustada e o limite dos ganhos combinados.' },
+      habits: { title: 'Hábitos na sua estimativa', blurb: 'De onde vem o multiplicador de risco de cada hábito.' },
+      direction: {
+        title: 'Para orientar, fora da estimativa',
+        blurb: 'Achados da tela Hábitos que apontam o caminho, mas ainda não fazem parte dos números.',
+      },
+      behavior: { title: 'Planos, lembretes e procurar as pessoas', blurb: 'A ciência do comportamento por trás dos planos, dos recomeços e das boas-vindas.' },
+      time: { title: 'Para onde vão as horas', blurb: 'O tempo no celular e o que recuperar um pouco dele pode trazer.' },
+      loves: { title: 'O que você ama: “mais N vezes”', blurb: 'Expectativas de vida típicas para contar o tempo com seus bichos.' },
+    },
+    uses: {
+      gompertz1825: 'O formato da curva: o risco anual de morrer cresce de forma exponencial com a idade.',
+      makeham1860: 'A parte constante do risco, que não depende da idade (o termo “A”).',
+      wpp2024: 'Seu ponto de partida: a tábua de vida do seu país e sexo.',
+      li2018: 'O limite de 14 anos para ganhos combinados; não fumar como a maior alavanca.',
+      holtLunstad2015: 'Conexão: ver pouco as pessoas próximas ×1,29.',
+      holtLunstad2010: 'Laços sociais fortes e cerca de 1,5 vez a chance de sobreviver (148 estudos).',
+      paluch2022: 'Exercício e passos diários.',
+      mandsager2018: 'O condicionamento cardiorrespiratório como um dos melhores preditores de sobrevivência.',
+      li2020: 'Peso saudável e anos livres de doenças crônicas.',
+      cappuccio2010: 'Sono: menos de 6 horas ×1,15.',
+      zhao2023: 'Álcool: beber muito ×1,4; beber pouco não protege.',
+      fadnes2022: 'O que você come.',
+      momma2022: 'Treino de força.',
+      cohen2016: 'Um senso de propósito.',
+      lee2019: 'Otimismo e chegar aos 85.',
+      okun2013: 'Ajudar os outros.',
+      waldinger2016: 'Satisfação nos relacionamentos aos 50 e saúde aos 80.',
+      allcott2020: 'Menos rolagem, mais tempo com as pessoas.',
+      hunt2018: 'Limitar as redes sociais a 30 minutos por dia.',
+      phoneTime2025: 'O ponto de partida de 4 horas na pergunta do celular (as estimativas variam).',
+      liu2023: 'Procurar as pessoas.',
+      gollwitzer2006: 'Planos “se… então”.',
+      dai2014: 'Recomeços: segundas, dia 1º, aniversários.',
+      milkman2021: 'Boas-vindas depois de um tempo longe, em vez de sequências.',
+      parkes2008: 'Mostrar às pessoas os próprios números.',
+      buffey2022: 'Caminhadas curtas depois das refeições.',
+      oneill2013: 'Cães: longevidade mediana de cerca de 12 anos.',
+      mcmillan2024: 'Cães: expectativa de vida mediana de 12,5 anos (584.734 cães do Reino Unido).',
+      oneill2015: 'Gatos: longevidade mediana de 14 anos.',
+    },
+    quotesHeading: 'Citações',
+    quotes:
+      'Marco Aurélio (Meditações, trad. inglesa de George Long, 1862), Sêneca (Cartas e Sobre a brevidade da vida, trad. inglesa de Richard M. Gummere, 1917–25, entre outras) e Epicteto (Encheirídion, trad. inglesa de Thomas Wentworth Higginson, 1865). Traduções em domínio público, algumas levemente adaptadas.',
+    footnote:
+      'Alguns links levam a um resumo ou comunicado quando o artigo completo é pago. Associações de estudos populacionais não provam causa, e nada aqui é orientação médica.',
+  },
+
+  methods: {
+    eyebrow: 'Como funciona',
+    title: 'De onde vêm seus números',
+    lede: 'Tudo o que o app mostra é calculado no seu aparelho a partir das suas respostas e de pesquisas publicadas. Aqui está cada passo e o estudo por trás dele.',
+    everyStep: 'Cada passo, com as fontes',
+    accountHeading: 'COMO FUNCIONA',
+    curveTitle: '1 · A curva de onde todos partem',
+    curveIntro:
+      'Nos adultos, o risco anual de morrer sobe de forma constante com a idade, dobrando mais ou menos a cada 7 ou 8 anos. Atuários descrevem isso há dois séculos como uma curva de Gompertz–Makeham:',
+    curveParts: (child, youth) =>
+      `B · e^(b·x) é a parte que cresce com a idade x (Gompertz); A é um risco pequeno que não depende da idade, como acidentes (Makeham). As mortes na infância e na juventude não seguem esse formato, então somamos dois termos constantes: um antes dos ${child} anos e outro dos ${child} aos ${youth}.`,
+    placeTitle: '2 · Onde você mora',
+    placeBody: (n) =>
+      `Onde você mora pesa mais do que qualquer hábito: em 2023, a idade mediana ao morrer ia de cerca de 59 a mais de 90 anos conforme o país. Por isso a curva é ajustada separadamente para cada sexo em cada um de ${n} países e territórios, às tábuas de vida das Nações Unidas para 2023 (World Population Prospects 2024). A, B e b vêm das taxas de mortalidade entre 30 e 100 anos; os termos da infância e da juventude fazem a sobrevivência aos 15 e aos 30 bater exatamente com a tábua. Em todos os países e nos dois sexos, a idade mediana ao morrer que o modelo dá desde o nascimento fica a menos de um ano da tábua da ONU.`,
+    placeUs: (mA, mB, fA, fB, b) =>
+      `Sem país, o app usa uma aproximação antiga das tábuas dos EUA: A = ${mA}, B = ${mB} para homens; A = ${fA}, B = ${fB} para mulheres; b = ${b} (cerca de 75 e 81 anos ao nascer).`,
+    placeLeftOut:
+      'Renda e escolaridade também preveem a duração da vida dentro de um país. Ficam de fora de propósito: não são algo sobre o que você possa agir aqui e soam como um veredito.',
+    habitsTitle: '3 · Seus hábitos',
+    habitsIntro:
+      'Cada resposta multiplica o risco anual em qualquer idade. ×1 significa nenhuma mudança; ×2, o dobro do risco. Os multiplicadores são arredondados a partir de grandes estudos e revisões: são aproximações e vêm de associações, não de experimentos.',
+    habitsConnection: (middle) =>
+      `Em conexão, a resposta do meio (${middle}) fica entre os níveis medidos; ela mesma não foi medida. O estudo informa razões de chances, usadas aqui como multiplicadores de risco, uma aproximação próxima.`,
+    habitsSteps: (at4k, at10k) =>
+      `Os passos diários, se você os informar, substituem a resposta sobre exercício, então o movimento nunca é contado duas vezes. O risco cai cerca de 7% a cada 1.000 passos a mais, medido a partir de 6.000 por dia, e se estabiliza em 10.000: multiplicador = e^(−0,072 × (passos − 6.000) ÷ 1.000). Assim, 4.000 passos dão ${at4k} e 10.000 dão ${at10k}.`,
+    rangeTitle: '4 · Do risco a uma faixa',
+    rangeBody:
+      'A partir da sua idade hoje, o app acompanha o risco mês a mês até os 121 anos, multiplicado pelos seus hábitos. A idade em que metade das pessoas como você já morreu é a sua mediana. As idades em que um quarto e três quartos já morreram dão a faixa provável. Ele também mostra a chance de chegar aos 80.',
+    rangeRule: (b, years, doubling) =>
+      `Uma regra prática por trás dos números dos hábitos: anos ganhos ≈ ln(1 ÷ multiplicador) ÷ ${b}. Cortar seu risco pela metade soma cerca de ${years} anos, porque com b = ${b} o risco dobra mais ou menos a cada ${doubling} anos de idade (as curvas ajustadas por país são um pouco mais íngremes). As telas calculam a diferença real, não o atalho.`,
+    combineTitle: '5 · E se: combinar mudanças',
+    combineBody: (cap) =>
+      `Cada “e se” é a diferença entre sua mediana de agora e sua mediana com aquele hábito mudado. Várias mudanças juntas se multiplicam, então somam menos que cada uma sozinha, porque os efeitos dos hábitos se sobrepõem. O total também tem um limite de ${cap} anos.`,
+    capClaim: (cap) =>
+      `${cap} anos: a maior diferença entre pessoas com os cinco hábitos saudáveis e pessoas sem nenhum, em duas grandes coortes dos EUA.`,
+    combineCalendar:
+      'No calendário, o ganho combinado é dividido entre as mudanças que você testa na proporção do que cada uma somaria sozinha, e cada uma ganha sua própria cor.',
+    notInEstimate: (items) =>
+      `Algumas coisas da tela Hábitos aparecem só para orientar e ainda não estão nos seus números: ${items}.`,
+    timeTitle: '6 · Celular e sono',
+    timePhone: (waking) =>
+      `O tempo no celular é a sua própria estimativa, em horas por dia (começa em 4, perto das estimativas comuns para adultos nos EUA). Ao longo dos anos que você provavelmente ainda tem, isso soma horas × anos ÷ 24. Como parte do seu dia acordado, são horas ÷ ${waking}.`,
+    timeSleep: (ok, short) =>
+      `As visões “Acordado” e “Fora do celular” tiram o sono do calendário: cerca de ${ok} horas por noite, ou ${short} se você respondeu menos de 6. Dormir é tempo bem usado, não perdido.`,
+    timeSwap: (minutes) =>
+      `A troca sugere recuperar ${minutes} minutos por dia do celular e mostra no que eles poderiam se transformar, por exemplo passeios diários com seu cachorro durante os anos que vocês provavelmente têm juntos.`,
+    lovesTitle: '7 · O que você ama: “mais N vezes”',
+    lovesBody:
+      'Para cada pessoa, bicho ou atividade, o app conta os anos que vocês provavelmente vão compartilhar e multiplica pela frequência com que você os vê ou faz aquilo. Esses anos terminam no que vier primeiro: sua idade mediana; a idade em que você disse que pararia uma atividade; a idade mediana da outra pessoa (pela idade dela, na média dos dois sexos, já que o app não pergunta, e supondo que ela mora no seu país); ou a expectativa de vida típica de um bicho.',
+    lovesPets: (dog, cat) =>
+      `Expectativas de vida típicas: cães cerca de ${dog} anos, gatos cerca de ${cat}, segundo registros veterinários do Reino Unido. Raça e porte importam muito. Um bicho mais velho sempre conta com pelo menos meio ano.`,
+    limitsTitle: '8 · O que ele não pode dizer',
+    limits: [
+      'São médias populacionais. Descrevem quanto tempo grupos de pessoas com respostas como as suas costumavam viver, não o que vai acontecer com você. Não sabem nada do seu histórico de saúde, dos seus genes ou do seu atendimento médico.',
+      'As ligações entre hábitos e duração da vida vêm de estudos observacionais: quem faz X tende a viver mais, em parte por causa de X e em parte por tudo o que vem junto. Mudar um hábito pode não mudar sua vida na quantidade mostrada.',
+      'Por isso o app mostra uma faixa, nunca uma data. Metade das pessoas como você vive além da mediana; muitas, bem além.',
+    ],
+    versionTitle: 'Versão do modelo',
+    versionBody: 'O modelo só muda com evidências fortes, como meta-análises, e cada mudança ganha uma nova versão.',
+    allSources: 'Todas as fontes, completas',
   },
 };
