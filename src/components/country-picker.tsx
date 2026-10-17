@@ -4,11 +4,14 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { useTheme } from '@/hooks/use-theme';
+import { useT } from '@/i18n';
 import { countryName, searchCountries } from '@/lib/country';
 
 /** The chosen country, and a search box to change it. */
 export function CountryPicker({ value, onChange }: { value: string | undefined; onChange: (code: string) => void }) {
   const theme = useTheme();
+  const t = useT();
+  const o = t.onboarding;
   const [query, setQuery] = useState('');
   const results = searchCountries(query);
   const name = countryName(value);
@@ -35,8 +38,8 @@ export function CountryPicker({ value, onChange }: { value: string | undefined; 
     <View style={styles.list}>
       {value && name && !query ? <View accessibilityRole="radiogroup">{row(value, name, true)}</View> : null}
       <TextField
-        accessibilityLabel="Search countries"
-        placeholder={name ? 'Somewhere else? Search' : 'Search countries'}
+        accessibilityLabel={o.countrySearch}
+        placeholder={name ? o.countrySearchAgain : o.countrySearch}
         autoCorrect={false}
         autoComplete="country"
         value={query}
@@ -47,9 +50,9 @@ export function CountryPicker({ value, onChange }: { value: string | undefined; 
       {query ? (
         <View accessibilityRole="radiogroup" style={styles.list}>
           {results.length ? (
-            results.map((c) => row(c.code, c.name, c.code === value))
+            results.map((c) => row(c.code, countryName(c.code) ?? c.name, c.code === value))
           ) : (
-            <ThemedText type="small">No country by that name in the UN tables.</ThemedText>
+            <ThemedText type="small">{o.countryNone}</ThemedText>
           )}
         </View>
       ) : null}

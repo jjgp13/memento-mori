@@ -2,15 +2,13 @@
  * What the Life screen's circle grid shows at each zoom level. Ported from draw() in
  * prototype/index.html; rendering lives in components/life-grid.tsx.
  */
+import { dec1, fmt } from '@/i18n/format';
+import type { Rich } from '@/i18n/rich';
+import type { Strings } from '@/i18n/strings/en';
 import { DAY_MS, WEEK_MS, WEEKS_PER_YEAR, ageAt, birthTime, type Healthspan, type Survival } from '@/lib/model';
 
 export type Zoom = 'life' | 'weeks' | 'year' | 'today';
-export const ZOOMS: { key: Zoom; label: string }[] = [
-  { key: 'life', label: 'Life' },
-  { key: 'weeks', label: 'Weeks' },
-  { key: 'year', label: 'Year' },
-  { key: 'today', label: 'Today' },
-];
+export const ZOOMS: Zoom[] = ['life', 'weeks', 'year', 'today'];
 
 /**
  * lived · now (fills like a pie) · likely ahead (before the median) · reach (extra time a habit change
@@ -38,16 +36,11 @@ function healthLevel(health: Layers['health']) {
   return (age: number) => (age < q25 ? 1 : age >= q75 ? 0 : (q75 - age) / Math.max(1e-6, q75 - q25));
 }
 
-/** "About 28 of those years are likely in good health." Doubles as the band's text alternative. */
-function healthCaption(age: number, unit: string, perYear: number, health: Layers['health']): Rich {
+/** "About 28 of them are likely in good health…" Doubles as the band's text alternative. */
+function healthCaption(t: Strings, age: number, unit: 'years' | 'weeks', perYear: number, health: Layers['health']): Rich {
   if (!health) return [];
-  const lo = Math.max(0, health.q25 - age) * perYear;
-  const hi = Math.max(0, health.q75 - age) * perYear;
-  return [
-    t(' About '),
-    b(fmt(Math.max(0, health.med - age) * perYear)),
-    t(` of them are likely in good health, strong and independent: the green band, fading where people differ (for most like you, ${fmt(lo)}–${fmt(hi)} ${unit}).`),
-  ];
+  const left = (to: number) => fmt(Math.max(0, to - age) * perYear);
+  return t.life.caption.health(unit, left(health.med), left(health.q25), left(health.q75));
 }
 
 /** Likely-ahead cells [from, to): the first part stays free, then phone time, then sleep, added up. */
@@ -58,23 +51,15 @@ function splitAhead(from: number, to: number, { sleep = 0, phone = 0 }: Layers) 
   return (i: number): CellState => (i < freeEnd ? 'likely' : i < phoneEnd ? 'phone' : 'sleep');
 }
 
-/** "Added up, about 15 of those years are rest and 7 on your phone." Sleep is time well spent, never "lost". */
-function layersCaption(left: number, unit: string, { sleep = 0, phone = 0 }: Layers): Rich {
+/** "Added up, about 15 of those years are sleep and 7 on your phone." Sleep is time well spent, never "lost". */
+function layersCaption(t: Strings, left: number, unit: 'years' | 'weeks', { sleep = 0, phone = 0 }: Layers): Rich {
   if (!sleep && !phone) return [];
   const free = left * (1 - sleep - phone);
-  return [
-    t(' Added up, about '),
-    b(fmt(left * sleep)),
-    t(` of those ${unit} are sleep (time well spent)`),
-    ...(phone ? [t(' and '), b(fmt(left * phone)), t(' on your phone')] : []),
-    t(', leaving about '),
-    b(fmt(free)),
-    t(phone ? ' awake and off your phone.' : ' awake.'),
-  ];
+  return t.life.caption.layers(unit, fmt(left * sleep), phone ? fmt(left * phone) : null, fmt(free));
 }
 
-/** Plain text with **bold** runs, so captions can be both styled and read aloud. */
-export type Rich = { text: string; strong?: boolean }[];
+export type { Rich } from '@/i18n/rich';
+export { fmt } from '@/i18n/format';
 
 export type GridView = {
   cols: number;
@@ -95,10 +80,7 @@ export type GridView = {
   caption: Rich;
 };
 
-export const fmt = (n: number) => Math.max(0, Math.round(n)).toLocaleString('en-US');
 const pct = (f: number) => `${Math.floor(f * 100)}%`;
-const b = (text: string) => ({ text, strong: true });
-const t = (text: string) => ({ text });
 
 /** Which change a point `x` years past the median belongs to, for changes drawn end to end. */
 function segmentOf(gains: number[]) {
@@ -112,10 +94,11 @@ function segmentOf(gains: number[]) {
   };
 }
 
-export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, layers: Layers = {}): GridView {
+export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, t: Strings, layers: Layers = {}): GridView {
+  const cap = t.life.caption;
   const age = ageAt(dob, now);
   const gains = layers.gains ?? [];
-  const gain = gains.reduce((t, g) => t + g, 0);
+  const gain = gains.reduce((sum, g) => sum + g, 0);
   const segment = segmentOf(gains);
   const level = healthLevel(layers.health);
 
@@ -135,13 +118,9 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
       label: (i) => (i % 5 === 0 ? String(i) : ''),
       rowLabel: (row) => String(row * 10),
       caption: [
-        t(`Your year ${a + 1} is `),
-        b(pct(frac)),
-        t(' gone. About '),
-        b(fmt(est.med - age)),
-        t(' more birthdays are likely.'),
-        ...healthCaption(age, 'years', 1, layers.health),
-        ...layersCaption(est.med - age, 'years', layers),
+        ...cap.life(a + 1, pct(frac), fmt(est.med - age)),
+        ...healthCaption(t, age, 'years', 1, layers.health),
+        ...layersCaption(t, est.med - age, 'years', layers),
       ],
     };
   }
@@ -163,13 +142,9 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
       health: level && ((i) => level((i + 0.5) / WEEKS_PER_YEAR)),
       rowLabel: (row) => (row % 10 === 0 ? String(row) : ''),
       caption: [
-        t(`Week ${fmt(w + 1)} of your life is `),
-        b(pct(weeksLived - w)),
-        t(' gone. About '),
-        b(fmt(med - weeksLived)),
-        t(' weeks likely remain.'),
-        ...healthCaption(age, 'weeks', WEEKS_PER_YEAR, layers.health),
-        ...layersCaption(med - weeksLived, 'weeks', layers),
+        ...cap.weeks(fmt(w + 1), pct(weeksLived - w), fmt(med - weeksLived)),
+        ...healthCaption(t, age, 'weeks', WEEKS_PER_YEAR, layers.health),
+        ...layersCaption(t, med - weeksLived, 'weeks', layers),
       ],
     };
   }
@@ -197,8 +172,8 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
         const k = dayOfYear(i);
         return k < 0 ? 'none' : k < today ? 'lived' : k === today ? 'now' : 'likely';
       },
-      rowLabel: (row) => 'JFMAMJJASOND'[row],
-      caption: [t(`${Y} is `), b(pct((now - start) / (end - start))), t(' gone. Today is '), b(pct(frac)), t(' gone. '), b(fmt((end - now) / DAY_MS)), t(' days left this year.')],
+      rowLabel: (row) => t.date.monthInitials[row],
+      caption: cap.year(Y, pct((now - start) / (end - start)), pct(frac), fmt((end - now) / DAY_MS)),
     };
   }
 
@@ -211,9 +186,9 @@ export function lifeView(zoom: Zoom, dob: string, est: Survival, now: number, la
     labelW: 0,
     frac,
     state: (i) => (i < h ? 'lived' : i === h ? 'now' : 'likely'),
-    label: (i) => `${i % 12 || 12}${i < 12 ? 'a' : 'p'}`,
-    caption: [t('This hour is '), b(pct(frac)), t(' gone. Today has about '), b(Math.max(0, 23 - h - frac).toFixed(1)), t(' hours left. Spend them on purpose.')],
+    label: t.date.hour,
+    caption: cap.today(pct(frac), dec1(Math.max(0, 23 - h - frac))),
   };
 }
 
-export const richText = (r: Rich) => r.map((s) => s.text).join('');
+export { richText } from '@/i18n/rich';

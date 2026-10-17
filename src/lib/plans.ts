@@ -2,8 +2,10 @@
  * If-then plans: "Sundays after lunch, I will call Mom." Implementation intentions are one of the most
  * robust findings in behavior change (docs/nudges.md §1a, §2). Each person can have one; habits get one
  * small plan at a time. Fresh starts (Mondays, the 1st, birthdays) offer "one thing" for the period (§1d).
- * Everything lives in the profile, on this device.
+ * Everything lives in the profile, on this device. Words come from the language catalogs (`t.plans`);
+ * a plan keeps the words it was made with.
  */
+import type { Strings } from '@/i18n/strings/en';
 import type { Lever } from '@/lib/habit-impact';
 import { lastContact, type Love } from '@/lib/loves';
 import { DAY_MS, WEEK_MS } from '@/lib/model';
@@ -34,54 +36,50 @@ export type Focus = { text: string; period: FreshStartKind; setAt: number; doneA
 
 /** Monday first, the way people plan a week. */
 export const WEEK_ORDER: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
-export const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /** Cues people already have every day; each comes with a usual time for calendar reminders. */
-export const ANCHORS: { anchor: string; time: string }[] = [
-  { anchor: 'after breakfast', time: '08:00' },
-  { anchor: 'after lunch', time: '13:00' },
-  { anchor: 'after work', time: '18:00' },
-  { anchor: 'after dinner', time: '19:30' },
-  { anchor: 'in the morning', time: '09:00' },
-];
+const ANCHOR_TIMES = { breakfast: '08:00', lunch: '13:00', work: '18:00', dinner: '19:30', morning: '09:00' } as const;
+
+export function anchors(t: Strings): { anchor: string; time: string }[] {
+  return (Object.keys(ANCHOR_TIMES) as (keyof typeof ANCHOR_TIMES)[]).map((k) => ({ anchor: t.plans.anchors[k], time: ANCHOR_TIMES[k] }));
+}
+
+/** Cues that follow a meal or the workday, which read well after an action ("walk after dinner"). */
+export const isAfterAnchor = (t: Strings, anchor: string | undefined) =>
+  !!anchor && [t.plans.anchors.breakfast, t.plans.anchors.lunch, t.plans.anchors.work, t.plans.anchors.dinner].includes(anchor);
 
 const MAX_DONE = 60;
 
 // ---------- Words ----------
 
 /** "Every day", "Weekdays", "Weekends", "Sundays", "Mondays and Thursdays", "Mon, Wed and Fri" */
-export function daysLabel(days: Weekday[]) {
+export function daysLabel(days: Weekday[], t: Strings) {
   const set = new Set(days);
-  if (set.size === 7) return 'Every day';
-  if (set.size === 5 && [1, 2, 3, 4, 5].every((d) => set.has(d as Weekday))) return 'Weekdays';
-  if (set.size === 2 && set.has(0) && set.has(6)) return 'Weekends';
-  const ordered = WEEK_ORDER.filter((d) => set.has(d));
-  if (ordered.length === 1) return `${DAY_NAMES[ordered[0]]}s`;
-  if (ordered.length === 2) return `${DAY_NAMES[ordered[0]]}s and ${DAY_NAMES[ordered[1]]}s`;
-  const short = ordered.map((d) => DAY_SHORT[d]);
-  return `${short.slice(0, -1).join(', ')} and ${short[short.length - 1]}`;
+  if (set.size === 7) return t.plans.everyDay;
+  if (set.size === 5 && [1, 2, 3, 4, 5].every((d) => set.has(d as Weekday))) return t.plans.weekdays;
+  if (set.size === 2 && set.has(0) && set.has(6)) return t.plans.weekends;
+  return t.plans.days(WEEK_ORDER.filter((d) => set.has(d)));
 }
 
-/** "12:30 pm" */
-export function timeLabel(time: string) {
+/** "12:30 pm", "12:30" */
+export function timeLabel(time: string, t: Strings) {
   const [h, m] = time.split(':').map(Number);
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
+  return t.plans.time(h, m);
 }
 
 /** The "when": "Sundays after lunch", "Weekdays at 8:00 am". */
-export function cueLabel(plan: Plan) {
-  return `${daysLabel(plan.days)} ${plan.anchor?.trim() || `at ${timeLabel(plan.time)}`}`;
+export function cueLabel(plan: Plan, t: Strings) {
+  return t.plans.cue(daysLabel(plan.days, t), plan.anchor?.trim() || null, timeLabel(plan.time, t));
 }
 
 /** The whole if-then: "Sundays after lunch, I will call Mom." */
-export function planSentence(plan: Plan) {
-  return `${cueLabel(plan)}, I will ${plan.action.trim().replace(/\.$/, '')}.`;
+export function planSentence(plan: Plan, t: Strings) {
+  return t.plans.sentence(cueLabel(plan, t), plan.action.trim().replace(/[.。।]$/, ''));
 }
 
 /** "call Mom" · "call my best friend" */
-export function nameInSentence(name: string) {
-  return name.replace(/^My /, 'my ');
+export function nameInSentence(name: string, t: Strings) {
+  return t.plans.nameInSentence(name);
 }
 
 // ---------- Time ----------
@@ -122,11 +120,11 @@ export function nextOccurrence(plan: Plan, now = Date.now()) {
 export const isPlanDay = (plan: Plan, now = Date.now()) => plan.days.includes(new Date(now).getDay() as Weekday);
 
 /** "today", "tomorrow", "Sunday" */
-export function whenLabel(at: number, now = Date.now()) {
+export function whenLabel(at: number, t: Strings, now = Date.now()) {
   const days = Math.round((startOfDay(at) - startOfDay(now)) / DAY_MS);
-  if (days <= 0) return 'today';
-  if (days === 1) return 'tomorrow';
-  return DAY_NAMES[new Date(at).getDay()];
+  if (days <= 0) return t.plans.today;
+  if (days === 1) return t.plans.tomorrow;
+  return t.date.weekdays[new Date(at).getDay()];
 }
 
 // ---------- Progress, without streaks ----------
@@ -154,25 +152,42 @@ export function missedLastWeek(plan: Plan, moments: number[], now = Date.now()) 
 // ---------- Defaults ----------
 
 /** Weekend around midday, when people respond best (docs/nudges.md §1b, §2). */
-export function defaultPersonPlan(love: Love, now = Date.now()): Plan {
-  const name = nameInSentence(love.name);
-  return { days: [0], time: '13:00', anchor: 'after lunch', action: love.phone ? `call ${name}` : `message or call ${name}`, createdAt: now };
+export function defaultPersonPlan(love: Love, t: Strings, now = Date.now()): Plan {
+  const name = nameInSentence(love.name, t);
+  return {
+    days: [0],
+    time: '13:00',
+    anchor: t.plans.anchors.lunch,
+    action: love.phone ? t.plans.call(name) : t.plans.messageOrCall(name),
+    createdAt: now,
+  };
 }
 
+type Anchor = keyof Strings['plans']['anchors'];
+type Action = keyof Strings['plans']['actions'];
+
 /** One small, specific step per change, anchored to something they already do. */
-const HABIT_DEFAULTS: Record<Lever['key'], Omit<Plan, 'createdAt'>> = {
-  steps: { days: [0, 1, 2, 3, 4, 5, 6], time: '19:30', anchor: 'after dinner', action: 'go for a 10-minute walk' },
-  exercise: { days: [0, 1, 2, 3, 4, 5, 6], time: '19:30', anchor: 'after dinner', action: 'go for a 10-minute walk' },
-  connection: { days: [6], time: '11:00', anchor: 'in the morning', action: 'call or see someone I love' },
-  sleep: { days: [0, 1, 2, 3, 4, 5, 6], time: '22:30', action: 'put my phone away and get ready for bed' },
-  smoke: { days: [0, 1, 2, 3, 4, 5, 6], time: '09:00', anchor: 'when I want a cigarette', action: 'take a 5-minute walk first' },
-  alcohol: { days: [5], time: '18:00', anchor: 'after work', action: 'have a glass of sparkling water first' },
-  bmi: { days: [1, 2, 3, 4, 5], time: '12:30', anchor: 'at lunch', action: 'fill half my plate with vegetables' },
-  strength: { days: [1, 4], time: '07:30', anchor: 'after my morning coffee', action: 'do 10 minutes of squats, push-ups and carries' },
+const HABIT_DEFAULTS: Record<Lever['key'], { days: Weekday[]; time: string; anchor?: Anchor; action: Action }> = {
+  steps: { days: [0, 1, 2, 3, 4, 5, 6], time: '19:30', anchor: 'dinner', action: 'walk' },
+  exercise: { days: [0, 1, 2, 3, 4, 5, 6], time: '19:30', anchor: 'dinner', action: 'walk' },
+  connection: { days: [6], time: '11:00', anchor: 'morning', action: 'connect' },
+  sleep: { days: [0, 1, 2, 3, 4, 5, 6], time: '22:30', action: 'bed' },
+  smoke: { days: [0, 1, 2, 3, 4, 5, 6], time: '09:00', anchor: 'cigarette', action: 'smoke' },
+  alcohol: { days: [5], time: '18:00', anchor: 'work', action: 'drink' },
+  bmi: { days: [1, 2, 3, 4, 5], time: '12:30', anchor: 'atLunch', action: 'plate' },
+  strength: { days: [1, 4], time: '07:30', anchor: 'coffee', action: 'strength' },
 };
 
-export function defaultHabitPlan(habit: Lever['key'], now = Date.now()): HabitPlan {
-  return { ...HABIT_DEFAULTS[habit], days: [...HABIT_DEFAULTS[habit].days], habit, createdAt: now };
+export function defaultHabitPlan(habit: Lever['key'], t: Strings, now = Date.now()): HabitPlan {
+  const d = HABIT_DEFAULTS[habit];
+  return {
+    days: [...d.days],
+    time: d.time,
+    anchor: d.anchor ? t.plans.anchors[d.anchor] : undefined,
+    action: t.plans.actions[d.action],
+    habit,
+    createdAt: now,
+  };
 }
 
 // ---------- Pacing: never more than one new plan a week ----------
@@ -228,10 +243,10 @@ export function focusIsCurrent(focus: Focus | undefined, dob: string, now = Date
 }
 
 /** "this week", "October", "your new year" */
-export function freshStartLabel(kind: FreshStartKind, now = Date.now()) {
-  if (kind === 'week') return 'this week';
-  if (kind === 'month') return new Date(now).toLocaleDateString('en-US', { month: 'long' });
-  return 'your new year';
+export function freshStartLabel(kind: FreshStartKind, t: Strings, now = Date.now()) {
+  if (kind === 'week') return t.plans.periodWeek;
+  if (kind === 'month') return t.date.months[new Date(now).getMonth()];
+  return t.plans.periodBirthday;
 }
 
 // ---------- Calendar (.ics) ----------
@@ -240,8 +255,24 @@ const ICS_DAYS = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
 
 const icsText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 
-/** Lines longer than 75 octets must be folded (RFC 5545 §3.1); the text here is ASCII. */
-const fold = (line: string) => line.match(/.{1,73}/g)?.join('\r\n ') ?? line;
+/** Lines longer than 75 octets must be folded (RFC 5545 §3.1), without splitting a character. */
+function fold(line: string) {
+  const parts: string[] = [];
+  let part = '';
+  let bytes = 0;
+  for (const ch of line) {
+    const size = new TextEncoder().encode(ch).length;
+    if (bytes + size > 73) {
+      parts.push(part);
+      part = '';
+      bytes = 0;
+    }
+    part += ch;
+    bytes += size;
+  }
+  parts.push(part);
+  return parts.join('\r\n ');
+}
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const localStamp = (t: number) => {
@@ -254,11 +285,11 @@ const utcStamp = (t: number) => new Date(t).toISOString().replace(/[-:]/g, '').r
  * A repeating calendar event with a reminder at the plan's time. Floating local time (no time zone), so
  * "1:00 pm" stays 1:00 pm wherever they are. Built on the device; nothing is sent anywhere.
  */
-export function planIcs(plan: Plan, title: string, now = Date.now()) {
+export function planIcs(plan: Plan, title: string, t: Strings, now = Date.now()) {
   const start = nextOccurrence(plan, now);
   const days = WEEK_ORDER.filter((d) => plan.days.includes(d)).map((d) => ICS_DAYS[d]);
   const rule = days.length === 7 ? 'FREQ=DAILY' : `FREQ=WEEKLY;BYDAY=${days.join(',')}`;
-  const description = `${planSentence(plan)} Missing one is fine: just pick it up next time. From Memento Mori.`;
+  const description = `${planSentence(plan, t)} ${t.plans.calendarNote}`;
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',

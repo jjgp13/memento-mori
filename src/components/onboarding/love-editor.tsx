@@ -8,34 +8,28 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { fmt } from '@/lib/life-views';
+import { RichText } from '@/components/rich-text';
+import { useT } from '@/i18n';
+import { fmt } from '@/i18n/format';
+import { s as plain } from '@/i18n/rich';
 import {
-  ACTIVITY_SUGGESTIONS,
-  PERSON_SUGGESTIONS,
-  PER_LABEL,
+  activitySuggestions,
   loveCount,
   loveUnit,
   type Love,
   type Per,
   type Species,
+  personSuggestions,
 } from '@/lib/loves';
 import type { ModelInput } from '@/lib/model';
 
-const PERS: { key: Per; label: string }[] = [
-  { key: 'day', label: 'a day' },
-  { key: 'week', label: 'a week' },
-  { key: 'month', label: 'a month' },
-  { key: 'year', label: 'a year' },
-];
+const PERS: Per[] = ['day', 'week', 'month', 'year'];
+const SPECIES: Species[] = ['dog', 'cat'];
+const WHO_KINDS = ['person', 'pet'] as const;
 
-const WHO_KINDS: { key: 'person' | 'pet'; label: string }[] = [
-  { key: 'person', label: 'Person' },
-  { key: 'pet', label: 'Pet' },
-];
-const SPECIES: { key: Species; label: string }[] = [
-  { key: 'dog', label: 'Dog' },
-  { key: 'cat', label: 'Cat' },
-];
+/** Segmented options from keys and their labels in the current language. */
+const options = <K extends string>(keys: readonly K[], labels: Record<K, string>) =>
+  keys.map((key) => ({ key, label: labels[key] }));
 
 type Form = {
   kind: Love['kind'];
@@ -66,6 +60,7 @@ export function LoveEditor({
   showList?: boolean;
 }) {
   const theme = useTheme();
+  const t = useT();
   const who = group === 'who';
   const empty: Form = {
     kind: who ? 'person' : 'activity',
@@ -81,7 +76,7 @@ export function LoveEditor({
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
   const pet = form.kind === 'pet';
   const mine = loves.filter((l) => (who ? l.kind !== 'activity' : l.kind === 'activity'));
-  const suggestions = (who ? PERSON_SUGGESTIONS : ACTIVITY_SUGGESTIONS).filter(
+  const suggestions = (who ? personSuggestions(t) : activitySuggestions(t)).filter(
     (s) => !mine.some((l) => l.name === s.name),
   );
 
@@ -113,7 +108,7 @@ export function LoveEditor({
             <Pressable
               key={s.name}
               accessibilityRole="button"
-              accessibilityLabel={`Use suggestion: ${s.name}`}
+              accessibilityLabel={t.loves.useSuggestion(s.name)}
               onPress={() =>
                 setForm({
                   kind: s.kind,
@@ -138,23 +133,23 @@ export function LoveEditor({
       <View style={[styles.form, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         {who ? (
           <Segmented
-            options={WHO_KINDS}
+            options={options(WHO_KINDS, t.loves.kinds)}
             value={pet ? 'pet' : 'person'}
             onChange={(kind) => set({ kind })}
-            accessibilityLabel="Person or pet"
+            accessibilityLabel={t.loves.personOrPet}
           />
         ) : null}
         {pet ? (
           <Segmented
-            options={SPECIES}
+            options={options(SPECIES, t.loves.species)}
             value={form.species}
             onChange={(species) => set({ species })}
-            accessibilityLabel="Kind of pet"
+            accessibilityLabel={t.loves.kindOfPet}
           />
         ) : null}
         <TextField
-          accessibilityLabel={who ? 'Who' : 'What'}
-          placeholder={pet ? 'Max, Luna…' : who ? 'Mom, my partner, Sam…' : 'Play soccer, read, travel…'}
+          accessibilityLabel={who ? t.loves.whoA11y : t.loves.whatA11y}
+          placeholder={pet ? t.loves.petPlaceholder : who ? t.loves.personPlaceholder : t.loves.activityPlaceholder}
           value={form.name}
           onChangeText={(name) => set({ name })}
           onSubmitEditing={add}
@@ -163,23 +158,23 @@ export function LoveEditor({
         />
 
         <ThemedText type="eyebrow" themeColor="muted">
-          {who ? 'How often you see them' : 'How often you do it'}
+          {who ? t.loves.howOftenSee : t.loves.howOftenDo}
         </ThemedText>
         <View style={styles.row}>
           <View style={[styles.stepper, { borderColor: theme.line }]}>
-            <StepButton label="−" onPress={() => set({ count: Math.max(1, form.count - 1) })} accessibilityLabel="Fewer" />
+            <StepButton label="−" onPress={() => set({ count: Math.max(1, form.count - 1) })} accessibilityLabel={t.loves.fewer} />
             <Text style={[styles.count, { color: theme.fg }]} accessibilityLiveRegion="polite">
               {form.count}
             </Text>
-            <StepButton label="+" onPress={() => set({ count: Math.min(99, form.count + 1) })} accessibilityLabel="More" />
+            <StepButton label="+" onPress={() => set({ count: Math.min(99, form.count + 1) })} accessibilityLabel={t.common.more} />
           </View>
-          <ThemedText type="small">{form.count === 1 ? 'time' : 'times'}</ThemedText>
+          <ThemedText type="small">{t.loves.times(form.count)}</ThemedText>
         </View>
-        <Segmented options={PERS} value={form.per} onChange={(per) => set({ per })} accessibilityLabel="Per" />
+        <Segmented options={options(PERS, t.loves.per)} value={form.per} onChange={(per) => set({ per })} accessibilityLabel={t.loves.perA11y} />
 
         <TextField
-          accessibilityLabel={who ? 'Their age (optional)' : 'Until what age? (optional)'}
-          placeholder={who ? (pet ? 'Their age in years (optional)' : 'Their age (optional)') : 'Until what age? (optional)'}
+          accessibilityLabel={who ? t.loves.theirAge : t.loves.untilAge}
+          placeholder={who ? (pet ? t.loves.petAge : t.loves.theirAge) : t.loves.untilAge}
           keyboardType="number-pad"
           value={who ? form.theirAge : form.until}
           onChangeText={(t) => {
@@ -191,8 +186,8 @@ export function LoveEditor({
 
         {form.kind === 'person' ? (
           <TextField
-            accessibilityLabel="Phone (optional)"
-            placeholder="Phone (optional, for Call and Message)"
+            accessibilityLabel={t.loves.phoneA11y}
+            placeholder={t.loves.phonePlaceholder}
             keyboardType="phone-pad"
             autoComplete="tel"
             value={form.phone}
@@ -201,7 +196,7 @@ export function LoveEditor({
           />
         ) : null}
 
-        <Button title="Add" variant="ghost" disabled={!form.name.trim()} onPress={add} />
+        <Button title={t.common.add} variant="ghost" disabled={!form.name.trim()} onPress={add} />
       </View>
 
       {(showList ? mine : []).map((l) => {
@@ -215,23 +210,18 @@ export function LoveEditor({
             style={[styles.item, { borderBottomColor: theme.line }]}>
             <View style={styles.flex}>
               <ThemedText>{l.name}</ThemedText>
-              <ThemedText type="small">
-                {l.count} {PER_LABEL[l.per]}
-                {n != null ? (
-                  <>
-                    {' · about '}
-                    <ThemedText type="small" themeColor="accent">
-                      {fmt(n)}
-                    </ThemedText>
-                    {` more ${loveUnit(l)}`}
-                  </>
-                ) : null}
-              </ThemedText>
+              <RichText
+                type="small"
+                parts={[
+                  plain(t.loves.pace(l.count, l.per)),
+                  ...(n != null ? [plain(' · '), ...t.loves.aboutMore(fmt(n), loveUnit(l))] : []),
+                ]}
+              />
             </View>
             <Button
-              title="Remove"
+              title={t.common.remove}
               variant="link"
-              accessibilityLabel={`Remove ${l.name}`}
+              accessibilityLabel={t.common.removeA11y(l.name)}
               onPress={() => onChange(loves.filter((x) => x.id !== l.id))}
             />
           </Animated.View>
