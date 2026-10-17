@@ -9,7 +9,11 @@
  *   archaic English ("thou" → "you"); it never changes the meaning.
  * - Stories and practices are retold in our own words, with the passage they retell cited.
  * - Anything that reminds people of death carries an `action`: one small thing they could do today.
+ *
+ * Other languages live in wisdom-<lang>.ts (a `WisdomLanguage` each, keyed by these ids): a public-domain
+ * translation in that language where one exists, otherwise our own translation of the English, marked so.
  */
+import type { Lang } from '../i18n/locale';
 import type { ValueKey } from './values';
 
 export type WisdomType = 'quote' | 'story' | 'practice';
@@ -112,10 +116,18 @@ export type SourceKey =
   | 'legge-tao'
   | 'giles-zhuangzi'
   | 'cotton-montaigne'
-  | 'james-boethius';
+  | 'james-boethius'
+  | 'reina-valera-1909';
 
 /** A translation we quote from. All are public domain (published before 1929 or long out of copyright). */
-export type Source = { title: string; translator: string; year: string; url: string };
+export type Source = {
+  title: string;
+  translator: string;
+  year: string;
+  url: string;
+  /** The language it is in, when not English. */
+  lang?: Lang;
+};
 
 export const SOURCES: Record<SourceKey, Source> = {
   'long-meditations': {
@@ -184,6 +196,13 @@ export const SOURCES: Record<SourceKey, Source> = {
     year: '1897',
     url: 'https://www.gutenberg.org/ebooks/14328',
   },
+  'reina-valera-1909': {
+    title: 'La Santa Biblia, Reina-Valera 1909',
+    translator: 'Reina-Valera',
+    year: '1909',
+    url: 'https://ebible.org/spaRV1909/',
+    lang: 'es',
+  },
 };
 
 export type Wisdom = {
@@ -199,8 +218,13 @@ export type Wisdom = {
   /** Exact place: book.section, letter.section, chapter, chapter:verse. */
   locus: string;
   source: SourceKey;
-  /** 'public-domain': `text` quotes a public-domain translation. 'own-words': we retold it. */
+  /**
+   * 'public-domain': `text` quotes a public-domain translation. 'own-words': we retold it, or (with
+   * `translated`) translated the quote ourselves.
+   */
   licence: 'public-domain' | 'own-words';
+  /** A quote we translated ourselves from `source` (an English translation), for a language without one of its own. */
+  translated?: boolean;
   themes: Theme[];
   /** Which of the person's values (src/lib/values.ts) this speaks to; picked more often for them. */
   values?: ValueKey[];
@@ -211,6 +235,30 @@ export type Wisdom = {
    * (docs/nudges.md §1g). `{person}` becomes someone they love, or "someone you love".
    */
   action?: string;
+};
+
+/** One entry in another language. Questions and actions are ours, so they are always translated freely. */
+export type WisdomText = {
+  /** Quote: exactly as `source` has it if set; otherwise our translation of the English. Story: our own words. */
+  text: string;
+  /** As in English: the quote with old spelling or wording gently brought up to date. Only with `source`. */
+  modern?: string;
+  /** A public-domain translation in this language that `text` quotes word for word. */
+  source?: SourceKey;
+  question: string;
+  /** Present exactly when the English entry has one; finishes that language's "You could …". */
+  action?: string;
+};
+
+/** The library in one more language: every entry, plus the names that appear in citations. */
+export type WisdomLanguage = {
+  lang: Lang;
+  authors: Record<AuthorKey, string>;
+  /** Each English `work` ("Meditations", "Letters") as it is called in this language. */
+  works: Record<string, string>;
+  /** Words inside a locus ("II, prose 4", "ch. 3") in this language. */
+  locus?: [en: string, here: string][];
+  entries: Record<string, WisdomText>;
 };
 
 export const WISDOM: Wisdom[] = [

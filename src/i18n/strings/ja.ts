@@ -679,6 +679,7 @@ export const ja: Strings = {
     youCould: 'できること：',
     someoneYouLove: '大切な人',
     readIn: (translator: string) => `${translator} の翻訳で読む`,
+    ourTranslation: (translator: string, year: string) => `${translator} の英訳（${year}）からの私たちの訳`,
   },
   opening: {
     lookBack: 'ふりかえる',

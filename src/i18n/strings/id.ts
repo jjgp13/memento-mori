@@ -703,6 +703,7 @@ export const id: Strings = {
     youCould: 'Kamu bisa',
     someoneYouLove: 'seseorang yang kamu sayangi',
     readIn: (translator: string) => `Baca dalam terjemahan ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Terjemahan kami, dari terjemahan bahasa Inggris ${translator} (${year})`,
   },
   opening: {
     lookBack: 'Menengok ke belakang',

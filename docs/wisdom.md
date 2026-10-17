@@ -10,11 +10,11 @@ Code: entries in [`src/lib/wisdom-data.ts`](../src/lib/wisdom-data.ts), selectio
 the opening sequence and on Today. October 2026 starter set: **114 entries**, every one checked against
 its source.
 
-**Languages.** The entries quote English translations, so the library is English only for now
-(`LIBRARY = { en: WISDOM }`). In the other ten languages the app keeps showing the short quote and
-question lists in each catalog (`daily.quotes`, `daily.questions` in `src/i18n/strings/`) until entries
-are translated (§5). The card's own labels ("A story", "You could", "Retold from …") are in every
-catalog, under `wisdom`.
+**Languages.** English and Spanish have the library (`LIBRARY` in `src/lib/wisdom.ts`; Spanish entries
+in [`src/lib/wisdom-es.ts`](../src/lib/wisdom-es.ts), §5). The other nine languages keep showing the short
+quote and question lists in their catalogs (`daily.quotes`, `daily.questions` in `src/i18n/strings/`)
+until their entries are translated. The card's own labels ("A story", "You could", "Retold from …",
+"Our translation, from … English") are in every catalog, under `wisdom`.
 
 ---
 
@@ -63,6 +63,7 @@ for one line.
 | Zhuangzi | Zhuangzi | Herbert A. Giles, 1889 | [Gutenberg 59709](https://www.gutenberg.org/ebooks/59709) |
 | Montaigne | Essays | Charles Cotton, ed. W. C. Hazlitt, 1877 | [Gutenberg 3600](https://www.gutenberg.org/ebooks/3600) |
 | Boethius | The Consolation of Philosophy | H. R. James, 1897 | [Gutenberg 14328](https://www.gutenberg.org/ebooks/14328) |
+| Ecclesiastes, Psalms (Spanish) | Hebrew Bible | Reina-Valera, 1909 revision | [eBible.org spaRV1909](https://ebible.org/spaRV1909/) |
 
 The citation under each entry in the app opens that full text (for Seneca's letters and Epictetus'
 Discourses, the exact letter or chapter).
@@ -124,7 +125,14 @@ python scripts/verify-wisdom.py /tmp/wisdom-sources    # every quote word for wo
 `verify-wisdom.py` finds each quote in its source (ignoring case, punctuation and footnote marks; "…"
 may skip text, in order), then recomputes the book/letter/section/chapter/verse from the markers in the
 text and fails if it differs from `locus`. Retold entries are checked with an anchor phrase from their
-passage (`ANCHORS` in the script). The October 2026 set: 114 entries, 0 problems.
+passage (`ANCHORS` in the script). Entries in another language that quote that language's own
+translation (`source` in `wisdom-<lang>.ts`) are checked the same way. October 2026: 114 English entries
+and the 11 Spanish ones quoting the Reina-Valera, 0 problems.
+
+`check:wisdom` also checks every language file: all 114 ids present, an action exactly where English has
+one, the same `{person}`/`{day}` placeholders, questions that look like questions in that language
+("¿…?"), actions starting lower case with no "should" words (Spanish: *debes*, *deberías*, *tienes que*,
+*hay que*), and at most 1.3× the English word limits.
 
 ### Adding an entry
 1. Find the passage in one of the sources above (or add a new public-domain source to `SOURCES`, the
@@ -141,11 +149,32 @@ passage (`ANCHORS` in the script). The October 2026 set: 114 entries, 0 problems
 French, so the honest path per language is: use a public-domain translation in that language where one
 exists (Reina-Valera 1909 for Ecclesiastes in Spanish, Luther 1912 in German, older French translations
 of Marc Aurèle and Sénèque…), checked the same way as the English; otherwise translate the English entry
-ourselves and mark it as our translation (licence `own-words`, citing the same place). Questions and
-actions are ours and can be translated freely. An entry would then carry per-language text
-(`text`, `question`, `action` by language), and `LIBRARY` gains that language; the catalog's
-`daily.quotes` list for it can be retired. The old catalog lists still hold three lines flagged in §2
-as unverified, so translating them out is worth doing first.
+ourselves and say so. Questions and actions are ours and can be translated freely, keeping "could, not
+should" ([nudges.md §1i](nudges.md)).
+
+How it fits together:
+- Each language is one file, `src/lib/wisdom-<lang>.ts`, holding a `WisdomLanguage`: author names, work
+  names, locus words ("prose" → "prosa") and, for every id, a `WisdomText` (`text`, optional `modern`,
+  optional `source`, `question`, `action`). Add it to `LANGUAGES` in `wisdom.ts`, to `check-wisdom.mts`
+  (with that language's question and "should" rules) and to `LANGS` in `verify-wisdom.py`.
+- With `source` (a public-domain translation in that language, added to `SOURCES` with its `lang`), the
+  text is quoted exactly and cited as that translation. Without it, a quote becomes our translation:
+  licence `own-words`, `translated: true`, shown as a quote with "Our translation, from George Long's
+  English (1862)" linking to the English it comes from. Stories stay "Retold from …".
+- Once a language has the library, delete its catalog's `daily.quotes` and `daily.questions` (they are
+  optional in the `Strings` type). The old lists hold three lines flagged in §2 as unverified, so each
+  language moved over drops them.
+
+Status, October 2026:
+- **Spanish (es-MX): done.** Ecclesiastes and Psalms quote the Reina-Valera 1909 (11 entries, verified;
+  `modern` only updates spelling: "á" → "a", "Criador" → "Creador"). Everything else is our translation
+  from the English. The Spanish public-domain versions we found can't be quoted exactly yet: Jacinto
+  Díaz de Miranda's *Soliloquios* of Marcus Aurelius (1785, in *Obras de los moralistas griegos*, 1888)
+  and Antonio Brum's *Enquiridión* are on Spanish Wikisource only as unproofread OCR, with their own
+  numbering; Francisco Navarro y Calvo's *Epístolas morales* of Seneca (1884) is a scan; the Wikisource
+  *Consolación* is a modern collaborative translation (CC BY-SA, not public domain). Proofreading the
+  Navarro y Calvo letters would be the next step up.
+- **Other nine languages: not started.** They show their catalog's fallback lists until then.
 
 CLAUDE.md plans a Supabase `daily_content` table. The entry shape here is already that row:
 

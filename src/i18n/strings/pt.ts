@@ -708,6 +708,7 @@ export const pt: Strings = {
     youCould: 'Você poderia',
     someoneYouLove: 'alguém que você ama',
     readIn: (translator: string) => `Leia na tradução de ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Tradução nossa, a partir da versão inglesa de ${translator} (${year})`,
   },
   opening: {
     lookBack: 'Olhe para trás',

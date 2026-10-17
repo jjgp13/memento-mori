@@ -707,6 +707,7 @@ export const fr: Strings = {
     youCould: 'Tu pourrais',
     someoneYouLove: 'quelqu’un que tu aimes',
     readIn: (translator: string) => `À lire dans la traduction de ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Notre traduction, d'après la version anglaise de ${translator} (${year})`,
   },
   opening: {
     lookBack: 'Regarder en arrière',

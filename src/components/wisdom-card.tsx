@@ -32,12 +32,14 @@ export function TodaysWords({ profile, now, love, questionType = 'default', ques
     const quote = todaysQuote(t, now);
     return (
       <View style={styles.root}>
-        <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
-          <ThemedText type="quote">{quote.text}</ThemedText>
-          <ThemedText type="eyebrow" themeColor="muted" style={styles.citeText}>
-            {quote.source}
-          </ThemedText>
-        </View>
+        {quote ? (
+          <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
+            <ThemedText type="quote">{quote.text}</ThemedText>
+            <ThemedText type="eyebrow" themeColor="muted" style={styles.citeText}>
+              {quote.source}
+            </ThemedText>
+          </View>
+        ) : null}
         <ThemedText type={questionType} style={questionStyle}>
           {todaysQuestion(t, now)}
         </ThemedText>
@@ -46,9 +48,10 @@ export function TodaysWords({ profile, now, love, questionType = 'default', ques
   }
 
   const w = t.wisdom;
-  const retold = entry.licence === 'own-words';
+  // A quote we translated is still a quote; only stories and practices in our own words are retold.
+  const retold = entry.licence === 'own-words' && !entry.translated;
   const source = wisdomSource(entry, t);
-  const cite = retold ? w.retoldFrom(wisdomCite(entry)) : wisdomCite(entry);
+  const cite = retold ? w.retoldFrom(wisdomCite(entry, lang)) : wisdomCite(entry, lang);
   const fill = (text: string) => personalize(text, profile, now, t, love);
 
   return (
