@@ -722,13 +722,15 @@ export const es: Strings = {
     dataBody:
       'Todo lo que escribes se queda en este dispositivo. No hay cuenta, ni anuncios, ni rastreo. Tu estimación se calcula aquí mismo, en tu celular o en tu navegador.',
     guestNote: (guest) =>
-      `También tienes una ${guest ? 'cuenta de invitado' : 'cuenta con sesión iniciada'} de una prueba anterior. Solo guarda un perfil vacío; al borrar abajo se cierra la sesión.`,
+      `También tienes una ${guest ? 'cuenta de invitado' : 'cuenta con sesión iniciada'} de una prueba anterior. Solo guarda un perfil vacío; al borrar abajo también se elimina.`,
     confirm:
       'Esto borra tus respuestas, las personas y cosas que amas, y todo lo demás en este dispositivo. No se puede deshacer.',
     yesDelete: 'Sí, borrar todo',
     keep: 'Conservar mis datos',
     deleteAll: 'Borrar todo en este dispositivo',
-    signOutFailed: 'No se pudo cerrar la sesión.',
+    accountFailed:
+      'No pudimos conectar con el servidor para borrar tu cuenta de la prueba anterior, así que todavía no se borró nada. Puedes intentarlo de nuevo o borrar solo en este dispositivo; la cuenta vacía quedará hasta que nos escribas para eliminarla.',
+    deviceOnly: 'Borrar solo en este dispositivo',
     disclaimer:
       'Las estimaciones vienen de estudios de población. Muestran la dirección y el tamaño aproximado, no son una promesa ni un consejo médico.',
   },
