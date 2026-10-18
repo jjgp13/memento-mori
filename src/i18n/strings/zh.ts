@@ -701,6 +701,11 @@ export const zh: Strings = {
     accountFailed:
       '无法连接服务器来删除你早期测试留下的账户，所以目前还没有删除任何内容。你可以重试，或只删除这台设备上的内容；这样空账户会保留，直到你发邮件请我们删除。',
     deviceOnly: '只删除这台设备上的内容',
+    exportButton: '下载我的数据',
+    exportNote: '本应用在此设备上保存的全部内容的副本，可用任何文本编辑器打开。',
+    exportDone: (name: string) => `副本已准备好：${name}。其中包含你的健康回答，请妥善私密保存。`,
+    exportFailed: '无法生成文件，请再试一次。',
+    exportAbout: 'Memento Mori 在此设备上保存的全部内容。“profile”是你的回答和你爱的人与事；“settings”是应用的小设置。',
     disclaimer: '估算来自人群研究。它们显示方向和大致幅度，并非承诺，也不是医疗建议。',
   },
 

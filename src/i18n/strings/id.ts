@@ -726,6 +726,11 @@ export const id: Strings = {
     accountFailed:
       'Server tidak bisa dihubungi untuk menghapus akunmu dari uji coba sebelumnya, jadi belum ada yang dihapus. Kamu bisa coba lagi, atau hapus di perangkat ini saja; akun kosong itu akan tetap ada sampai kamu meminta kami menghapusnya lewat email.',
     deviceOnly: 'Hapus di perangkat ini saja',
+    exportButton: 'Unduh dataku',
+    exportNote: 'Salinan semua yang disimpan aplikasi ini di perangkat ini, dalam file yang bisa dibuka dengan editor teks apa pun.',
+    exportDone: (name: string) => `Salinanmu siap: ${name}. Isinya jawaban kesehatanmu, jadi simpan di tempat yang pribadi.`,
+    exportFailed: 'Tidak bisa membuat file. Coba lagi.',
+    exportAbout: 'Semua yang disimpan Memento Mori di perangkat ini. "profile" berisi jawaban dan hal yang kamu cintai; "settings" berisi pengaturan kecil aplikasi.',
     disclaimer:
       'Perkiraan ini berasal dari studi populasi. Ia menunjukkan arah dan perkiraan besarnya, bukan janji, dan bukan nasihat medis.',
   },

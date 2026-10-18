@@ -735,6 +735,11 @@ export const de: Strings = {
     accountFailed:
       'Der Server war nicht erreichbar, um dein Konto aus dem früheren Test zu löschen, daher ist noch nichts gelöscht. Du kannst es noch einmal versuchen oder nur auf diesem Gerät löschen; das leere Konto bleibt dann, bis du uns per E-Mail bittest, es zu löschen.',
     deviceOnly: 'Nur auf diesem Gerät löschen',
+    exportButton: 'Meine Daten herunterladen',
+    exportNote: 'Eine Kopie von allem, was die App auf diesem Gerät speichert, als Datei, die du mit jedem Texteditor öffnen kannst.',
+    exportDone: (name: string) => `Deine Kopie ist fertig: ${name}. Sie enthält deine Gesundheitsangaben, bewahre sie also privat auf.`,
+    exportFailed: 'Die Datei konnte nicht erstellt werden. Versuch es noch einmal.',
+    exportAbout: 'Alles, was Memento Mori auf diesem Gerät speichert. „profile“ enthält deine Antworten und was du liebst, „settings“ kleine App-Einstellungen.',
     disclaimer:
       'Die Schätzungen beruhen auf Bevölkerungsstudien. Sie zeigen Richtung und ungefähre Größe, kein Versprechen, und sind keine medizinische Beratung.',
   },

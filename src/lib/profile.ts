@@ -54,6 +54,8 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
+export const getProfile = () => current;
+
 export function useProfile() {
   return useSyncExternalStore(subscribe, () => current, () => current);
 }
