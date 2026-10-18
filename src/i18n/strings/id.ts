@@ -951,6 +951,10 @@ export const id: Strings = {
       zhao2023: 'Alkohol: banyak minum ×1,4; sedikit minum tidak melindungi.',
       fadnes2022: 'Apa yang kamu makan.',
       momma2022: 'Latihan kekuatan.',
+      who2023hale: 'Tahun sehat: bagian tahun-tahun ke depan yang dijalani orang seusiamu dalam keadaan sehat, menurut negara dan jenis kelamin.',
+      pahor2014: 'Tetap bisa berjalan sendiri: efek latihan kekuatan pada tahun sehat.',
+      sherrington2019: 'Olahraga dengan kekuatan dan keseimbangan mencegah jatuh.',
+      rijk2016: 'Kekuatan genggaman sebagai penanda kemandirian.',
       cohen2016: 'Rasa punya tujuan hidup.',
       lee2019: 'Optimisme dan mencapai usia 85.',
       okun2013: 'Menolong orang lain.',
@@ -1014,19 +1018,24 @@ export const id: Strings = {
       'Di kalender, tambahan gabungan dibagi di antara perubahan yang kamu coba sebanding dengan tambahan masing-masing, sehingga tiap perubahan punya warnanya sendiri.',
     notInEstimate: (items) =>
       `Beberapa hal di layar Kebiasaan hanya ditampilkan sebagai arah dan belum masuk ke angkamu: ${items}.`,
-    timeTitle: '6 · Waktu ponsel dan tidur',
+    healthyTitle: '6 · Tahun sehat',
+    healthyBody:
+      'Tahun sehat berangkat dari harapan hidup sehat negaramu (WHO, 2023): bagian tahun-tahun ke depan yang dijalani orang seusia dan sejenis kelamin denganmu dalam keadaan sehat, sejak lahir dan sejak 60. Kami mencocokkan kurva berapa banyak orang yang tidak sehat di tiap usia dengan dua bagian itu, lalu memakainya untuk menimbang tahun-tahunmu ke depan, mengumpulkan waktu yang kurang sehat di akhir hidup, tempat sebagian besarnya jatuh. Karena itu pita hijau di kalender memudar sepanjang rentang, bukan berakhir di satu tanggal. WHO menimbang tiap kondisi menurut seberapa membatasinya, jadi “sehat” di sini mirip, tetapi tidak sama, dengan mandiri.',
+    healthyHabits: (k, cap) => `Kebiasaan menggeser tahun sehat hampir sebesar total tahun, seperti dalam sebuah studi besar Harvard: pengali risiko tiap kebiasaan menggeser kurva kesehatan ${k} kali sejauh risiko kematian. Batas ${cap} tahun yang sama berlaku.`,
+    healthyStrength: (hr) => `Latihan kekuatan dua kali seminggu juga menurunkan risiko kehilangan kesehatan yang baik (${hr}), dari uji di mana berjalan dengan latihan kekuatan dan keseimbangan mengurangi disabilitas mobilitas berat sebesar 18%. Olahraga dengan kekuatan dan keseimbangan juga mencegah jatuh.`,
+    timeTitle: '7 · Waktu ponsel dan tidur',
     timePhone: (waking) =>
       `Waktu ponsel adalah perkiraanmu sendiri, dalam jam per hari (dimulai dari 4, dekat perkiraan umum untuk orang dewasa di AS). Selama tahun-tahun yang mungkin masih kamu punya, jumlahnya jam × tahun ÷ 24. Sebagai bagian dari waktu terjagamu, itu jam ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Tampilan “Terjaga” dan “Tanpa ponsel” mengeluarkan tidur dari kalender: sekitar ${ok} jam semalam, atau ${short} bila kamu menjawab kurang dari 6. Tidur adalah waktu yang terpakai dengan baik, bukan hilang.`,
     timeSwap: (minutes) =>
       `Pertukaran ini mengusulkan mengambil kembali ${minutes} menit sehari dari ponsel dan menunjukkan bisa jadi apa, misalnya jalan-jalan setiap hari dengan anjingmu selama tahun-tahun yang mungkin kalian punya bersama.`,
-    lovesTitle: '7 · Yang kamu cintai: “N kali lagi”',
+    lovesTitle: '8 · Yang kamu cintai: “N kali lagi”',
     lovesBody:
       'Untuk tiap orang, hewan, atau kegiatan, aplikasi menghitung tahun yang mungkin kalian lalui bersama, lalu mengalikannya dengan seberapa sering kamu bertemu atau melakukannya. Tahun-tahun itu berakhir pada yang paling awal dari: usia median kamu; usia saat kamu bilang akan berhenti melakukan kegiatan; usia median orang itu (dari usianya, dirata-ratakan untuk kedua jenis kelamin karena aplikasi tidak menanyakannya, dan dianggap tinggal di negaramu); atau umur khas hewan peliharaan.',
     lovesPets: (dog, cat) =>
       `Umur khas: anjing sekitar ${dog} tahun, kucing sekitar ${cat}, dari catatan dokter hewan di Inggris. Ras dan ukuran sangat berpengaruh. Hewan yang sudah tua selalu dihitung setidaknya setengah tahun.`,
-    limitsTitle: '8 · Yang tidak bisa diberitahukannya',
+    limitsTitle: '9 · Yang tidak bisa diberitahukannya',
     limits: [
       'Ini rata-rata populasi. Angka ini menggambarkan berapa lama kelompok orang dengan jawaban seperti milikmu biasanya hidup, bukan apa yang akan terjadi padamu. Angka ini tidak tahu apa pun tentang riwayat kesehatan, gen, atau perawatan medismu.',
       'Kaitan antara kebiasaan dan umur berasal dari studi observasional: orang yang melakukan X cenderung hidup lebih lama, sebagian karena X dan sebagian karena segala hal yang menyertainya. Mengubah kebiasaan belum tentu mengubah umurmu sebesar yang ditampilkan.',

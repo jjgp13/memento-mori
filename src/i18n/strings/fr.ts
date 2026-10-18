@@ -954,6 +954,10 @@ export const fr: Strings = {
       zhao2023: 'Alcool : forte consommation ×1,4 ; boire peu ne protège pas.',
       fadnes2022: 'Ce que tu manges.',
       momma2022: 'Le renforcement musculaire.',
+      who2023hale: 'Années en bonne santé : la part des années à venir que les gens de ton âge passent en bonne santé, par pays et par sexe.',
+      pahor2014: 'Continuer à marcher seul : l’effet du renforcement sur les années en bonne santé.',
+      sherrington2019: 'L’exercice avec force et équilibre prévient les chutes.',
+      rijk2016: 'La force de préhension comme marqueur d’autonomie.',
       cohen2016: 'Le sens de la vie.',
       lee2019: 'L’optimisme et atteindre 85 ans.',
       okun2013: 'Aider les autres.',
@@ -1017,19 +1021,24 @@ export const fr: Strings = {
       'Sur le calendrier, le gain combiné est réparti entre les changements essayés au prorata de ce que chacun ajouterait seul, si bien que chacun a sa propre couleur.',
     notInEstimate: (items) =>
       `Certains éléments de l’écran Habitudes sont montrés seulement pour s’orienter et ne sont pas encore dans tes chiffres : ${items}.`,
-    timeTitle: '6 · Téléphone et sommeil',
+    healthyTitle: '6 · Années en bonne santé',
+    healthyBody:
+      'Les années en bonne santé partent de l’espérance de vie en bonne santé de ton pays (OMS, 2023) : la part des années à venir que les gens de ton âge et de ton sexe passent en bonne santé, dès la naissance et à partir de 60 ans. Nous ajustons à ces deux parts une courbe du nombre de personnes qui ne sont pas en bonne santé à chaque âge, et nous en pondérons tes années à venir, en regroupant le temps moins sain à la fin de la vie, où il se concentre surtout. La bande verte du calendrier s’estompe donc sur une plage au lieu de s’arrêter à une date. L’OMS pondère chaque affection selon la gêne qu’elle cause : « bonne santé » est donc proche d’« autonome », sans être identique.',
+    healthyHabits: (k, cap) => `Les habitudes font bouger les années en bonne santé à peu près autant que le total, comme dans une grande étude de Harvard : le multiplicateur de risque de chaque habitude déplace la courbe de santé ${k} fois plus que le risque de décès. Le même plafond de ${cap} ans s’applique.`,
+    healthyStrength: (hr) => `Le renforcement deux fois par semaine réduit aussi le risque de perdre la bonne santé (${hr}), d’après un essai où la marche avec force et équilibre a réduit de 18 % l’incapacité grave à se déplacer. L’exercice avec force et équilibre prévient aussi les chutes.`,
+    timeTitle: '7 · Téléphone et sommeil',
     timePhone: (waking) =>
       `Le temps sur le téléphone est ta propre estimation, en heures par jour (elle commence à 4, proche des estimations courantes pour les adultes américains). Sur les années qui te restent probablement, cela fait heures × années ÷ 24. En part de ta journée éveillée, c’est heures ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Les vues « Éveillé » et « Hors téléphone » retirent le sommeil du calendrier : environ ${ok} heures par nuit, ou ${short} si tu as répondu moins de 6. Le sommeil est du temps bien employé, pas perdu.`,
     timeSwap: (minutes) =>
       `L’échange propose de reprendre ${minutes} minutes par jour au téléphone et montre ce qu’elles pourraient devenir, par exemple des promenades quotidiennes avec ton chien pendant les années que vous avez probablement ensemble.`,
-    lovesTitle: '7 · Ce que tu aimes : « encore N fois »',
+    lovesTitle: '8 · Ce que tu aimes : « encore N fois »',
     lovesBody:
       'Pour chaque personne, animal ou activité, l’app compte les années que vous partagerez probablement, puis les multiplie par la fréquence à laquelle tu les vois ou la pratiques. Ces années s’arrêtent au premier de ces moments : ton âge médian ; l’âge auquel tu as dit arrêter une activité ; l’âge médian de l’autre personne (d’après son âge, en moyenne sur les deux sexes puisque l’app ne le demande pas, en supposant qu’elle vit dans ton pays) ; ou la durée de vie typique d’un animal.',
     lovesPets: (dog, cat) =>
       `Durées de vie typiques : chiens environ ${dog} ans, chats environ ${cat}, d’après des dossiers vétérinaires du Royaume-Uni. La race et la taille comptent beaucoup. Un animal âgé compte toujours pour au moins une demi-année.`,
-    limitsTitle: '8 · Ce qu’elle ne peut pas te dire',
+    limitsTitle: '9 · Ce qu’elle ne peut pas te dire',
     limits: [
       'Ce sont des moyennes de population. Elles décrivent combien de temps ont vécu des groupes de personnes aux réponses semblables aux tiennes, pas ce qui t’arrivera. Elles ignorent tout de tes antécédents de santé, de tes gènes et de tes soins.',
       'Les liens entre habitudes et durée de vie viennent d’études observationnelles : les personnes qui font X vivent souvent plus longtemps, en partie grâce à X et en partie grâce à tout ce qui l’accompagne. Changer une habitude peut ne pas changer ta durée de vie du montant indiqué.',

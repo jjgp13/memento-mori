@@ -961,6 +961,10 @@ export const de: Strings = {
       zhao2023: 'Alkohol: viel trinken ×1,4; wenig trinken schützt nicht.',
       fadnes2022: 'Was du isst.',
       momma2022: 'Krafttraining.',
+      who2023hale: 'Gesunde Jahre: der Anteil der kommenden Jahre, den Menschen deines Alters gesund verbringen, nach Land und Geschlecht.',
+      pahor2014: 'Selbst gehen können: die Wirkung von Krafttraining auf die gesunden Jahre.',
+      sherrington2019: 'Training mit Kraft und Gleichgewicht verhindert Stürze.',
+      rijk2016: 'Griffkraft als Marker für Selbstständigkeit.',
       cohen2016: 'Ein Sinn im Leben.',
       lee2019: 'Optimismus und 85 werden.',
       okun2013: 'Anderen helfen.',
@@ -1024,19 +1028,24 @@ export const de: Strings = {
       'Im Kalender wird der kombinierte Gewinn im Verhältnis dazu aufgeteilt, was jede Änderung allein bringen würde, sodass jede ihre eigene Farbe bekommt.',
     notInEstimate: (items) =>
       `Manches auf dem Gewohnheiten-Bildschirm dient nur der Orientierung und steckt noch nicht in deinen Zahlen: ${items}.`,
-    timeTitle: '6 · Handy und Schlaf',
+    healthyTitle: '6 · Gesunde Jahre',
+    healthyBody:
+      'Gesunde Jahre beginnen bei der gesunden Lebenserwartung deines Landes (WHO, 2023): dem Anteil der kommenden Jahre, den Menschen deines Alters und Geschlechts gesund verbringen, ab Geburt und ab 60. An diese zwei Anteile passen wir eine Kurve an, wie viele Menschen in jedem Alter nicht gesund sind, und gewichten damit deine kommenden Jahre; die weniger gesunde Zeit legen wir ans Lebensende, wo das meiste davon liegt. Darum verblasst das grüne Band im Kalender über eine Spanne, statt an einem Datum zu enden. Die WHO gewichtet jede Erkrankung danach, wie sehr sie einschränkt; „gesund“ ist hier also nah an, aber nicht gleich „selbstständig“.',
+    healthyHabits: (k, cap) => `Gewohnheiten bewegen gesunde Jahre etwa so stark wie die Lebensjahre insgesamt, wie in einer großen Harvard-Studie: Der Risikofaktor jeder Gewohnheit verschiebt die Gesundheitskurve ${k}-mal so weit wie das Sterberisiko. Dieselbe Obergrenze von ${cap} Jahren gilt.`,
+    healthyStrength: (hr) => `Krafttraining zweimal pro Woche senkt außerdem das Risiko, die gute Gesundheit zu verlieren (${hr}), nach einer Studie, in der Gehen mit Kraft- und Gleichgewichtstraining schwere Gehbehinderung um 18 % senkte. Training mit Kraft und Gleichgewicht verhindert auch Stürze.`,
+    timeTitle: '7 · Handy und Schlaf',
     timePhone: (waking) =>
       `Die Handyzeit ist deine eigene Schätzung in Stunden pro Tag (sie beginnt bei 4, nahe gängigen Schätzungen für Erwachsene in den USA). Über die Jahre, die du wahrscheinlich noch hast, ergibt das Stunden × Jahre ÷ 24. Als Anteil deines wachen Tages sind es Stunden ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Die Ansichten „Wach“ und „Ohne Handy“ nehmen den Schlaf aus dem Kalender: etwa ${ok} Stunden pro Nacht, oder ${short}, wenn du unter 6 angegeben hast. Schlaf ist gut genutzte Zeit, keine verlorene.`,
     timeSwap: (minutes) =>
       `Der Tausch schlägt vor, dir ${minutes} Minuten am Tag vom Handy zurückzuholen, und zeigt, was daraus werden könnte, etwa tägliche Spaziergänge mit deinem Hund in den Jahren, die ihr wahrscheinlich zusammen habt.`,
-    lovesTitle: '7 · Was du liebst: „noch N-mal“',
+    lovesTitle: '8 · Was du liebst: „noch N-mal“',
     lovesBody:
       'Für jeden Menschen, jedes Tier und jede Tätigkeit zählt die App die Jahre, die ihr wahrscheinlich teilt, und multipliziert sie damit, wie oft du sie siehst oder es tust. Diese Jahre enden beim frühesten von: deinem Medianalter; dem Alter, mit dem du eine Tätigkeit aufhören willst; dem Medianalter des anderen Menschen (aus seinem Alter, über beide Geschlechter gemittelt, weil die App nicht fragt, und angenommen, er lebt in deinem Land); oder der typischen Lebensdauer eines Tiers.',
     lovesPets: (dog, cat) =>
       `Typische Lebensdauern: Hunde etwa ${dog} Jahre, Katzen etwa ${cat}, aus britischen Tierarztdaten. Rasse und Größe machen viel aus. Ein älteres Tier zählt immer mit mindestens einem halben Jahr.`,
-    limitsTitle: '8 · Was sie dir nicht sagen kann',
+    limitsTitle: '9 · Was sie dir nicht sagen kann',
     limits: [
       'Das sind Bevölkerungsdurchschnitte. Sie beschreiben, wie lange Gruppen von Menschen mit ähnlichen Antworten gelebt haben, nicht, was mit dir passieren wird. Sie wissen nichts über deine Krankengeschichte, deine Gene oder deine Versorgung.',
       'Die Zusammenhänge zwischen Gewohnheiten und Lebensdauer stammen aus Beobachtungsstudien: Wer X tut, lebt oft länger, teils wegen X und teils wegen allem, was damit einhergeht. Eine Gewohnheit zu ändern, ändert deine Lebensdauer womöglich nicht um den gezeigten Betrag.',

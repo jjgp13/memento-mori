@@ -954,6 +954,10 @@ export const es: Strings = {
       zhao2023: 'Alcohol: beber mucho ×1.4; beber poco no protege.',
       fadnes2022: 'Lo que comes.',
       momma2022: 'Entrenamiento de fuerza.',
+      who2023hale: 'Años con salud: la parte de los años por delante que las personas de tu edad pasan con buena salud, por país y sexo.',
+      pahor2014: 'Seguir caminando por tu cuenta: el efecto de la fuerza en los años con salud.',
+      sherrington2019: 'El ejercicio con fuerza y equilibrio previene caídas.',
+      rijk2016: 'La fuerza de agarre como indicador de independencia.',
       cohen2016: 'Un sentido de propósito.',
       lee2019: 'Optimismo y llegar a los 85.',
       okun2013: 'Ayudar a otros.',
@@ -1017,19 +1021,24 @@ export const es: Strings = {
       'En el calendario, la ganancia combinada se reparte entre los cambios que pruebas en proporción a lo que sumaría cada uno por separado, así que cada uno tiene su propio color.',
     notInEstimate: (items) =>
       `Algunas cosas de la pantalla Hábitos se muestran solo para orientar y todavía no están en tus números: ${items}.`,
-    timeTitle: '6 · Teléfono y sueño',
+    healthyTitle: '6 · Años con salud',
+    healthyBody:
+      'Los años con salud parten de la esperanza de vida saludable de tu país (OMS, 2023): la parte de los años por delante que las personas de tu edad y sexo pasan con buena salud, desde el nacimiento y desde los 60. Ajustamos a esas dos partes una curva de cuántas personas no tienen buena salud a cada edad y con ella ponderamos tus años por delante, juntando el tiempo menos sano al final de la vida, donde cae la mayor parte. Por eso la franja verde del calendario se desvanece en un rango en vez de terminar en una fecha. La OMS pondera cada condición según cuánto limita, así que aquí “buena salud” se parece, pero no es igual, a ser independiente.',
+    healthyHabits: (k, cap) => `Los hábitos mueven los años con salud casi tanto como los años totales, como en un gran estudio de Harvard: el multiplicador de riesgo de cada hábito desplaza la curva de salud ${k} veces lo que desplaza el riesgo de morir. Aplica el mismo tope de ${cap} años.`,
+    healthyStrength: (hr) => `Hacer fuerza dos veces a la semana también reduce el riesgo de perder la buena salud (${hr}), según un ensayo en el que caminar con fuerza y equilibrio redujo 18% la discapacidad grave para moverse. El ejercicio con fuerza y equilibrio también previene caídas.`,
+    timeTitle: '7 · Teléfono y sueño',
     timePhone: (waking) =>
       `El tiempo en el teléfono es tu propia estimación, en horas al día (empieza en 4, cerca de las estimaciones comunes para adultos en EE. UU.). A lo largo de los años que probablemente te quedan, suma horas × años ÷ 24. Como parte de tu día despierto, es horas ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Las vistas “Despierto” y “Sin teléfono” quitan el sueño del calendario: unas ${ok} horas por noche, o ${short} si dijiste menos de 6. Dormir es tiempo bien usado, no perdido.`,
     timeSwap: (minutes) =>
       `El intercambio propone recuperar ${minutes} minutos al día del teléfono y muestra en qué podrían convertirse, por ejemplo paseos diarios con tu perro durante los años que probablemente tienen juntos.`,
-    lovesTitle: '7 · Lo que amas: “N veces más”',
+    lovesTitle: '8 · Lo que amas: “N veces más”',
     lovesBody:
       'Para cada persona, mascota o actividad, la app cuenta los años que probablemente compartan y los multiplica por qué tan seguido se ven o lo haces. Esos años terminan en lo que llegue primero: tu edad mediana; la edad a la que dijiste que dejarías una actividad; la edad mediana de la otra persona (según su edad, promediando ambos sexos porque la app no lo pregunta, y suponiendo que vive en tu país); o la esperanza de vida típica de una mascota.',
     lovesPets: (dog, cat) =>
       `Esperanzas de vida típicas: perros unos ${dog} años, gatos unos ${cat}, según registros veterinarios del Reino Unido. La raza y el tamaño importan mucho. A una mascota mayor siempre se le cuenta al menos medio año.`,
-    limitsTitle: '8 · Lo que no puede decirte',
+    limitsTitle: '9 · Lo que no puede decirte',
     limits: [
       'Son promedios de población. Describen cuánto solían vivir grupos de personas con respuestas como las tuyas, no lo que te pasará a ti. No saben nada de tu historial de salud, tus genes ni tu atención médica.',
       'La relación entre hábitos y esperanza de vida viene de estudios observacionales: quienes hacen X suelen vivir más, en parte por X y en parte por todo lo que viene con ello. Cambiar un hábito puede no cambiar tu vida en la cantidad mostrada.',

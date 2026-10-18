@@ -116,32 +116,32 @@ export const HEALTHSPAN: Evidence[] = [
   {
     key: 'healthyHabits',
     strength: 'strong',
-    source: { label: 'Li et al., BMJ 2020', url: 'https://www.bmj.com/content/368/bmj.l6669' },
+    source: cite('li2020'),
     inEstimate: true,
   },
   {
     key: 'falls',
     strength: 'strong',
-    source: { label: 'Sherrington et al., Cochrane 2019', url: 'https://bjsm.bmj.com/content/54/15/885' },
+    source: cite('sherrington2019'),
     inEstimate: false,
   },
   {
     key: 'mobility',
     strength: 'moderate',
-    source: { label: 'Pahor et al., JAMA 2014', url: 'https://pubmed.ncbi.nlm.nih.gov/24866862/' },
+    source: cite('pahor2014'),
     inEstimate: true,
   },
   {
     key: 'grip',
     strength: 'moderate',
-    source: { label: 'Rijk et al., Geriatr Gerontol Int 2016', url: 'https://pubmed.ncbi.nlm.nih.gov/26016893/' },
+    source: cite('rijk2016'),
     inEstimate: false,
   },
 ];
 
 /** Where healthy years start from: each country's healthy life expectancy (src/lib/health-tables.ts). */
 export const HEALTHY_LIFE_TABLES = {
-  source: { label: 'WHO Global Health Observatory', url: 'https://data.who.int/indicators/i/C64284D' },
+  source: cite('who2023hale'),
 };
 
 /** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */

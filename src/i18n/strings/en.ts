@@ -1011,6 +1011,10 @@ export const en = {
       zhao2023: 'Alcohol: heavy drinking ×1.4; light drinking not protective.',
       fadnes2022: 'What you eat.',
       momma2022: 'Strength training.',
+      who2023hale: 'Healthy years: the share of the years ahead people your age spend in good health, by country and sex.',
+      pahor2014: "Staying able to walk on your own: strength training's effect on healthy years.",
+      sherrington2019: 'Exercise with strength and balance work prevents falls.',
+      rijk2016: 'Grip strength as a marker of staying independent.',
       cohen2016: 'A sense of purpose.',
       lee2019: 'Optimism and reaching 85.',
       okun2013: 'Helping others.',
@@ -1075,19 +1079,24 @@ export const en = {
       'On the calendar, the combined gain is split between the changes you try in proportion to what each would add alone, so each gets its own color.',
     notInEstimate: (items: string) =>
       `Some things on the Habits screen are shown for direction only and aren’t in your numbers yet: ${items}.`,
-    timeTitle: '6 · Phone and sleep time',
+    healthyTitle: '6 · Healthy years',
+    healthyBody:
+      'Healthy years start from your country’s healthy life expectancy (WHO, 2023): the share of the years ahead that people your age and sex spend in good health, from birth and from 60. We fit a curve of how many people are not in good health at each age to those two shares and weight your years ahead by it, gathering the less healthy time at the end of life, where most of it falls. So the green band on the calendar fades across a range instead of ending on a date. WHO weights each condition by how much it limits people, so “good health” here is close to, but not the same as, being independent.',
+    healthyHabits: (k: string, cap: string) => `Habits move healthy years about as much as total years, as they did in a large Harvard study: each habit’s risk multiplier shifts the health curve ${k} times as far as it shifts the risk of dying. The same ${cap}-year cap applies.`,
+    healthyStrength: (hr: string) => `Strength training twice a week also lowers the risk of losing good health (${hr}), from a trial where walking with strength and balance work cut major mobility disability by 18%. Exercise with strength and balance work also prevents falls.`,
+    timeTitle: '7 · Phone and sleep time',
     timePhone: (waking: string) =>
       `Phone time is your own estimate, in hours a day (it starts at 4, near common estimates for US adults). Over the years you likely have left, it adds up to hours × years ÷ 24. As a share of your waking day, it is hours ÷ ${waking}.`,
     timeSleep: (ok: string, short: string) =>
       `The “Awake” and “Off phone” views take sleep out of the calendar: about ${ok} hours a night, or ${short} if you said under 6. Sleep is time well spent, not lost.`,
     timeSwap: (minutes: string) =>
       `The swap suggests taking ${minutes} minutes a day back from the phone and shows what it could become, for example daily walks with your dog over the years you both likely have.`,
-    lovesTitle: '7 · Loves: “N more times”',
+    lovesTitle: '8 · Loves: “N more times”',
     lovesBody:
       'For each person, pet or activity, the app counts the years you likely share, then multiplies by how often you see them or do it. The years shared end at the earliest of: your median age; the age you said you’d stop an activity; a person’s own median age (from their age, averaged over both sexes, since the app doesn’t ask, and assumed to live in your country); or a pet’s typical lifespan.',
     lovesPets: (dog: string, cat: string) =>
       `Typical lifespans: dogs about ${dog} years, cats about ${cat}, from UK veterinary records. Breed and size matter a lot. An older pet is always counted as having at least half a year.`,
-    limitsTitle: '8 · What it can’t tell you',
+    limitsTitle: '9 · What it can’t tell you',
     limits: [
       'These are population averages. They describe how long groups of people with answers like yours tended to live, not what will happen to you. They know nothing of your health history, your genes or your medical care.',
       'The links between habits and lifespan come from observational studies: people who do X tend to live longer, partly because of X and partly because of everything that travels with it. Changing a habit may not change your lifespan by the amount shown.',

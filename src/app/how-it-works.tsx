@@ -12,10 +12,10 @@ import { dec1, fmt, num } from '@/i18n/format';
 import { habitAnswer, habitOptions } from '@/i18n/labels';
 import { currentLocale } from '@/i18n/locale';
 import { COUNTRY_TABLES } from '@/lib/country-tables';
-import { GAIN_CAP, LIFE_TABLES, MODEL_SHAPE, PET_LIFESPANS, PHONE_TIME, WHAT_MATTERS } from '@/lib/evidence';
+import { GAIN_CAP, HEALTHSPAN, HEALTHY_LIFE_TABLES, LIFE_TABLES, MODEL_SHAPE, PET_LIFESPANS, PHONE_TIME, WHAT_MATTERS } from '@/lib/evidence';
 import { MAX_TOTAL_GAIN } from '@/lib/habit-impact';
 import { PET_LIFESPAN } from '@/lib/loves';
-import { CHILD_END, GOMPERTZ_B, HABITS, HABIT_KEYS, MODEL_VERSION, US_APPROX, YOUTH_END, stepsHR } from '@/lib/model';
+import { CHILD_END, GOMPERTZ_B, HABITS, HABIT_KEYS, HEALTH_HR, HEALTH_K, MODEL_VERSION, US_APPROX, YOUTH_END, stepsHR } from '@/lib/model';
 import { SWAP_HOURS, WAKING_HOURS, sleepHours } from '@/lib/time-use';
 
 /** ×1.29, ×0.85, ×2.2, ×1 in the reader's number style. */
@@ -101,6 +101,17 @@ export default function HowItWorksScreen() {
         <SourceLink source={GAIN_CAP.source} />
         <Body>{m.combineCalendar}</Body>
         {notInEstimate.length ? <Body>{m.notInEstimate(t.common.list(notInEstimate))}</Body> : null}
+      </DocSection>
+
+      <DocSection title={m.healthyTitle}>
+        <Body>{m.healthyBody}</Body>
+        <SourceLink source={HEALTHY_LIFE_TABLES.source} prefix={t.life.healthy.sourceHealthy} />
+        <Body>{m.healthyHabits(num(HEALTH_K), fmt(MAX_TOTAL_GAIN))}</Body>
+        <SourceLink of="healthy" />
+        <Body>{m.healthyStrength(times(HEALTH_HR.strength.regular))}</Body>
+        {HEALTHSPAN.filter((e) => e.key === 'mobility' || e.key === 'falls').map((e) => (
+          <SourceLink key={e.key} source={e.source} />
+        ))}
       </DocSection>
 
       <DocSection title={m.timeTitle}>
