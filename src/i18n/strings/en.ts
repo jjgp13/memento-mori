@@ -939,6 +939,12 @@ export const en = {
     accountFailed:
       "We couldn't reach the server to erase your account from the earlier test, so nothing has been deleted yet. You can try again, or delete on this device only; the empty account then stays until you email us to erase it.",
     deviceOnly: 'Delete on this device only',
+    exportButton: 'Download my data',
+    exportNote: 'A copy of everything this app keeps on this device, as a file you can open in any text editor.',
+    exportDone: (name: string) => `Your copy is ready: ${name}. It holds your health answers, so keep it somewhere private.`,
+    exportFailed: 'Could not make the file. Please try again.',
+    /** Written at the top of the exported file, so it explains itself. */
+    exportAbout: 'Everything Memento Mori keeps on this device. "profile" holds your answers and loves; "settings" holds small app settings.',
     disclaimer:
       'Estimates come from population studies. They show direction and rough size, not a promise, and are not medical advice.',
   },

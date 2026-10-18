@@ -16,7 +16,7 @@
  */
 
 /** Bump when the Terms or policies change in a way people should agree to again. */
-export const LEGAL_VERSION = '2026-10-15-draft';
+export const LEGAL_VERSION = '2026-10-16-draft';
 
 export const PLACEHOLDERS = {
   operator: '[OPERATOR: legal name of the person or entity that runs Memento Mori]',
@@ -203,7 +203,7 @@ const PRIVACY: LegalDoc = {
         'Because your information stays on your device, you can do most of this yourself:',
         '- See and correct it: everything is shown in the app; You → Edit your answers.',
         '- Delete it: You → Delete everything on this device. If you have a guest account from an early test, this erases it too.',
-        '- Take a copy: it is on your device; an export button is planned.',
+        '- Take a copy: You → Download my data saves everything the app keeps on your device as one readable file (JSON, which any text editor opens). On a phone it opens your share sheet, so you choose where the file goes; it holds your health answers, so keep it somewhere private.',
         `For anything else, including a guest account you can no longer reach from the app, email ${P.contact}. We will answer within 30 days (45 days where the law allows), and we won’t ask for more information than we need to confirm the request is yours. In the EU or UK you can also complain to your local data protection authority.`,
         'California residents: we do not sell or share personal information (as those words are defined in the CCPA), and we don’t use sensitive personal information to infer characteristics about you.',
       ],
@@ -244,7 +244,7 @@ const PRIVACY: LegalDoc = {
     'Confirm how long Supabase keeps auth and API logs (which include IP addresses) after an account is erased, and whether the retention sentence needs a specific period.',
     'GitHub Pages logs: confirm the disclosure is enough, or move hosting if needed.',
     'CCPA thresholds probably don’t apply to a free app with no revenue; the section is included for transparency. Confirm.',
-    'An in-app data export is promised as planned; add it before launch if the right to portability requires it.',
+    'Take a copy: You → Download my data exports the profile (mm.profile.v1) and settings (mm.prefs.v1) as JSON, which is “structured, commonly used and machine-readable” (GDPR Art. 20; CCPA “readily usable format”). It does not include what Supabase holds for a guest account from an early test (account ID, timestamps, sign-in logs); a copy of that still needs an emailed request. Confirm this is enough.',
   ],
 };
 
@@ -291,7 +291,7 @@ const HEALTH: LegalDoc = {
       heading: 'Your rights',
       body: [
         'You have the right to confirm whether we collect, share or sell your consumer health data; to see it; to get a list of anyone we have shared it with (there is no one); to withdraw consent; and to have it deleted.',
-        '- See it: it is all shown in the app, and You → Edit your answers lets you change it.',
+        '- See it: it is all shown in the app, and You → Edit your answers lets you change it. You → Download my data saves a copy as a readable file.',
         '- Withdraw consent and delete it: You → Delete everything on this device erases it at once. Uninstalling the app or clearing your browser’s site data also erases it.',
         `- Ask us: email ${P.contact}. We will respond within 45 days. If we can’t do what you ask, we will explain why, and you may appeal by replying with “Appeal” in the subject; we will answer the appeal within 45 days. If you are not satisfied, you can contact the [Washington State Attorney General](https://www.atg.wa.gov/file-complaint).`,
         'We will never treat you differently for using these rights.',

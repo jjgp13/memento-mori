@@ -4,7 +4,7 @@
 
 > **This is a draft. It has not yet been reviewed by a lawyer and may change before Memento Mori launches.** Fill in every [BRACKETED] placeholder before launch.
 
-_The agreement for using Memento Mori: a free tool, offered as is, for reflection and education._ Version 2026-10-15-draft.
+_The agreement for using Memento Mori: a free tool, offered as is, for reflection and education._ Version 2026-10-16-draft.
 
 ## About these terms
 

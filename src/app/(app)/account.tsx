@@ -11,8 +11,10 @@ import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { deleteAccount, signOutLocally } from '@/lib/auth';
+import { dataExport } from '@/lib/data-export';
 import { clearPrefs, setPref, usePrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
+import { shareFile } from '@/lib/share-file';
 import { useAuth } from '@/providers/auth-provider';
 
 /**
@@ -29,6 +31,22 @@ export default function YouScreen() {
   const [deleting, setDeleting] = useState(false);
   /** The server couldn't erase the account; nothing has been deleted yet. */
   const [accountFailed, setAccountFailed] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exported, setExported] = useState<{ ok: boolean; name: string } | null>(null);
+
+  async function downloadData() {
+    setExporting(true);
+    setExported(null);
+    const { name, content, type } = dataExport(a.exportAbout);
+    let ok = false;
+    try {
+      ok = await shareFile(name, content, type, a.exportButton);
+    } catch {
+      // Falls through to the "could not" line.
+    }
+    setExported({ ok, name });
+    setExporting(false);
+  }
 
   function clearDevice() {
     // With no answers left, the app guard sends them back to onboarding.
@@ -77,6 +95,16 @@ export default function YouScreen() {
             {a.dataBody}
           </ThemedText>
           {session ? <ThemedText type="small">{a.guestNote(!!session.user.is_anonymous)}</ThemedText> : null}
+          <ThemedText type="small">{a.exportNote}</ThemedText>
+          <Button title={a.exportButton} variant="ghost" loading={exporting} onPress={downloadData} />
+          {exported ? (
+            <ThemedText
+              type="small"
+              themeColor={exported.ok ? 'fg' : 'danger'}
+              accessibilityLiveRegion="polite">
+              {exported.ok ? a.exportDone(exported.name) : a.exportFailed}
+            </ThemedText>
+          ) : null}
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
