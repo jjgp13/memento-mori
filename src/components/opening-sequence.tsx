@@ -15,6 +15,8 @@ import { useT } from '@/i18n';
 import { dec1, fmt } from '@/i18n/format';
 import { TodaysWords } from '@/components/wisdom-card';
 import { impactAgency, todaysImpact } from '@/lib/daily';
+import { gentleCount } from '@/components/todays-count';
+import { usePrefs } from '@/lib/prefs';
 import type { Profile } from '@/lib/profile';
 
 /**
@@ -27,6 +29,7 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
   const t = useT();
   const [now] = useState(() => Date.now());
   const [index, setIndex] = useState(0);
+  const { hideNumbers: hide } = usePrefs();
 
   const impact = todaysImpact(profile, t, now);
   const agency = impactAgency(profile, impact, now);
@@ -34,12 +37,17 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
   const cards = [
     <Stagger key="impact">
       <ThemedText type="eyebrow">{impact.back ? t.opening.lookBack : t.opening.todaysCount}</ThemedText>
-      <CountUp to={impact.n} style={styles.huge} themeColor="accent" />
+      {hide ? null : <CountUp to={impact.n} style={styles.huge} themeColor="accent" />}
       <ThemedText style={styles.what}>{impact.what}</ThemedText>
-      <ThemedText type="small">{impact.sub}</ThemedText>
+      {hide ? <ThemedText>{gentleCount(impact, t)}</ThemedText> : null}
+      <ThemedText type="small">{hide && impact.love ? t.gentle.loveSub : impact.sub}</ThemedText>
       {agency ? (
         <View style={[styles.agency, { borderTopColor: theme.line }]}>
-          <RichText parts={t.opening.agency(t.levers[agency.key], dec1(agency.years), fmt(agency.more), impact.what)} />
+          {hide ? (
+            <ThemedText>{t.gentle.agency(t.levers[agency.key])}</ThemedText>
+          ) : (
+            <RichText parts={t.opening.agency(t.levers[agency.key], dec1(agency.years), fmt(agency.more), impact.what)} />
+          )}
           <SourceLink of={agency.key} />
         </View>
       ) : null}

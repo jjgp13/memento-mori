@@ -119,6 +119,12 @@ export const en = {
       why: 'In person or a real conversation. Close relationships are one of the strongest predictors of a long life.',
       options: { often: 'Every week', sometimes: 'A few times a month', rarely: 'Rarely; I often feel alone' },
     },
+    strength: {
+      question: 'Do you do strength training?',
+      short: 'Strength',
+      why: 'Weights, bands, or your own body weight: squats, push-ups, carrying heavy bags. It keeps you strong and steady later on.',
+      options: { none: 'Rarely or never', some: 'About once a week', regular: 'Twice a week or more' },
+    },
   },
 
   /** The single changes that would add time (lib/habit-impact.ts). */
@@ -130,6 +136,7 @@ export const en = {
     sleep: 'Sleeping 6–9 hours',
     connection: 'Seeing the people you love every week',
     steps: 'Walking 10,000 steps a day',
+    strength: 'Strength training twice a week',
   },
 
   values: {
@@ -221,6 +228,13 @@ export const en = {
     range: (med: number, q25: number, q75: number, country: string | null) =>
       `This is a range, not a date: half of people living like you${country ? ` in ${country}` : ''} reach ${med}, and most land between ${q25} and ${q75}. Not medical advice.`,
     seeLife: 'See your life',
+    /** Healthy years, and the change that would add the most of them. */
+    healthy: (weeks: string, lever: string | null, years: string): Rich => [
+      s('About '),
+      b(weeks),
+      s(' of those weeks are likely to be in good health: strong and doing things for yourself.'),
+      ...(lever ? [s(` ${lever} could add about `), b(`${years} years`), s(' of them.')] : []),
+    ],
   },
 
   /** "You have been alive for…" on the birth-date step. */
@@ -297,11 +311,17 @@ export const en = {
         b(free),
         s(phone ? ' awake and off your phone.' : ' awake.'),
       ],
+      /** The healthy band in words: its text alternative. */
+      health: (unit: 'years' | 'weeks', med: string, lo: string, hi: string): Rich => [
+        s(' About '),
+        b(med),
+        s(` of them are likely in good health, strong and independent: the green band, fading where people differ (for most like you, ${lo}–${hi} ${unit}).`),
+      ],
     },
     shows: { all: 'All', awake: 'Awake', free: 'Off phone' },
     showA11y: 'Show time ahead',
     whatIf: 'What if… tap to try',
-    whatIfA11y: (label: string, years: string) => `What if: ${label}, about ${years} years`,
+    whatIfA11y: (label: string, years: string, healthy: string) => `What if: ${label}, about ${years} years, ${healthy} more in good health`,
     whatIfYears: (years: string) => `+${years}y`,
     weeksAhead: 'Your weeks ahead',
     weeksUnit: 'weeks',
@@ -314,7 +334,8 @@ export const en = {
       s(` (${years} years)`),
       s(several ? `: less than the sum, since habit effects overlap${capped ? ', and capped' : ''}.` : '.'),
     ],
-    triedOne: (label: string, years: string) => `${label}: about ${years} years on its own`,
+    triedOne: (label: string, years: string, healthy: string) => `${label}: about ${years} years on its own, ${healthy} in good health`,
+    triedHealthy: (years: string): Rich => [s(' The green band grows by about '), b(`${years} years in good health`), s('.')],
     tapWhatIf: 'Tap a “What if” on the calendar to see what a change could add.',
     makePlan: 'Make a small plan',
     makePlanA11y: (label: string) => `Make a small plan for: ${label}`,
@@ -331,6 +352,7 @@ export const en = {
       maybe: 'If fortune allows',
       asleep: 'Asleep',
       phone: 'On your phone',
+      healthy: 'Likely in good health',
     },
     phoneTitle: 'Your phone',
     phoneLine: (hours: string, years: string, share: string): Rich => [
@@ -357,6 +379,26 @@ export const en = {
       s(`${capped ? ' (capped: habit effects overlap)' : ''}. Try them on the calendar with What if.`),
     ],
     allGood: 'You are already doing the things that add the most time. Keep them, and keep your people close.',
+    /** The "Strong and independent" card. Later years are described gently, never as an age. */
+    healthy: {
+      eyebrow: 'Strong and independent',
+      years: (med: string, lo: string, hi: string): Rich => [
+        s('About '),
+        b(`${med} of those years`),
+        s(` are likely to be in good health: strong, steady and doing things for yourself. For most people like you, ${lo}–${hi}.`),
+      ],
+      later:
+        'Later years often bring more aches and illness, and lean a little more on the people around you. How many, and how soon, is partly in your hands.',
+      lever: (label: string, years: string, why: 'strength' | 'more' | 'plain'): Rich => [
+        s(`${label} could add about `),
+        b(`${years} of them`),
+        s(why === 'strength' ? ': stronger legs, steadier balance, fewer falls.' : why === 'more' ? ', more than it adds to your lifespan.' : '.'),
+      ],
+      allGood: 'You already do the things that keep people strong the longest. Keep them, and keep your people close.',
+      askStrength: 'Do you do strength training? Add your answer',
+      sourceHealthy: 'Healthy years',
+      sourceHabits: 'Habits',
+    },
   },
 
   /** Phone time in words (lib/time-use.ts). */
@@ -396,6 +438,11 @@ export const en = {
     notInEstimate: 'Not in your estimate yet; shown for direction.',
     howItWorks: 'HOW YOUR ESTIMATE WORKS',
     strength: { strong: 'strong', moderate: 'moderate', emerging: 'emerging' },
+    healthspan: 'STAYING STRONG AND INDEPENDENT',
+    healthspanNote: 'What keeps the later years healthy: the green band on your Life calendar. Tap one to see the numbers and the source.',
+    strengthNote: (years: string) =>
+      `Its bigger effect is on staying strong and independent: twice a week could add about ${years} years in good health.`,
+    strengthKeep: 'Twice a week keeps you stronger and steadier for longer. Keep it up.',
   },
 
   /** "What matters most", keyed like WHAT_MATTERS in lib/evidence.ts. Keep in step with docs/science.md. */
@@ -431,8 +478,9 @@ export const en = {
     },
     strength: {
       title: 'Strength training',
-      summary: '30–60 minutes a week is linked to 10–17% lower mortality.',
-      detail: 'On top of, not instead of, aerobic exercise. Benefits beyond about an hour a week are unclear.',
+      summary: '30–60 minutes a week is linked to 10–17% lower mortality, and to staying strong and independent for longer.',
+      detail:
+        'On top of, not instead of, aerobic exercise; benefits beyond about an hour a week are unclear. Its bigger effect is on the later years: strength and balance work means fewer falls and less disability (see "Staying strong and independent"). In this app, twice a week counts ×0.85 on the risk of dying and ×0.82 on the risk of losing good health.',
     },
     purpose: {
       title: 'A sense of purpose',
@@ -462,6 +510,30 @@ export const en = {
       detail:
         'Deactivating Facebook for 4 weeks raised well-being and offline time with friends and family. Limiting social media to about 30 minutes a day for 3 weeks lowered loneliness and depression.',
     },
+    healthyHabits: {
+      title: 'Healthy habits add healthy years',
+      summary: 'At 50, 4–5 healthy habits went with about 10.7 (women) and 7.6 (men) more years free of cancer, heart disease and diabetes.',
+      detail:
+        'In two large Harvard cohorts, total years rose about as much (+9.4 women, +8.1 men): nearly all the extra time was healthy time, and the years lived with disease barely changed. The habits: not smoking, healthy weight, 30+ minutes a day of activity, moderate or no drinking, a good diet. The app moves your healthy years with your habits to match.',
+    },
+    falls: {
+      title: 'Exercise prevents falls',
+      summary: 'Exercise cut falls in older people by 23%; programs with strength and balance work by about a third.',
+      detail:
+        'Cochrane review of 108 trials (23,407 people over 60 living at home). Overall rate ratio 0.77 (high-certainty evidence); balance and functional exercise 0.76; several kinds together, usually balance plus strength, 0.66 (moderate certainty).',
+    },
+    mobility: {
+      title: 'Staying able to walk on your own',
+      summary: 'In a trial of 1,635 people aged 70–89, walking with strength and balance work cut major mobility disability by 18%.',
+      detail:
+        'The LIFE trial: a structured moderate program (walking, strength, flexibility, balance) vs health education, over 2.6 years. Losing the ability to walk 400 m: 30.1% vs 35.5% (HR 0.82). One large trial of a combined program, so the share due to strength alone is unknown. The app uses 0.82 for strength training twice a week.',
+    },
+    grip: {
+      title: 'Grip strength',
+      summary: 'People over 60 with weak grip were about 1.8× as likely to lose function, and to die, over follow-up.',
+      detail:
+        'Meta-analysis of 34 studies of people 60 and older living at home: pooled ratio 1.78 for declining physical function and 1.79 for mortality, low vs high grip. Grip is a marker of overall strength; observational, so it shows who is at risk more than what to do, but strength training is how strength is kept.',
+    },
   },
 
   howItWorks: [
@@ -470,6 +542,8 @@ export const en = {
     'We follow that risk month by month from your age today. The age by which half of people like you have died is your median; the 25% and 75% marks give your range.',
     'Rule of thumb: years ≈ ln(risk multiplier) ÷ 0.085. That is why doubling your risk costs about 8 years, and why quitting smoking can give back about 9.',
     'Several changes together add less than their sum, and we cap the total at 14 years, the largest all-habits difference found in a major US study.',
+    'Healthy years start from your country’s healthy life expectancy (WHO, 2023): the share of the years ahead that people your age spend in good health. We gather the less healthy time at the end, where most of it falls, so it shows as a band that fades, not a date.',
+    'Habits move healthy years about as much as total years, as they did in a large Harvard study, and strength training more: it keeps people strong, steady and independent. The same 14-year cap applies.',
     'These are associations from population studies, not causes, and not medical advice.',
   ],
 
@@ -517,6 +591,7 @@ export const en = {
       morning: 'in the morning',
       cigarette: 'when I want a cigarette',
       atLunch: 'at lunch',
+      coffee: 'after my morning coffee',
     },
     call: (name: string) => `call ${name}`,
     messageOrCall: (name: string) => `message or call ${name}`,
@@ -527,6 +602,7 @@ export const en = {
       smoke: 'take a 5-minute walk first',
       drink: 'have a glass of sparkling water first',
       plate: 'fill half my plate with vegetables',
+      strength: 'do 10 minutes of squats, push-ups and carries',
     },
     /** A habit step as a one-thing idea: "Go for a 10-minute walk after dinner". */
     withAnchor: (action: string, anchor: string) => `${action} ${anchor}`,
@@ -749,6 +825,99 @@ export const en = {
     next: 'Next',
   },
 
+  /**
+   * Words in place of numbers while "Hide numbers" is on (the You screen): no years, weeks, ages, counts or
+   * percentages on Life, Loves, Today, the opening and the reveal. Never a digit in here.
+   */
+  gentle: {
+    setting: 'Hide numbers',
+    settingNote:
+      'Words instead of years, weeks and counts on Life, Loves, Today and the opening. The calendar stays, without its numbers.',
+    /** How much of a likely life is ahead, from the share already lived (lib/life-views.ts aheadLevel). */
+    ahead: {
+      most: 'Most of your life is still ahead.',
+      plenty: 'Plenty of good years are likely still ahead.',
+      some: 'Good years are still ahead. Spend them on what you love.',
+      gift: 'Every day from here is a gift. Spend it on what you love.',
+    },
+    /** How far through this year or today: early, under way, nearly done. */
+    caption: {
+      life: 'This year of your life is under way. ',
+      weeks: 'This week of your life is under way. ',
+      year: {
+        early: 'Most of this year is still ahead.',
+        middle: 'This year is well under way. There is good time left in it.',
+        late: 'This year is nearly done. Make its last weeks count.',
+      },
+      today: {
+        early: 'Most of today is still ahead. Spend it on purpose.',
+        middle: 'Today is well under way. Spend what is left on purpose.',
+        late: 'Today is nearly done. Spend what is left on purpose.',
+      },
+      layers: (phone: boolean): string =>
+        phone
+          ? ' Some of it is sleep (time well spent) and some is on your phone; the rest is awake and off it.'
+          : ' Some of it is sleep, time well spent; the rest is awake.',
+      /** The healthy band in words. */
+      health: ' Many of them are likely strong and independent: the green band, fading where people differ.',
+    },
+    range: 'A range, not a date: the filled circles are likely, the rings are if fortune allows, and habits can move them.',
+    whatIfA11y: (label: string) => `What if: ${label}, could add time`,
+    triedTotal: (several: boolean): string =>
+      several
+        ? 'Together they could add good time: less than the sum, since habit effects overlap.'
+        : 'This could add good time.',
+    phoneLine: (share: string) => `Your phone takes ${share} of your waking hours.`,
+    phoneSwap:
+      'Half an hour less a day could become more time with the people you love. In experiments, cutting back on social media meant more time with family and friends and less loneliness.',
+    habitsEffect: (adds: boolean): string => (adds ? 'Your habits add time to your estimate.' : 'Your habits cost some time in your estimate.'),
+    adds: 'adds time',
+    costs: 'costs time',
+    couldAdd: 'could add good time',
+    together: (several: boolean): string =>
+      several ? 'Together they could add good years. Try them on the calendar with What if.' : 'Try it on the calendar with What if.',
+    /** In place of a love's count: a little or a lot, never how many. */
+    howMany: {
+      few: 'A few more times than you might think.',
+      many: 'Many more times, if you make room for them.',
+    },
+    pace: 'At your current pace.',
+    loveSub: 'At your current pace, over the time you likely have.',
+    agency: (label: string) => `${label} could add more of these. You can try it on the Life calendar.`,
+    moreVisits: (name: string) => `More visits with ${name} than you might think, at your current pace.`,
+    reachOut: 'More visits than you might think, at your current pace. A message takes a minute.',
+    smallStep: (label: string) => `${label} could add good time. This is a small step toward it.`,
+    suggestPerson: (name: string) =>
+      `More visits with ${name} than you might think, at your current pace. A plan makes the next one more likely.`,
+    suggestLever: (label: string) => `${label} could add good time. A small plan is a way to start.`,
+    birthday: (name: string) =>
+      `Happy birthday${name ? `, ${name}` : ''}. You have lived many weeks, some of them wonderful. What is one thing you could do with the year ahead?`,
+    isolation: 'People who stay close to others tend to live longer and healthier lives.',
+    connectionLever: 'For you, seeing the people you love every week could add good time.',
+    noneLogged: 'No calls or visits logged this past month yet.',
+    someThisMonth: 'This past month you talked with or saw some of the people you love.',
+    /** The healthy band and the Strong and independent card. */
+    healthy: {
+      years:
+        'Many of the years ahead are likely strong and independent: the green band on your calendar, fading where people differ.',
+      lever: (label: string, strength: boolean) =>
+        strength
+          ? `${label} could keep you strong and independent for longer: stronger legs, steadier balance, fewer falls.`
+          : `${label} could add healthy years.`,
+      tried: ' The green band grows too.',
+      reveal: (lever: string | null) => 'Many of those weeks are likely strong and independent.' + (lever ? ` ${lever} could add more of them.` : ''),
+    },
+    reveal: {
+      fullLife: "A full life is a long run of weeks, and you are part way along. Let's make the rest count.",
+      /** "more visits with Mom" + gentle.howMany */
+      person: (label: string, howMany: string) => `That includes ${label}. ${howMany}`,
+      phone: 'Your phone takes some of that. Half an hour less a day could become more time with the people you love.',
+      lever: (label: string) => ` ${label} could add good years.`,
+      range: (country: string | null) =>
+        `This is a range, not a date, from how long people living like you${country ? ` in ${country}` : ''} tend to live. Not medical advice.`,
+    },
+  },
+
   account: {
     title: 'You',
     edit: 'Edit your answers',
@@ -844,6 +1013,10 @@ export const en = {
       zhao2023: 'Alcohol: heavy drinking ×1.4; light drinking not protective.',
       fadnes2022: 'What you eat.',
       momma2022: 'Strength training.',
+      who2023hale: 'Healthy years: the share of the years ahead people your age spend in good health, by country and sex.',
+      pahor2014: "Staying able to walk on your own: strength training's effect on healthy years.",
+      sherrington2019: 'Exercise with strength and balance work prevents falls.',
+      rijk2016: 'Grip strength as a marker of staying independent.',
       cohen2016: 'A sense of purpose.',
       lee2019: 'Optimism and reaching 85.',
       okun2013: 'Helping others.',
@@ -910,19 +1083,24 @@ export const en = {
       'On the calendar, the combined gain is split between the changes you try in proportion to what each would add alone, so each gets its own color.',
     notInEstimate: (items: string) =>
       `Some things on the Habits screen are shown for direction only and aren’t in your numbers yet: ${items}.`,
-    timeTitle: '6 · Phone and sleep time',
+    healthyTitle: '6 · Healthy years',
+    healthyBody:
+      'Healthy years start from your country’s healthy life expectancy (WHO, 2023): the share of the years ahead that people your age and sex spend in good health, from birth and from 60. We fit a curve of how many people are not in good health at each age to those two shares and weight your years ahead by it, gathering the less healthy time at the end of life, where most of it falls. So the green band on the calendar fades across a range instead of ending on a date. WHO weights each condition by how much it limits people, so “good health” here is close to, but not the same as, being independent.',
+    healthyHabits: (k: string, cap: string) => `Habits move healthy years about as much as total years, as they did in a large Harvard study: each habit’s risk multiplier shifts the health curve ${k} times as far as it shifts the risk of dying. The same ${cap}-year cap applies.`,
+    healthyStrength: (hr: string) => `Strength training twice a week also lowers the risk of losing good health (${hr}), from a trial where walking with strength and balance work cut major mobility disability by 18%. Exercise with strength and balance work also prevents falls.`,
+    timeTitle: '7 · Phone and sleep time',
     timePhone: (waking: string) =>
       `Phone time is your own estimate, in hours a day (it starts at 4, near common estimates for US adults). Over the years you likely have left, it adds up to hours × years ÷ 24. As a share of your waking day, it is hours ÷ ${waking}.`,
     timeSleep: (ok: string, short: string) =>
       `The “Awake” and “Off phone” views take sleep out of the calendar: about ${ok} hours a night, or ${short} if you said under 6. Sleep is time well spent, not lost.`,
     timeSwap: (minutes: string) =>
       `The swap suggests taking ${minutes} minutes a day back from the phone and shows what it could become, for example daily walks with your dog over the years you both likely have.`,
-    lovesTitle: '7 · Loves: “N more times”',
+    lovesTitle: '8 · Loves: “N more times”',
     lovesBody:
       'For each person, pet or activity, the app counts the years you likely share, then multiplies by how often you see them or do it. The years shared end at the earliest of: your median age; the age you said you’d stop an activity; a person’s own median age (from their age, averaged over both sexes, since the app doesn’t ask, and assumed to live in your country); or a pet’s typical lifespan.',
     lovesPets: (dog: string, cat: string) =>
       `Typical lifespans: dogs about ${dog} years, cats about ${cat}, from UK veterinary records. Breed and size matter a lot. An older pet is always counted as having at least half a year.`,
-    limitsTitle: '8 · What it can’t tell you',
+    limitsTitle: '9 · What it can’t tell you',
     limits: [
       'These are population averages. They describe how long groups of people with answers like yours tended to live, not what will happen to you. They know nothing of your health history, your genes or your medical care.',
       'The links between habits and lifespan come from observational studies: people who do X tend to live longer, partly because of X and partly because of everything that travels with it. Changing a habit may not change your lifespan by the amount shown.',

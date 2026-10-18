@@ -102,6 +102,12 @@ export const de: Strings = {
       why: 'Persönlich oder in einem echten Gespräch. Enge Beziehungen gehören zu den stärksten Vorhersagen für ein langes Leben.',
       options: { often: 'Jede Woche', sometimes: 'Ein paar Mal im Monat', rarely: 'Selten; ich fühle mich oft allein' },
     },
+    strength: {
+      question: 'Machst du Krafttraining?',
+      short: 'Kraft',
+      why: 'Gewichte, Bänder oder das eigene Körpergewicht: Kniebeugen, Liegestütze, schwere Taschen tragen. Es hält dich später stark und standfest.',
+      options: { none: 'Selten oder nie', some: 'Etwa einmal pro Woche', regular: 'Zweimal pro Woche oder öfter' },
+    },
   },
 
   levers: {
@@ -112,6 +118,7 @@ export const de: Strings = {
     sleep: '6–9 Stunden schlafen',
     connection: 'Jede Woche die Menschen sehen, die du liebst',
     steps: '10.000 Schritte am Tag gehen',
+    strength: 'Zweimal pro Woche Krafttraining',
   },
 
   values: {
@@ -204,6 +211,12 @@ export const de: Strings = {
     range: (med, q25, q75, country) =>
       `Das ist eine Spanne, kein Datum: Die Hälfte der Menschen, die so leben wie du${country ? ` (${country})` : ''}, wird ${med}, und die meisten landen zwischen ${q25} und ${q75}. Keine medizinische Beratung.`,
     seeLife: 'Dein Leben ansehen',
+    healthy: (weeks, lever, years) => [
+      s('Etwa '),
+      b(weeks),
+      s(' dieser Wochen wirst du wahrscheinlich in guter Gesundheit leben: stark und selbstständig.'),
+      ...(lever ? [s(` ${lever} könnte davon etwa `), b(`${years} Jahre`), s(' hinzufügen.')] : []),
+    ],
   },
 
   alive: {
@@ -277,6 +290,11 @@ export const de: Strings = {
         b(free),
         s(phone ? ' wach und ohne Handy.' : ' wach.'),
       ],
+      health: (unit, med, lo, hi) => [
+        s(' Etwa '),
+        b(med),
+        s(` davon wahrscheinlich in guter Gesundheit, stark und selbstständig: das grüne Band, das dort verblasst, wo Menschen verschieden sind (bei den meisten wie dir ${lo}–${hi} ${unit === 'years' ? 'Jahre' : 'Wochen'}).`),
+      ],
     },
     legend: {
       lived: 'Gelebt',
@@ -286,11 +304,12 @@ export const de: Strings = {
       maybe: 'Wenn das Glück es will',
       asleep: 'Schlaf',
       phone: 'Am Handy',
+      healthy: 'Wahrscheinlich gesund',
     },
     shows: { all: 'Alles', awake: 'Wach', free: 'Ohne Handy' },
     showA11y: 'Verbleibende Zeit anzeigen',
     whatIf: 'Was wäre, wenn … zum Ausprobieren tippen',
-    whatIfA11y: (label, years) => `Was wäre, wenn: ${label}, etwa ${years} Jahre`,
+    whatIfA11y: (label, years, healthy) => `Was wäre wenn: ${label}, etwa ${years} Jahre, ${healthy} mehr in guter Gesundheit`,
     whatIfYears: (years) => `+${years} J.`,
     weeksAhead: 'Deine Wochen vor dir',
     weeksUnit: 'Wochen',
@@ -302,7 +321,8 @@ export const de: Strings = {
       s(` (${years} Jahre)`),
       s(several ? `: weniger als die Summe, weil sich Gewohnheiten überschneiden${capped ? ', und gedeckelt' : ''}.` : '.'),
     ],
-    triedOne: (label, years) => `${label}: allein etwa ${years} Jahre`,
+    triedOne: (label, years, healthy) => `${label}: etwa ${years} Jahre für sich allein, ${healthy} in guter Gesundheit`,
+    triedHealthy: (years) => [s(' Das grüne Band wächst um etwa '), b(`${years} Jahre in guter Gesundheit`), s('.')],
     tapWhatIf: 'Tippe im Kalender auf ein „Was wäre, wenn“, um zu sehen, was eine Änderung bringen könnte.',
     makePlan: 'Einen kleinen Plan machen',
     makePlanA11y: (label) => `Einen kleinen Plan machen für: ${label}`,
@@ -336,6 +356,25 @@ export const de: Strings = {
       s(`${capped ? ' (gedeckelt: die Effekte überschneiden sich)' : ''}. Probiere sie im Kalender mit „Was wäre, wenn“ aus.`),
     ],
     allGood: 'Du tust schon das, was am meisten Zeit bringt. Bleib dabei, und halte deine Menschen nah.',
+    healthy: {
+      eyebrow: 'Stark und selbstständig',
+      years: (med, lo, hi) => [
+        s('Etwa '),
+        b(`${med} dieser Jahre`),
+        s(` wirst du wahrscheinlich in guter Gesundheit leben: stark, standfest und selbstständig. Bei den meisten Menschen wie dir ${lo}–${hi}.`),
+      ],
+      later:
+        'Spätere Jahre bringen oft mehr Beschwerden und Krankheiten und stützen sich etwas mehr auf die Menschen um dich. Wie viele, und wie bald, liegt zum Teil in deiner Hand.',
+      lever: (label, years, why) => [
+        s(`${label} könnte etwa `),
+        b(`${years} davon`),
+        s(why === 'strength' ? ' hinzufügen: stärkere Beine, besseres Gleichgewicht, weniger Stürze.' : why === 'more' ? ' hinzufügen, mehr als zu deiner Lebenszeit.' : ' hinzufügen.'),
+      ],
+      allGood: 'Du tust schon, was Menschen am längsten stark hält. Bleib dabei, und halte deine Menschen nah.',
+      askStrength: 'Machst du Krafttraining? Antwort ergänzen',
+      sourceHealthy: 'Gesunde Jahre',
+      sourceHabits: 'Gewohnheiten',
+    },
   },
 
   share: {
@@ -375,6 +414,11 @@ export const de: Strings = {
     notInEstimate: 'Noch nicht in deiner Schätzung; zur Orientierung gezeigt.',
     howItWorks: 'WIE DEINE SCHÄTZUNG FUNKTIONIERT',
     strength: { strong: 'stark', moderate: 'mittel', emerging: 'neu' },
+    healthspan: 'STARK UND SELBSTSTÄNDIG BLEIBEN',
+    healthspanNote: 'Was die späteren Jahre gesund hält: das grüne Band in deinem Lebenskalender. Tippe auf einen Eintrag für Zahlen und Quelle.',
+    strengthNote: (years) =>
+      `Die größere Wirkung hat es darauf, stark und selbstständig zu bleiben: Zweimal pro Woche könnte etwa ${years} Jahre in guter Gesundheit hinzufügen.`,
+    strengthKeep: 'Zweimal pro Woche hält dich länger stark und standfest. Bleib dabei.',
   },
 
   evidence: {
@@ -409,8 +453,9 @@ export const de: Strings = {
     },
     strength: {
       title: 'Krafttraining',
-      summary: '30–60 Minuten pro Woche gehen mit 10–17 % geringerer Sterblichkeit einher.',
-      detail: 'Zusätzlich zu Ausdauertraining, nicht stattdessen. Der Nutzen über etwa eine Stunde pro Woche hinaus ist unklar.',
+      summary: '30–60 Minuten pro Woche gehen mit 10–17 % geringerer Sterblichkeit einher, und damit, länger stark und selbstständig zu bleiben.',
+      detail:
+        'Zusätzlich zu Ausdauertraining, nicht stattdessen; ob mehr als etwa eine Stunde pro Woche mehr bringt, ist unklar. Die größere Wirkung betrifft die späteren Jahre: Kraft- und Gleichgewichtstraining bedeutet weniger Stürze und weniger Behinderung (siehe „Stark und selbstständig bleiben“). In dieser App zählt zweimal pro Woche ×0,85 beim Sterberisiko und ×0,82 beim Risiko, die gute Gesundheit zu verlieren.',
     },
     purpose: {
       title: 'Ein Sinn im Leben',
@@ -440,6 +485,30 @@ export const de: Strings = {
       detail:
         'Facebook 4 Wochen lang zu deaktivieren steigerte das Wohlbefinden und die Offline-Zeit mit Freunden und Familie. Social Media 3 Wochen lang auf etwa 30 Minuten am Tag zu begrenzen senkte Einsamkeit und Depression.',
     },
+    healthyHabits: {
+      title: 'Gesunde Gewohnheiten bringen gesunde Jahre',
+      summary: 'Mit 50 gingen 4–5 gesunde Gewohnheiten mit etwa 10,7 (Frauen) und 7,6 (Männer) mehr Jahren ohne Krebs, Herzkrankheit und Diabetes einher.',
+      detail:
+        'In zwei großen Harvard-Kohorten stiegen die Lebensjahre insgesamt etwa genauso (+9,4 Frauen, +8,1 Männer): Fast die ganze zusätzliche Zeit war gesunde Zeit, und die Jahre mit Krankheit änderten sich kaum. Die Gewohnheiten: nicht rauchen, gesundes Gewicht, täglich 30+ Minuten Bewegung, wenig oder kein Alkohol, gute Ernährung. Die App bewegt deine gesunden Jahre entsprechend mit deinen Gewohnheiten.',
+    },
+    falls: {
+      title: 'Bewegung verhindert Stürze',
+      summary: 'Training senkte Stürze bei älteren Menschen um 23 %; Programme mit Kraft und Gleichgewicht um etwa ein Drittel.',
+      detail:
+        'Cochrane-Review von 108 Studien (23.407 Menschen über 60, die zu Hause leben). Ratenverhältnis insgesamt 0,77 (hohe Vertrauenswürdigkeit); Gleichgewichts- und Funktionstraining 0,76; mehrere Arten zusammen, meist Gleichgewicht plus Kraft, 0,66 (mittlere Vertrauenswürdigkeit).',
+    },
+    mobility: {
+      title: 'Selbst gehen können',
+      summary: 'In einer Studie mit 1.635 Menschen von 70–89 senkte Gehen mit Kraft- und Gleichgewichtstraining schwere Gehbehinderung um 18 %.',
+      detail:
+        'Die LIFE-Studie: ein strukturiertes, moderates Programm (Gehen, Kraft, Beweglichkeit, Gleichgewicht) gegen Gesundheitsschulung, über 2,6 Jahre. Nicht mehr 400 m gehen können: 30,1 % gegen 35,5 % (HR 0,82). Eine einzelne große Studie eines kombinierten Programms; der Anteil der Kraft allein ist unbekannt. Die App nutzt 0,82 für Krafttraining zweimal pro Woche.',
+    },
+    grip: {
+      title: 'Griffkraft',
+      summary: 'Menschen über 60 mit schwachem Griff verloren etwa 1,8-mal so oft Funktionen, und starben ebenso häufiger, im Beobachtungszeitraum.',
+      detail:
+        'Metaanalyse von 34 Studien mit Menschen ab 60, die zu Hause leben: gepooltes Verhältnis 1,78 für körperlichen Abbau und 1,79 für Sterblichkeit, schwacher gegen starker Griff. Griffkraft ist ein Marker für die Gesamtkraft; beobachtend, zeigt also eher, wer gefährdet ist, als was zu tun ist, aber Kraft erhält man durch Training.',
+    },
   },
 
   howItWorks: [
@@ -448,6 +517,8 @@ export const de: Strings = {
     'Wir verfolgen dieses Risiko Monat für Monat ab deinem heutigen Alter. Das Alter, bis zu dem die Hälfte der Menschen wie du gestorben ist, ist dein Median; die 25-%- und 75-%-Marken ergeben deine Spanne.',
     'Faustregel: Jahre ≈ ln(Risikofaktor) ÷ 0,085. Deshalb kostet ein verdoppeltes Risiko etwa 8 Jahre, und Aufhören mit dem Rauchen kann etwa 9 zurückgeben.',
     'Mehrere Änderungen zusammen bringen weniger als ihre Summe, und wir begrenzen den Gesamtgewinn auf 14 Jahre, den größten Unterschied über alle Gewohnheiten aus einer großen US-Studie.',
+    'Gesunde Jahre beginnen bei der gesunden Lebenserwartung deines Landes (WHO, 2023): dem Anteil der kommenden Jahre, den Menschen deines Alters in guter Gesundheit verbringen. Die weniger gesunde Zeit legen wir ans Ende, wo das meiste davon liegt, darum erscheint sie als verblassendes Band, nicht als Datum.',
+    'Gewohnheiten bewegen gesunde Jahre etwa so stark wie die Lebensjahre insgesamt, wie in einer großen Harvard-Studie, und Krafttraining noch mehr: Es hält Menschen stark, standfest und selbstständig. Dieselbe Obergrenze von 14 Jahren gilt.',
     'Das sind Zusammenhänge aus Bevölkerungsstudien, keine Ursachen, und keine medizinische Beratung.',
   ],
 
@@ -488,6 +559,7 @@ export const de: Strings = {
       morning: 'am Morgen',
       cigarette: 'wenn ich eine Zigarette will',
       atLunch: 'beim Mittagessen',
+      coffee: 'nach meinem Morgenkaffee',
     },
     call: (name) => `${name} anrufen`,
     messageOrCall: (name) => `${name} schreiben oder anrufen`,
@@ -498,6 +570,7 @@ export const de: Strings = {
       smoke: 'erst 5 Minuten gehen',
       drink: 'erst ein Glas Sprudelwasser trinken',
       plate: 'meinen Teller zur Hälfte mit Gemüse füllen',
+      strength: '10 Minuten Kniebeugen, Liegestütze und Tragen machen',
     },
     withAnchor: (action, anchor) => `${anchor} ${action}`,
     capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),
@@ -730,6 +803,93 @@ export const de: Strings = {
     next: 'Weiter',
   },
 
+  gentle: {
+    setting: 'Zahlen ausblenden',
+    settingNote:
+      'Worte statt Jahren, Wochen und Zählungen in Leben, Liebe, Heute und beim Öffnen. Der Kalender bleibt, ohne seine Zahlen.',
+    ahead: {
+      most: 'Der größte Teil deines Lebens liegt noch vor dir.',
+      plenty: 'Wahrscheinlich liegen noch viele gute Jahre vor dir.',
+      some: 'Es liegen noch gute Jahre vor dir. Verbring sie mit dem, was du liebst.',
+      gift: 'Jeder Tag von hier an ist ein Geschenk. Verbring ihn mit dem, was du liebst.',
+    },
+    caption: {
+      life: 'Dieses Jahr deines Lebens ist im Gang. ',
+      weeks: 'Diese Woche deines Lebens ist im Gang. ',
+      year: {
+        early: 'Der größte Teil dieses Jahres liegt noch vor dir.',
+        middle: 'Dieses Jahr ist weit fortgeschritten. Es steckt noch gute Zeit darin.',
+        late: 'Dieses Jahr ist fast vorbei. Lass seine letzten Wochen zählen.',
+      },
+      today: {
+        early: 'Der größte Teil des Tages liegt noch vor dir. Nutze ihn bewusst.',
+        middle: 'Der Tag ist weit fortgeschritten. Nutze den Rest bewusst.',
+        late: 'Der Tag ist fast vorbei. Nutze den Rest bewusst.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Ein Teil davon ist Schlaf (gut verbrachte Zeit) und ein Teil am Handy; der Rest ist wach und ohne Handy.'
+          : ' Ein Teil davon ist Schlaf, gut verbrachte Zeit; der Rest ist wach.',
+      health: ' Viele davon sind wahrscheinlich stark und selbstständig: das grüne Band, das dort verblasst, wo Menschen sich unterscheiden.',
+    },
+    range:
+      'Eine Spanne, kein Datum: Die gefüllten Kreise sind wahrscheinlich, die Ringe, wenn das Glück es erlaubt, und Gewohnheiten können sie verschieben.',
+    whatIfA11y: (label) => `Was wäre, wenn: ${label}, könnte Zeit hinzufügen`,
+    triedTotal: (several) =>
+      several
+        ? 'Zusammen könnten sie gute Zeit hinzufügen: weniger als die Summe, weil sich die Wirkungen von Gewohnheiten überschneiden.'
+        : 'Das könnte gute Zeit hinzufügen.',
+    phoneLine: (share) => `Dein Handy nimmt ${share} deiner wachen Stunden ein.`,
+    phoneSwap:
+      'Eine halbe Stunde weniger am Tag könnte zu mehr Zeit mit den Menschen werden, die du liebst. In Experimenten bedeutete weniger Social Media mehr Zeit mit Familie und Freunden und weniger Einsamkeit.',
+    habitsEffect: (adds) =>
+      adds ? 'Deine Gewohnheiten fügen deiner Schätzung Zeit hinzu.' : 'Deine Gewohnheiten kosten deine Schätzung etwas Zeit.',
+    adds: 'fügt Zeit hinzu',
+    costs: 'kostet Zeit',
+    couldAdd: 'könnte gute Zeit hinzufügen',
+    together: (several) =>
+      several
+        ? 'Zusammen könnten sie gute Jahre hinzufügen. Probier sie im Kalender mit „Was wäre, wenn“ aus.'
+        : 'Probier es im Kalender mit „Was wäre, wenn“ aus.',
+    howMany: {
+      few: 'Ein paar Mal mehr, als du vielleicht denkst.',
+      many: 'Noch viele Male, wenn du ihnen Raum gibst.',
+    },
+    pace: 'In deinem jetzigen Tempo.',
+    loveSub: 'In deinem jetzigen Tempo, über die Zeit, die du wahrscheinlich hast.',
+    agency: (label) => `${label} könnte noch mehr davon bringen. Du kannst es im Lebenskalender ausprobieren.`,
+    moreVisits: (name) => `Mehr Besuche mit ${name}, als du vielleicht denkst, in deinem jetzigen Tempo.`,
+    reachOut: 'Mehr Besuche, als du vielleicht denkst, in deinem jetzigen Tempo. Eine Nachricht dauert eine Minute.',
+    smallStep: (label) => `${label} könnte gute Zeit hinzufügen. Das ist ein kleiner Schritt dorthin.`,
+    suggestPerson: (name) =>
+      `Mehr Besuche mit ${name}, als du vielleicht denkst, in deinem jetzigen Tempo. Ein Plan macht den nächsten wahrscheinlicher.`,
+    suggestLever: (label) => `${label} könnte gute Zeit hinzufügen. Ein kleiner Plan ist ein Anfang.`,
+    birthday: (name) =>
+      `Alles Gute zum Geburtstag${name ? `, ${name}` : ''}. Du hast viele Wochen gelebt, manche davon wunderbar. Was könntest du mit dem kommenden Jahr anfangen?`,
+    isolation: 'Menschen, die anderen nahe bleiben, leben meist länger und gesünder.',
+    connectionLever: 'Für dich könnte es gute Zeit hinzufügen, die Menschen, die du liebst, jede Woche zu sehen.',
+    noneLogged: 'Im letzten Monat noch keine Anrufe oder Besuche eingetragen.',
+    someThisMonth: 'Im letzten Monat hast du mit einigen der Menschen, die du liebst, gesprochen oder sie gesehen.',
+    healthy: {
+      years:
+        'Viele der kommenden Jahre sind wahrscheinlich stark und selbstständig: das grüne Band in deinem Kalender, das dort verblasst, wo Menschen sich unterscheiden.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} könnte dich länger stark und selbstständig halten: kräftigere Beine, besseres Gleichgewicht, weniger Stürze.`
+          : `${label} könnte gesunde Jahre hinzufügen.`,
+      tried: ' Das grüne Band wächst mit.',
+      reveal: (lever) => 'Viele dieser Wochen sind wahrscheinlich stark und selbstständig.' + (lever ? ` ${lever} könnte noch mehr davon bringen.` : ''),
+    },
+    reveal: {
+      fullLife: 'Ein volles Leben ist eine lange Reihe von Wochen, und du bist unterwegs. Lass uns den Rest zählen lassen.',
+      person: (label, howMany) => `Dazu gehören ${label}. ${howMany}`,
+      phone: 'Dein Handy nimmt einen Teil davon ein. Eine halbe Stunde weniger am Tag könnte zu mehr Zeit mit den Menschen werden, die du liebst.',
+      lever: (label) => ` ${label} könnte gute Jahre hinzufügen.`,
+      range: (country) =>
+        `Das ist eine Spanne, kein Datum, danach, wie lange Menschen, die wie du leben${country ? `, in ${country}` : ''}, meist leben. Keine medizinische Beratung.`,
+    },
+  },
+
   account: {
     title: 'Du',
     edit: 'Antworten bearbeiten',
@@ -817,6 +977,10 @@ export const de: Strings = {
       zhao2023: 'Alkohol: viel trinken ×1,4; wenig trinken schützt nicht.',
       fadnes2022: 'Was du isst.',
       momma2022: 'Krafttraining.',
+      who2023hale: 'Gesunde Jahre: der Anteil der kommenden Jahre, den Menschen deines Alters gesund verbringen, nach Land und Geschlecht.',
+      pahor2014: 'Selbst gehen können: die Wirkung von Krafttraining auf die gesunden Jahre.',
+      sherrington2019: 'Training mit Kraft und Gleichgewicht verhindert Stürze.',
+      rijk2016: 'Griffkraft als Marker für Selbstständigkeit.',
       cohen2016: 'Ein Sinn im Leben.',
       lee2019: 'Optimismus und 85 werden.',
       okun2013: 'Anderen helfen.',
@@ -882,19 +1046,24 @@ export const de: Strings = {
       'Im Kalender wird der kombinierte Gewinn im Verhältnis dazu aufgeteilt, was jede Änderung allein bringen würde, sodass jede ihre eigene Farbe bekommt.',
     notInEstimate: (items) =>
       `Manches auf dem Gewohnheiten-Bildschirm dient nur der Orientierung und steckt noch nicht in deinen Zahlen: ${items}.`,
-    timeTitle: '6 · Handy und Schlaf',
+    healthyTitle: '6 · Gesunde Jahre',
+    healthyBody:
+      'Gesunde Jahre beginnen bei der gesunden Lebenserwartung deines Landes (WHO, 2023): dem Anteil der kommenden Jahre, den Menschen deines Alters und Geschlechts gesund verbringen, ab Geburt und ab 60. An diese zwei Anteile passen wir eine Kurve an, wie viele Menschen in jedem Alter nicht gesund sind, und gewichten damit deine kommenden Jahre; die weniger gesunde Zeit legen wir ans Lebensende, wo das meiste davon liegt. Darum verblasst das grüne Band im Kalender über eine Spanne, statt an einem Datum zu enden. Die WHO gewichtet jede Erkrankung danach, wie sehr sie einschränkt; „gesund“ ist hier also nah an, aber nicht gleich „selbstständig“.',
+    healthyHabits: (k, cap) => `Gewohnheiten bewegen gesunde Jahre etwa so stark wie die Lebensjahre insgesamt, wie in einer großen Harvard-Studie: Der Risikofaktor jeder Gewohnheit verschiebt die Gesundheitskurve ${k}-mal so weit wie das Sterberisiko. Dieselbe Obergrenze von ${cap} Jahren gilt.`,
+    healthyStrength: (hr) => `Krafttraining zweimal pro Woche senkt außerdem das Risiko, die gute Gesundheit zu verlieren (${hr}), nach einer Studie, in der Gehen mit Kraft- und Gleichgewichtstraining schwere Gehbehinderung um 18 % senkte. Training mit Kraft und Gleichgewicht verhindert auch Stürze.`,
+    timeTitle: '7 · Handy und Schlaf',
     timePhone: (waking) =>
       `Die Handyzeit ist deine eigene Schätzung in Stunden pro Tag (sie beginnt bei 4, nahe gängigen Schätzungen für Erwachsene in den USA). Über die Jahre, die du wahrscheinlich noch hast, ergibt das Stunden × Jahre ÷ 24. Als Anteil deines wachen Tages sind es Stunden ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Die Ansichten „Wach“ und „Ohne Handy“ nehmen den Schlaf aus dem Kalender: etwa ${ok} Stunden pro Nacht, oder ${short}, wenn du unter 6 angegeben hast. Schlaf ist gut genutzte Zeit, keine verlorene.`,
     timeSwap: (minutes) =>
       `Der Tausch schlägt vor, dir ${minutes} Minuten am Tag vom Handy zurückzuholen, und zeigt, was daraus werden könnte, etwa tägliche Spaziergänge mit deinem Hund in den Jahren, die ihr wahrscheinlich zusammen habt.`,
-    lovesTitle: '7 · Was du liebst: „noch N-mal“',
+    lovesTitle: '8 · Was du liebst: „noch N-mal“',
     lovesBody:
       'Für jeden Menschen, jedes Tier und jede Tätigkeit zählt die App die Jahre, die ihr wahrscheinlich teilt, und multipliziert sie damit, wie oft du sie siehst oder es tust. Diese Jahre enden beim frühesten von: deinem Medianalter; dem Alter, mit dem du eine Tätigkeit aufhören willst; dem Medianalter des anderen Menschen (aus seinem Alter, über beide Geschlechter gemittelt, weil die App nicht fragt, und angenommen, er lebt in deinem Land); oder der typischen Lebensdauer eines Tiers.',
     lovesPets: (dog, cat) =>
       `Typische Lebensdauern: Hunde etwa ${dog} Jahre, Katzen etwa ${cat}, aus britischen Tierarztdaten. Rasse und Größe machen viel aus. Ein älteres Tier zählt immer mit mindestens einem halben Jahr.`,
-    limitsTitle: '8 · Was sie dir nicht sagen kann',
+    limitsTitle: '9 · Was sie dir nicht sagen kann',
     limits: [
       'Das sind Bevölkerungsdurchschnitte. Sie beschreiben, wie lange Gruppen von Menschen mit ähnlichen Antworten gelebt haben, nicht, was mit dir passieren wird. Sie wissen nichts über deine Krankengeschichte, deine Gene oder deine Versorgung.',
       'Die Zusammenhänge zwischen Gewohnheiten und Lebensdauer stammen aus Beobachtungsstudien: Wer X tut, lebt oft länger, teils wegen X und teils wegen allem, was damit einhergeht. Eine Gewohnheit zu ändern, ändert deine Lebensdauer womöglich nicht um den gezeigten Betrag.',

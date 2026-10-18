@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -12,7 +12,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { deleteAccount, signOutLocally } from '@/lib/auth';
 import { dataExport } from '@/lib/data-export';
-import { clearPrefs } from '@/lib/prefs';
+import { clearPrefs, setPref, usePrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
 import { shareFile } from '@/lib/share-file';
 import { useAuth } from '@/providers/auth-provider';
@@ -26,6 +26,7 @@ export default function YouScreen() {
   const t = useT();
   const a = t.account;
   const { session } = useAuth();
+  const { hideNumbers } = usePrefs();
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   /** The server couldn't erase the account; nothing has been deleted yet. */
@@ -104,6 +105,24 @@ export default function YouScreen() {
               {exported.ok ? a.exportDone(exported.name) : a.exportFailed}
             </ThemedText>
           ) : null}
+        </View>
+
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <View style={styles.row}>
+            <ThemedText type="heading" style={styles.flex}>
+              {t.gentle.setting}
+            </ThemedText>
+            <Switch
+              value={hideNumbers}
+              onValueChange={(on) => setPref('hideNumbers', on)}
+              accessibilityLabel={t.gentle.setting}
+              trackColor={{ false: theme.line, true: theme.accent }}
+              thumbColor={theme.fg}
+              // react-native-web colors the "on" thumb with its own prop (teal by default).
+              {...{ activeThumbColor: theme.fg }}
+            />
+          </View>
+          <ThemedText type="small">{t.gentle.settingNote}</ThemedText>
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
@@ -198,5 +217,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     columnGap: 16,
     rowGap: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  flex: {
+    flex: 1,
   },
 });

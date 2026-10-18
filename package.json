@@ -52,6 +52,7 @@
     "check:model": "node scripts/check-model.mts",
     "check:wisdom": "node scripts/check-wisdom.mts",
     "fit:countries": "node scripts/fit-country-tables.mts",
+    "fit:health": "node scripts/fetch-health-tables.mts",
     "docs": "node scripts/write-docs.mts"
   },
   "private": true

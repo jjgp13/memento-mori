@@ -19,7 +19,11 @@ export type EvidenceKey =
   | 'sleep'
   | 'alcohol'
   | 'helping'
-  | 'scrolling';
+  | 'scrolling'
+  | 'healthyHabits'
+  | 'falls'
+  | 'mobility'
+  | 'grip';
 
 export type Evidence = {
   key: EvidenceKey;
@@ -68,7 +72,7 @@ export const WHAT_MATTERS: Evidence[] = [
     key: 'strength',
     strength: 'moderate',
     source: cite('momma2022'),
-    inEstimate: false,
+    inEstimate: true,
   },
   {
     key: 'purpose',
@@ -103,6 +107,42 @@ export const WHAT_MATTERS: Evidence[] = [
     inEstimate: false,
   },
 ];
+
+/**
+ * Staying strong and independent: how habits move healthy years (healthspan), on the Habits screen and behind the
+ * healthy band on Life. Keep in step with docs/science.md §1. Text is in the catalogs, under `evidence`.
+ */
+export const HEALTHSPAN: Evidence[] = [
+  {
+    key: 'healthyHabits',
+    strength: 'strong',
+    source: cite('li2020'),
+    inEstimate: true,
+  },
+  {
+    key: 'falls',
+    strength: 'strong',
+    source: cite('sherrington2019'),
+    inEstimate: false,
+  },
+  {
+    key: 'mobility',
+    strength: 'moderate',
+    source: cite('pahor2014'),
+    inEstimate: true,
+  },
+  {
+    key: 'grip',
+    strength: 'moderate',
+    source: cite('rijk2016'),
+    inEstimate: false,
+  },
+];
+
+/** Where healthy years start from: each country's healthy life expectancy (src/lib/health-tables.ts). */
+export const HEALTHY_LIFE_TABLES = {
+  source: cite('who2023hale'),
+};
 
 /** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */
 export const LIFE_TABLES = {
@@ -168,9 +208,10 @@ const EVIDENCE_FOR: Record<string, string> = {
   sleep: 'sleep',
   connection: 'relationships',
   phone: 'scrolling',
+  healthy: 'healthyHabits',
 };
 
 export function evidenceFor(key: string): Evidence | undefined {
   const k = EVIDENCE_FOR[key] ?? key;
-  return WHAT_MATTERS.find((e) => e.key === k);
+  return WHAT_MATTERS.find((e) => e.key === k) ?? HEALTHSPAN.find((e) => e.key === k);
 }

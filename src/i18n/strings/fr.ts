@@ -102,6 +102,12 @@ export const fr: Strings = {
       why: 'En personne ou une vraie conversation. Les relations proches sont parmi les meilleurs prédicteurs d’une longue vie.',
       options: { often: 'Chaque semaine', sometimes: 'Quelques fois par mois', rarely: 'Rarement ; je me sens souvent seul·e' },
     },
+    strength: {
+      question: 'Fais-tu du renforcement musculaire ?',
+      short: 'Force',
+      why: 'Haltères, élastiques ou poids du corps : squats, pompes, porter des sacs lourds. Cela te garde fort et stable plus tard.',
+      options: { none: 'Rarement ou jamais', some: 'Environ une fois par semaine', regular: 'Deux fois par semaine ou plus' },
+    },
   },
 
   levers: {
@@ -112,6 +118,7 @@ export const fr: Strings = {
     sleep: 'Dormir 6 à 9 heures',
     connection: 'Voir tes proches chaque semaine',
     steps: 'Marcher 10 000 pas par jour',
+    strength: 'Du renforcement deux fois par semaine',
   },
 
   values: {
@@ -204,6 +211,12 @@ export const fr: Strings = {
     range: (med, q25, q75, country) =>
       `C’est une fourchette, pas une date : la moitié des personnes qui vivent comme toi${country ? ` en ${country}` : ''} atteignent ${med} ans, et la plupart se situent entre ${q25} et ${q75} ans. Pas un avis médical.`,
     seeLife: 'Voir ta vie',
+    healthy: (weeks, lever, years) => [
+      s('Environ '),
+      b(weeks),
+      s(' de ces semaines seront probablement en bonne santé : fort et autonome.'),
+      ...(lever ? [s(` ${lever} pourrait en ajouter environ `), b(`${years} ans`), s('.')] : []),
+    ],
   },
 
   alive: {
@@ -277,6 +290,11 @@ export const fr: Strings = {
         b(free),
         s(phone ? ' éveillé·e et loin de ton téléphone.' : ' éveillé·e.'),
       ],
+      health: (unit, med, lo, hi) => [
+        s(' Environ '),
+        b(med),
+        s(` d’entre ${unit === 'years' ? 'eux' : 'elles'} seront probablement en bonne santé, fort et autonome : la bande verte, qui s’estompe là où les gens diffèrent (pour la plupart des gens comme toi, ${lo}–${hi} ${unit === 'years' ? 'ans' : 'semaines'}).`),
+      ],
     },
     legend: {
       lived: 'Vécu',
@@ -286,11 +304,12 @@ export const fr: Strings = {
       maybe: 'Si la chance le permet',
       asleep: 'Sommeil',
       phone: 'Sur ton téléphone',
+      healthy: 'Probablement en bonne santé',
     },
     shows: { all: 'Tout', awake: 'Éveillé', free: 'Hors téléphone' },
     showA11y: 'Afficher le temps à venir',
     whatIf: 'Et si… touche pour essayer',
-    whatIfA11y: (label, years) => `Et si : ${label}, environ ${years} ans`,
+    whatIfA11y: (label, years, healthy) => `Et si : ${label}, environ ${years} ans, dont ${healthy} de plus en bonne santé`,
     whatIfYears: (years) => `+${years} a`,
     weeksAhead: 'Tes semaines à venir',
     weeksUnit: 'semaines',
@@ -302,7 +321,8 @@ export const fr: Strings = {
       s(` (${years} ans)`),
       s(several ? ` : moins que la somme, car les effets des habitudes se recoupent${capped ? ', et plafonné' : ''}.` : '.'),
     ],
-    triedOne: (label, years) => `${label} : environ ${years} ans à lui seul`,
+    triedOne: (label, years, healthy) => `${label} : environ ${years} ans à lui seul, ${healthy} en bonne santé`,
+    triedHealthy: (years) => [s(' La bande verte s’allonge d’environ '), b(`${years} ans en bonne santé`), s('.')],
     tapWhatIf: 'Touche un « Et si » sur le calendrier pour voir ce qu’un changement pourrait ajouter.',
     makePlan: 'Faire un petit plan',
     makePlanA11y: (label) => `Faire un petit plan pour : ${label}`,
@@ -332,6 +352,25 @@ export const fr: Strings = {
       s(`${capped ? ' (plafonné : les effets des habitudes se recoupent)' : ''}. Essaie-les sur le calendrier avec « Et si ».`),
     ],
     allGood: 'Tu fais déjà ce qui ajoute le plus de temps. Continue, et garde tes proches près de toi.',
+    healthy: {
+      eyebrow: 'Fort et autonome',
+      years: (med, lo, hi) => [
+        s('Environ '),
+        b(`${med} de ces années`),
+        s(` seront probablement en bonne santé : fort, stable et autonome. Pour la plupart des gens comme toi, ${lo}–${hi}.`),
+      ],
+      later:
+        'Les dernières années apportent souvent plus de douleurs et de maladies, et on s’appuie un peu plus sur son entourage. Combien, et à quel moment, dépend en partie de toi.',
+      lever: (label, years, why) => [
+        s(`${label} pourrait en ajouter environ `),
+        b(`${years}`),
+        s(why === 'strength' ? ' : des jambes plus fortes, un meilleur équilibre, moins de chutes.' : why === 'more' ? ', plus qu’à ta durée de vie.' : '.'),
+      ],
+      allGood: 'Tu fais déjà ce qui garde les gens forts le plus longtemps. Continue, et garde tes proches près de toi.',
+      askStrength: 'Fais-tu du renforcement ? Ajoute ta réponse',
+      sourceHealthy: 'Années en bonne santé',
+      sourceHabits: 'Habitudes',
+    },
   },
 
   share: {
@@ -371,6 +410,11 @@ export const fr: Strings = {
     notInEstimate: 'Pas encore dans ton estimation ; indiqué à titre d’orientation.',
     howItWorks: 'COMMENT FONCTIONNE TON ESTIMATION',
     strength: { strong: 'solide', moderate: 'modérée', emerging: 'émergente' },
+    healthspan: 'RESTER FORT ET AUTONOME',
+    healthspanNote: 'Ce qui garde les dernières années en bonne santé : la bande verte de ton calendrier Vie. Touche une ligne pour voir les chiffres et la source.',
+    strengthNote: (years) =>
+      `Son plus grand effet est de te garder fort et autonome : deux fois par semaine pourrait ajouter environ ${years} ans en bonne santé.`,
+    strengthKeep: 'Deux fois par semaine te garde plus fort et plus stable plus longtemps. Continue.',
   },
 
   evidence: {
@@ -404,9 +448,10 @@ export const fr: Strings = {
         'Un poids sain fait partie des cinq habitudes qui, ensemble, étaient liées à 12–14 années de plus à 50 ans, et à environ 8–11 années de plus sans cancer, maladie cardiaque ni diabète.',
     },
     strength: {
-      title: 'Le renforcement musculaire',
-      summary: '30 à 60 minutes par semaine sont liées à une mortalité plus faible de 10–17 %.',
-      detail: 'En plus de l’exercice aérobie, pas à la place. Les bénéfices au-delà d’environ une heure par semaine sont incertains.',
+      title: 'Renforcement musculaire',
+      summary: '30 à 60 minutes par semaine sont liées à une mortalité de 10 à 17 % plus faible, et à rester fort et autonome plus longtemps.',
+      detail:
+        'En plus de l’exercice aérobie, pas à sa place ; au-delà d’environ une heure par semaine, le bénéfice est incertain. Son plus grand effet porte sur les dernières années : le travail de force et d’équilibre signifie moins de chutes et moins d’incapacité (voir « Rester fort et autonome »). Dans cette appli, deux fois par semaine compte ×0,85 sur le risque de décès et ×0,82 sur le risque de perdre la bonne santé.',
     },
     purpose: {
       title: 'Un sens à sa vie',
@@ -436,6 +481,30 @@ export const fr: Strings = {
       detail:
         'Désactiver Facebook pendant 4 semaines a amélioré le bien-être et le temps hors ligne avec les amis et la famille. Limiter les réseaux sociaux à environ 30 minutes par jour pendant 3 semaines a réduit la solitude et la dépression.',
     },
+    healthyHabits: {
+      title: 'De bonnes habitudes ajoutent des années en bonne santé',
+      summary: 'À 50 ans, 4 à 5 bonnes habitudes allaient avec environ 10,7 (femmes) et 7,6 (hommes) années de plus sans cancer, maladie cardiaque ni diabète.',
+      detail:
+        'Dans deux grandes cohortes de Harvard, le total d’années a augmenté presque autant (+9,4 femmes, +8,1 hommes) : presque tout le temps gagné était du temps en bonne santé, et les années vécues avec la maladie ont à peine changé. Les habitudes : ne pas fumer, poids sain, 30 minutes ou plus d’activité par jour, boire peu ou pas, bien manger. L’appli fait bouger tes années en bonne santé avec tes habitudes.',
+    },
+    falls: {
+      title: 'L’exercice prévient les chutes',
+      summary: 'L’exercice a réduit les chutes chez les personnes âgées de 23 % ; les programmes avec force et équilibre, d’environ un tiers.',
+      detail:
+        'Revue Cochrane de 108 essais (23 407 personnes de plus de 60 ans vivant chez elles). Rapport de taux global 0,77 (preuves de haute certitude) ; équilibre et exercices fonctionnels 0,76 ; plusieurs types ensemble, le plus souvent équilibre et force, 0,66 (certitude modérée).',
+    },
+    mobility: {
+      title: 'Continuer à marcher seul',
+      summary: 'Dans un essai avec 1 635 personnes de 70 à 89 ans, la marche avec du travail de force et d’équilibre a réduit de 18 % l’incapacité grave à se déplacer.',
+      detail:
+        'L’essai LIFE : un programme modéré et structuré (marche, force, souplesse, équilibre) contre une éducation à la santé, sur 2,6 ans. Perdre la capacité de marcher 400 m : 30,1 % contre 35,5 % (HR 0,82). Un seul grand essai d’un programme combiné : la part due à la force seule est inconnue. L’appli utilise 0,82 pour le renforcement deux fois par semaine.',
+    },
+    grip: {
+      title: 'Force de préhension',
+      summary: 'Les plus de 60 ans à la poigne faible avaient environ 1,8× plus de risques de perdre leur autonomie physique, et de mourir, pendant le suivi.',
+      detail:
+        'Méta-analyse de 34 études de personnes de 60 ans et plus vivant chez elles : rapport combiné de 1,78 pour le déclin physique et de 1,79 pour la mortalité, poigne faible contre forte. La poigne est un marqueur de la force générale ; c’est observationnel, donc cela montre qui est à risque plus que quoi faire, mais la force se garde en l’entraînant.',
+    },
   },
 
   howItWorks: [
@@ -444,6 +513,8 @@ export const fr: Strings = {
     'Nous suivons ce risque mois après mois à partir de ton âge actuel. L’âge auquel la moitié des personnes comme toi sont décédées est ta médiane ; les repères de 25 % et 75 % donnent ta fourchette.',
     'Règle simple : années ≈ ln(multiplicateur de risque) ÷ 0,085. C’est pourquoi doubler ton risque coûte environ 8 ans, et pourquoi arrêter de fumer peut en rendre environ 9.',
     'Plusieurs changements ensemble ajoutent moins que leur somme, et nous plafonnons le total à 14 ans, le plus grand écart toutes habitudes confondues trouvé dans une grande étude américaine.',
+    'Les années en bonne santé partent de l’espérance de vie en bonne santé de ton pays (OMS, 2023) : la part des années à venir que les gens de ton âge passent en bonne santé. Nous regroupons le temps moins sain à la fin, où il se concentre surtout : cela donne une bande qui s’estompe, pas une date.',
+    'Les habitudes font bouger les années en bonne santé à peu près autant que le total, comme dans une grande étude de Harvard, et le renforcement encore plus : il garde fort, stable et autonome. Le même plafond de 14 ans s’applique.',
     'Ce sont des associations tirées d’études de population, pas des causes, et pas un avis médical.',
   ],
 
@@ -484,6 +555,7 @@ export const fr: Strings = {
       morning: 'le matin',
       cigarette: 'quand j’ai envie d’une cigarette',
       atLunch: 'au déjeuner',
+      coffee: 'après mon café du matin',
     },
     call: (name) => `appeler ${name}`,
     messageOrCall: (name) => `écrire ou appeler ${name}`,
@@ -494,6 +566,7 @@ export const fr: Strings = {
       smoke: 'marcher 5 minutes d’abord',
       drink: 'boire d’abord un verre d’eau pétillante',
       plate: 'remplir la moitié de mon assiette de légumes',
+      strength: 'faire 10 minutes de squats, de pompes et de port de charges',
     },
     withAnchor: (action, anchor) => `${action} ${anchor}`,
     capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),
@@ -726,6 +799,90 @@ export const fr: Strings = {
     next: 'Suivant',
   },
 
+  gentle: {
+    setting: 'Masquer les chiffres',
+    settingNote:
+      'Des mots au lieu des années, des semaines et des décomptes dans Vie, Amours, Aujourd’hui et l’ouverture. Le calendrier reste, sans ses chiffres.',
+    ahead: {
+      most: 'La plus grande partie de ta vie est encore devant toi.',
+      plenty: 'Beaucoup de belles années sont sans doute encore devant toi.',
+      some: 'De belles années sont encore devant toi. Consacre-les à ce que tu aimes.',
+      gift: 'Chaque jour à partir d’ici est un cadeau. Consacre-le à ce que tu aimes.',
+    },
+    caption: {
+      life: 'Cette année de ta vie est en cours. ',
+      weeks: 'Cette semaine de ta vie est en cours. ',
+      year: {
+        early: 'La plus grande partie de cette année est encore devant toi.',
+        middle: 'Cette année est bien avancée. Il y reste du bon temps.',
+        late: 'Cette année touche à sa fin. Fais compter ses dernières semaines.',
+      },
+      today: {
+        early: 'La plus grande partie de la journée est devant toi. Vis-la avec intention.',
+        middle: 'La journée est bien avancée. Vis ce qui reste avec intention.',
+        late: 'La journée touche à sa fin. Vis ce qui reste avec intention.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Une part est du sommeil (du temps bien employé) et une part sur ton téléphone ; le reste est éveillé et loin de lui.'
+          : ' Une part est du sommeil, du temps bien employé ; le reste est éveillé.',
+      health: ' Beaucoup seront sans doute en forme et autonomes : la bande verte, qui s’estompe là où les gens diffèrent.',
+    },
+    range:
+      'Une fourchette, pas une date : les cercles pleins sont probables, les anneaux si la chance le permet, et les habitudes peuvent les déplacer.',
+    whatIfA11y: (label) => `Et si : ${label}, pourrait ajouter du temps`,
+    triedTotal: (several) =>
+      several
+        ? 'Ensemble, ils pourraient ajouter du bon temps : moins que la somme, car les effets des habitudes se recoupent.'
+        : 'Cela pourrait ajouter du bon temps.',
+    phoneLine: (share) => `Ton téléphone prend ${share} de tes heures éveillées.`,
+    phoneSwap:
+      'Une demi-heure de moins par jour pourrait devenir plus de temps avec les gens que tu aimes. Dans des expériences, moins de réseaux sociaux signifiait plus de temps en famille et entre amis, et moins de solitude.',
+    habitsEffect: (adds) => (adds ? 'Tes habitudes ajoutent du temps à ton estimation.' : 'Tes habitudes retirent un peu de temps à ton estimation.'),
+    adds: 'ajoute du temps',
+    costs: 'retire du temps',
+    couldAdd: 'pourrait ajouter du bon temps',
+    together: (several) =>
+      several ? 'Ensemble, ils pourraient ajouter de belles années. Essaie-les sur le calendrier avec Et si.' : 'Essaie-le sur le calendrier avec Et si.',
+    howMany: {
+      few: 'Quelques fois de plus que tu ne le penses.',
+      many: 'Bien des fois encore, si tu leur fais de la place.',
+    },
+    pace: 'À ton rythme actuel.',
+    loveSub: 'À ton rythme actuel, sur le temps que tu as probablement.',
+    agency: (label) => `${label} pourrait en ajouter d’autres. Tu peux l’essayer sur le calendrier Vie.`,
+    moreVisits: (name) => `Plus de visites avec ${name} que tu ne le penses, à ton rythme actuel.`,
+    reachOut: 'Plus de visites que tu ne le penses, à ton rythme actuel. Un message prend une minute.',
+    smallStep: (label) => `${label} pourrait ajouter du bon temps. C’est un petit pas dans cette direction.`,
+    suggestPerson: (name) =>
+      `Plus de visites avec ${name} que tu ne le penses, à ton rythme actuel. Un plan rend la prochaine plus probable.`,
+    suggestLever: (label) => `${label} pourrait ajouter du bon temps. Un petit plan est une façon de commencer.`,
+    birthday: (name) =>
+      `Joyeux anniversaire${name ? `, ${name}` : ''}. Tu as vécu beaucoup de semaines, certaines merveilleuses. Quelle chose pourrais-tu faire de l’année qui vient ?`,
+    isolation: 'Les personnes qui restent proches des autres ont tendance à vivre plus longtemps et en meilleure santé.',
+    connectionLever: 'Pour toi, voir chaque semaine les gens que tu aimes pourrait ajouter du bon temps.',
+    noneLogged: 'Aucun appel ni visite noté ce dernier mois pour l’instant.',
+    someThisMonth: 'Ce dernier mois, tu as parlé avec ou vu certaines des personnes que tu aimes.',
+    healthy: {
+      years:
+        'Beaucoup des années à venir seront sans doute en forme et autonomes : la bande verte de ton calendrier, qui s’estompe là où les gens diffèrent.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} pourrait te garder en forme et autonome plus longtemps : des jambes plus fortes, un meilleur équilibre, moins de chutes.`
+          : `${label} pourrait ajouter des années en bonne santé.`,
+      tried: ' La bande verte grandit aussi.',
+      reveal: (lever) => 'Beaucoup de ces semaines seront sans doute en forme et autonomes.' + (lever ? ` ${lever} pourrait en ajouter d’autres.` : ''),
+    },
+    reveal: {
+      fullLife: 'Une vie pleine est une longue suite de semaines, et tu es en chemin. Faisons compter la suite.',
+      person: (label, howMany) => `Cela inclut ${label}. ${howMany}`,
+      phone: 'Ton téléphone en prend une part. Une demi-heure de moins par jour pourrait devenir plus de temps avec les gens que tu aimes.',
+      lever: (label) => ` ${label} pourrait ajouter de belles années.`,
+      range: (country) =>
+        `C’est une fourchette, pas une date, d’après la durée de vie habituelle des personnes qui vivent comme toi${country ? ` en ${country}` : ''}. Pas un avis médical.`,
+    },
+  },
+
   account: {
     title: 'Toi',
     edit: 'Modifier tes réponses',
@@ -813,6 +970,10 @@ export const fr: Strings = {
       zhao2023: 'Alcool : forte consommation ×1,4 ; boire peu ne protège pas.',
       fadnes2022: 'Ce que tu manges.',
       momma2022: 'Le renforcement musculaire.',
+      who2023hale: 'Années en bonne santé : la part des années à venir que les gens de ton âge passent en bonne santé, par pays et par sexe.',
+      pahor2014: 'Continuer à marcher seul : l’effet du renforcement sur les années en bonne santé.',
+      sherrington2019: 'L’exercice avec force et équilibre prévient les chutes.',
+      rijk2016: 'La force de préhension comme marqueur d’autonomie.',
       cohen2016: 'Le sens de la vie.',
       lee2019: 'L’optimisme et atteindre 85 ans.',
       okun2013: 'Aider les autres.',
@@ -878,19 +1039,24 @@ export const fr: Strings = {
       'Sur le calendrier, le gain combiné est réparti entre les changements essayés au prorata de ce que chacun ajouterait seul, si bien que chacun a sa propre couleur.',
     notInEstimate: (items) =>
       `Certains éléments de l’écran Habitudes sont montrés seulement pour s’orienter et ne sont pas encore dans tes chiffres : ${items}.`,
-    timeTitle: '6 · Téléphone et sommeil',
+    healthyTitle: '6 · Années en bonne santé',
+    healthyBody:
+      'Les années en bonne santé partent de l’espérance de vie en bonne santé de ton pays (OMS, 2023) : la part des années à venir que les gens de ton âge et de ton sexe passent en bonne santé, dès la naissance et à partir de 60 ans. Nous ajustons à ces deux parts une courbe du nombre de personnes qui ne sont pas en bonne santé à chaque âge, et nous en pondérons tes années à venir, en regroupant le temps moins sain à la fin de la vie, où il se concentre surtout. La bande verte du calendrier s’estompe donc sur une plage au lieu de s’arrêter à une date. L’OMS pondère chaque affection selon la gêne qu’elle cause : « bonne santé » est donc proche d’« autonome », sans être identique.',
+    healthyHabits: (k, cap) => `Les habitudes font bouger les années en bonne santé à peu près autant que le total, comme dans une grande étude de Harvard : le multiplicateur de risque de chaque habitude déplace la courbe de santé ${k} fois plus que le risque de décès. Le même plafond de ${cap} ans s’applique.`,
+    healthyStrength: (hr) => `Le renforcement deux fois par semaine réduit aussi le risque de perdre la bonne santé (${hr}), d’après un essai où la marche avec force et équilibre a réduit de 18 % l’incapacité grave à se déplacer. L’exercice avec force et équilibre prévient aussi les chutes.`,
+    timeTitle: '7 · Téléphone et sommeil',
     timePhone: (waking) =>
       `Le temps sur le téléphone est ta propre estimation, en heures par jour (elle commence à 4, proche des estimations courantes pour les adultes américains). Sur les années qui te restent probablement, cela fait heures × années ÷ 24. En part de ta journée éveillée, c’est heures ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Les vues « Éveillé » et « Hors téléphone » retirent le sommeil du calendrier : environ ${ok} heures par nuit, ou ${short} si tu as répondu moins de 6. Le sommeil est du temps bien employé, pas perdu.`,
     timeSwap: (minutes) =>
       `L’échange propose de reprendre ${minutes} minutes par jour au téléphone et montre ce qu’elles pourraient devenir, par exemple des promenades quotidiennes avec ton chien pendant les années que vous avez probablement ensemble.`,
-    lovesTitle: '7 · Ce que tu aimes : « encore N fois »',
+    lovesTitle: '8 · Ce que tu aimes : « encore N fois »',
     lovesBody:
       'Pour chaque personne, animal ou activité, l’app compte les années que vous partagerez probablement, puis les multiplie par la fréquence à laquelle tu les vois ou la pratiques. Ces années s’arrêtent au premier de ces moments : ton âge médian ; l’âge auquel tu as dit arrêter une activité ; l’âge médian de l’autre personne (d’après son âge, en moyenne sur les deux sexes puisque l’app ne le demande pas, en supposant qu’elle vit dans ton pays) ; ou la durée de vie typique d’un animal.',
     lovesPets: (dog, cat) =>
       `Durées de vie typiques : chiens environ ${dog} ans, chats environ ${cat}, d’après des dossiers vétérinaires du Royaume-Uni. La race et la taille comptent beaucoup. Un animal âgé compte toujours pour au moins une demi-année.`,
-    limitsTitle: '8 · Ce qu’elle ne peut pas te dire',
+    limitsTitle: '9 · Ce qu’elle ne peut pas te dire',
     limits: [
       'Ce sont des moyennes de population. Elles décrivent combien de temps ont vécu des groupes de personnes aux réponses semblables aux tiennes, pas ce qui t’arrivera. Elles ignorent tout de tes antécédents de santé, de tes gènes et de tes soins.',
       'Les liens entre habitudes et durée de vie viennent d’études observationnelles : les personnes qui font X vivent souvent plus longtemps, en partie grâce à X et en partie grâce à tout ce qui l’accompagne. Changer une habitude peut ne pas changer ta durée de vie du montant indiqué.',
