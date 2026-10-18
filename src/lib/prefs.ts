@@ -11,6 +11,8 @@ export type Prefs = {
   tickOnboarding: boolean;
   /** Tick-tock with the Life screen countdown. Off unless turned on (CLAUDE.md). */
   tickLife: boolean;
+  /** Words instead of years, weeks, ages and counts on Life, Loves, Today and the reveal. Off unless turned on (CLAUDE.md). */
+  hideNumbers: boolean;
   /** Language picked on the You screen; null follows the device. */
   language: Lang | null;
   /** Last time the Today screen was opened, to welcome people back after a while away. 0 = never. */
@@ -30,6 +32,7 @@ const KEY = 'mm.prefs.v1';
 const DEFAULTS: Prefs = {
   tickOnboarding: true,
   tickLife: false,
+  hideNumbers: false,
   language: null,
   lastSeen: 0,
   planNudgeDismissedAt: 0,

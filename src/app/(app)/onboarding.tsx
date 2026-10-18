@@ -35,21 +35,23 @@ import { dec1, fmt, num } from '@/i18n/format';
 import { habitOptions } from '@/i18n/labels';
 import { s as plain } from '@/i18n/rich';
 import { countryName, deviceCountry } from '@/lib/country';
-import { LIFE_TABLES } from '@/lib/evidence';
-import { bestLever, habitsEffect } from '@/lib/habit-impact';
+import { HEALTHY_LIFE_TABLES, LIFE_TABLES } from '@/lib/evidence';
+import { allLevers, bestHealthyLever, bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
 import { LEGAL_VERSION } from '@/lib/legal';
+import { aheadLevel } from '@/lib/life-views';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
   HABIT_KEYS,
+  LATER_HABITS,
   WEEKS_PER_YEAR,
   ageAt,
-  estimate,
+  healthEstimate,
   type HabitKey,
   type ModelInput,
   type Sex,
 } from '@/lib/model';
-import { setPref } from '@/lib/prefs';
+import { setPref, usePrefs } from '@/lib/prefs';
 import { saveProfile, useProfile, type Profile } from '@/lib/profile';
 import { shareOfWaking, swapSuggestion, yearsLeft, yearsOfHours } from '@/lib/time-use';
 import { MAX_VALUES, VALUES, type ValueKey } from '@/lib/values';
@@ -100,7 +102,8 @@ const DEFAULT_PHONE_HOURS = 4;
 
 /** Model inputs once every answer the model needs is in. */
 function modelInput(d: Draft): ModelInput | null {
-  if (!d.dob || !d.sex || HABIT_KEYS.some((k) => !d[k])) return null;
+  // Habits asked only since 2026.10d may be missing on older profiles; they count as ×1 until answered.
+  if (!d.dob || !d.sex || HABIT_KEYS.some((k) => !d[k] && !(LATER_HABITS as readonly HabitKey[]).includes(k))) return null;
   return d as ModelInput;
 }
 
@@ -150,7 +153,12 @@ export default function OnboardingScreen() {
   const answerAndAdvance = (patch: Partial<Draft>) => {
     set(patch);
     clearTimeout(advanceTimer.current);
-    advanceTimer.current = setTimeout(next, reduced ? 0 : 320);
+    // Editing a single answer (`?only=strength`): the answer is the last step, so save and close.
+    const save = () => {
+      saveProfile({ ...draft, ...patch } as Profile);
+      close();
+    };
+    advanceTimer.current = setTimeout(editing && index === steps.length - 1 ? save : next, reduced ? 0 : 320);
   };
 
   // "Counting your weeks" plays for a moment, then the reveal.
@@ -470,10 +478,15 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
   const theme = useTheme();
   const t = useT();
   const r = t.reveal;
+  const g = t.gentle;
+  // "Hide numbers" can be on already when the reveal comes after editing the answers.
+  const { hideNumbers: hide } = usePrefs();
   const [now] = useState(() => Date.now());
-  const est = estimate(me, now);
+  const { life: est, health } = healthEstimate(me, now);
   const age = ageAt(me.dob, now);
   const weeksLeft = (est.med - age) * WEEKS_PER_YEAR;
+  // Strength training first when it's open to them: it does the most for staying independent.
+  const strong = allLevers(me, now).find((l) => l.key === 'strength' && l.healthy >= 0.2) ?? bestHealthyLever(me, now);
   const effect = habitsEffect(me, now);
   const lever = bestLever(me, now);
   const person = draft.loves.find((l) => l.kind !== 'activity');
@@ -483,34 +496,72 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
     <ThemedText key="e" type="eyebrow">
       {r.eyebrow(draft.name)}
     </ThemedText>,
-    <View key="n">
-      <ThemedText type="small">{r.about}</ThemedText>
-      <CountUp to={weeksLeft} style={styles.huge} themeColor="accent" />
-      <ThemedText type="subtitle">{r.weeksRemain}</ThemedText>
+    hide ? (
+      <ThemedText key="n" style={styles.gentle} themeColor="accent">
+        {g.ahead[aheadLevel(age, est)]}
+      </ThemedText>
+    ) : (
+      <View key="n">
+        <ThemedText type="small">{r.about}</ThemedText>
+        <CountUp to={weeksLeft} style={styles.huge} themeColor="accent" />
+        <ThemedText type="subtitle">{r.weeksRemain}</ThemedText>
+      </View>
+    ),
+    <ThemedText key="f">{hide ? g.reveal.fullLife : r.fullLife(fmt(est.med * WEEKS_PER_YEAR), fmt(age * WEEKS_PER_YEAR))}</ThemedText>,
+    <View key="hy" style={styles.healthy}>
+      {hide ? (
+        <ThemedText>{g.healthy.reveal(strong && strong.healthy >= 0.2 ? t.levers[strong.key] : null)}</ThemedText>
+      ) : (
+        <RichText
+          parts={r.healthy(
+            fmt((health.med - age) * WEEKS_PER_YEAR),
+            strong && strong.healthy >= 0.2 ? t.levers[strong.key] : null,
+            strong ? dec1(strong.healthy) : '',
+          )}
+        />
+      )}
+      <SourceLink source={HEALTHY_LIFE_TABLES.source} prefix={t.life.healthy.sourceHealthy} />
     </View>,
-    <ThemedText key="f">{r.fullLife(fmt(est.med * WEEKS_PER_YEAR), fmt(age * WEEKS_PER_YEAR))}</ThemedText>,
   ];
 
   if (person) {
-    lines.push(<RichText key="p" parts={r.person(fmt(loveCount(person, me, now).times), loveCountLabel(person, t))} />);
+    const times = loveCount(person, me, now).times;
+    lines.push(
+      hide ? (
+        <ThemedText key="p">{g.reveal.person(loveCountLabel(person, t), g.howMany[times < 100 ? 'few' : 'many'])}</ThemedText>
+      ) : (
+        <RichText key="p" parts={r.person(fmt(times), loveCountLabel(person, t))} />
+      ),
+    );
   }
 
   if (draft.phoneHours) {
     lines.push(
-      <RichText
-        key="ph"
-        parts={r.phone(dec1(yearsOfHours(draft.phoneHours, est.med - age)), swapSuggestion(me, draft.loves, t, now))}
-      />,
+      hide ? (
+        <ThemedText key="ph">{g.reveal.phone}</ThemedText>
+      ) : (
+        <RichText
+          key="ph"
+          parts={r.phone(dec1(yearsOfHours(draft.phoneHours, est.med - age)), swapSuggestion(me, draft.loves, t, now))}
+        />
+      ),
     );
   }
 
   lines.push(
     <View key="h" style={[styles.agency, { borderTopColor: theme.line }]}>
       <RichText
-        parts={[
-          ...(Math.abs(effect) < 0.2 ? [plain(t.life.habitsNeutral)] : t.life.habitsEffect(effect > 0, dec1(Math.abs(effect)))),
-          ...(lever ? r.lever(t.levers[lever.key], dec1(lever.years), fmt(lever.years * WEEKS_PER_YEAR)) : []),
-        ]}
+        parts={
+          hide
+            ? [
+                plain(Math.abs(effect) < 0.2 ? t.life.habitsNeutral : g.habitsEffect(effect > 0)),
+                ...(lever ? [plain(g.reveal.lever(t.levers[lever.key]))] : []),
+              ]
+            : [
+                ...(Math.abs(effect) < 0.2 ? [plain(t.life.habitsNeutral)] : t.life.habitsEffect(effect > 0, dec1(Math.abs(effect)))),
+                ...(lever ? r.lever(t.levers[lever.key], dec1(lever.years), fmt(lever.years * WEEKS_PER_YEAR)) : []),
+              ]
+        }
       />
       {lever ? <SourceLink of={lever.key} /> : null}
     </View>,
@@ -526,7 +577,9 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
 
   lines.push(
     <ThemedText key="r" type="small">
-      {r.range(Math.round(est.med), Math.round(est.q25), Math.round(est.q75), countryName(me.country) ?? null)}
+      {hide
+        ? g.reveal.range(countryName(me.country) ?? null)
+        : r.range(Math.round(est.med), Math.round(est.q25), Math.round(est.q75), countryName(me.country) ?? null)}
     </ThemedText>,
     <ScreenLink key="w" href="/how-it-works" title={t.disclaimer.howItWorks} />,
     <Button key="b" title={r.seeLife} onPress={onDone} />,
@@ -629,6 +682,12 @@ const styles = StyleSheet.create({
   center: {
     textAlign: 'center',
   },
+  gentle: {
+    fontFamily: Fonts.display,
+    fontSize: 30,
+    lineHeight: 38,
+    letterSpacing: 0.6,
+  },
   reveal: {
     gap: 18,
     paddingTop: 12,
@@ -643,5 +702,8 @@ const styles = StyleSheet.create({
   agency: {
     borderTopWidth: 1,
     paddingTop: 14,
+  },
+  healthy: {
+    gap: 4,
   },
 });

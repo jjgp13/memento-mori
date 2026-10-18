@@ -101,6 +101,12 @@ export const id: Strings = {
       why: 'Bertemu langsung atau percakapan sungguhan. Hubungan dekat adalah salah satu prediktor terkuat umur panjang.',
       options: { often: 'Setiap minggu', sometimes: 'Beberapa kali sebulan', rarely: 'Jarang; aku sering merasa sendirian' },
     },
+    strength: {
+      question: 'Apakah kamu latihan kekuatan?',
+      short: 'Kekuatan',
+      why: 'Beban, karet elastis, atau berat badan sendiri: squat, push-up, membawa tas berat. Ini menjagamu tetap kuat dan stabil nanti.',
+      options: { none: 'Jarang atau tidak pernah', some: 'Sekitar seminggu sekali', regular: 'Dua kali seminggu atau lebih' },
+    },
   },
 
   levers: {
@@ -111,6 +117,7 @@ export const id: Strings = {
     sleep: 'Tidur 6–9 jam',
     connection: 'Bertemu orang-orang tercinta setiap minggu',
     steps: 'Berjalan 10.000 langkah sehari',
+    strength: 'Latihan kekuatan dua kali seminggu',
   },
 
   values: {
@@ -203,6 +210,12 @@ export const id: Strings = {
     range: (med, q25, q75, country) =>
       `Ini rentang, bukan tanggal: separuh orang yang hidup sepertimu${country ? ` di ${country}` : ''} mencapai usia ${med}, dan kebanyakan berada di antara ${q25} dan ${q75}. Bukan nasihat medis.`,
     seeLife: 'Lihat hidupmu',
+    healthy: (weeks, lever, years) => [
+      s('Sekitar '),
+      b(weeks),
+      s(' dari minggu-minggu itu kemungkinan dijalani dengan sehat: kuat dan mandiri.'),
+      ...(lever ? [s(` ${lever} bisa menambah sekitar `), b(`${years} tahun`), s(' di antaranya.')] : []),
+    ],
   },
 
   alive: {
@@ -276,6 +289,11 @@ export const id: Strings = {
         b(free),
         s(phone ? ' saat terjaga dan jauh dari ponsel.' : ' saat terjaga.'),
       ],
+      health: (unit, med, lo, hi) => [
+        s(' Sekitar '),
+        b(med),
+        s(` di antaranya kemungkinan dijalani dengan sehat, kuat dan mandiri: pita hijau, yang memudar di tempat orang berbeda-beda (bagi kebanyakan orang sepertimu, ${lo}–${hi} ${unit === 'years' ? 'tahun' : 'minggu'}).`),
+      ],
     },
     legend: {
       lived: 'Sudah dijalani',
@@ -285,11 +303,12 @@ export const id: Strings = {
       maybe: 'Jika nasib mengizinkan',
       asleep: 'Tidur',
       phone: 'Di ponsel',
+      healthy: 'Kemungkinan sehat',
     },
     shows: { all: 'Semua', awake: 'Terjaga', free: 'Tanpa ponsel' },
     showA11y: 'Tampilkan waktu ke depan',
     whatIf: 'Bagaimana jika… ketuk untuk mencoba',
-    whatIfA11y: (label, years) => `Bagaimana jika: ${label}, sekitar ${years} tahun`,
+    whatIfA11y: (label, years, healthy) => `Bagaimana jika: ${label}, sekitar ${years} tahun, ${healthy} lebih banyak dalam keadaan sehat`,
     whatIfYears: (years) => `+${years} thn`,
     weeksAhead: 'Minggu-minggumu ke depan',
     weeksUnit: 'minggu',
@@ -301,7 +320,8 @@ export const id: Strings = {
       s(` (${years} tahun)`),
       s(several ? `: kurang dari jumlahnya, karena efek kebiasaan saling tumpang tindih${capped ? ', dan dibatasi' : ''}.` : '.'),
     ],
-    triedOne: (label, years) => `${label}: sekitar ${years} tahun jika sendiri`,
+    triedOne: (label, years, healthy) => `${label}: sekitar ${years} tahun sendiri, ${healthy} dalam keadaan sehat`,
+    triedHealthy: (years) => [s(' Pita hijau bertambah sekitar '), b(`${years} tahun dalam keadaan sehat`), s('.')],
     tapWhatIf: 'Ketuk “Bagaimana jika” di kalender untuk melihat apa yang bisa ditambahkan sebuah perubahan.',
     makePlan: 'Buat rencana kecil',
     makePlanA11y: (label) => `Buat rencana kecil untuk: ${label}`,
@@ -331,6 +351,25 @@ export const id: Strings = {
       s(`${capped ? ' (dibatasi: efek kebiasaan saling tumpang tindih)' : ''}. Coba di kalender dengan “Bagaimana jika”.`),
     ],
     allGood: 'Kamu sudah melakukan hal-hal yang paling menambah waktu. Pertahankan, dan jaga orang-orang tercintamu tetap dekat.',
+    healthy: {
+      eyebrow: 'Kuat dan mandiri',
+      years: (med, lo, hi) => [
+        s('Sekitar '),
+        b(`${med} dari tahun-tahun itu`),
+        s(` kemungkinan dijalani dengan sehat: kuat, stabil, dan mengurus diri sendiri. Bagi kebanyakan orang sepertimu, ${lo}–${hi}.`),
+      ],
+      later:
+        'Tahun-tahun kemudian sering membawa lebih banyak pegal dan penyakit, dan sedikit lebih bergantung pada orang di sekitarmu. Berapa banyak, dan seberapa cepat, sebagian ada di tanganmu.',
+      lever: (label, years, why) => [
+        s(`${label} bisa menambah sekitar `),
+        b(`${years} di antaranya`),
+        s(why === 'strength' ? ': kaki lebih kuat, keseimbangan lebih baik, lebih jarang jatuh.' : why === 'more' ? ', lebih banyak daripada yang ditambahkannya pada usiamu.' : '.'),
+      ],
+      allGood: 'Kamu sudah melakukan hal-hal yang paling lama menjaga orang tetap kuat. Pertahankan, dan jaga orang-orangmu tetap dekat.',
+      askStrength: 'Apakah kamu latihan kekuatan? Tambahkan jawabanmu',
+      sourceHealthy: 'Tahun sehat',
+      sourceHabits: 'Kebiasaan',
+    },
   },
 
   share: {
@@ -369,6 +408,11 @@ export const id: Strings = {
     notInEstimate: 'Belum masuk perkiraanmu; ditampilkan sebagai arah.',
     howItWorks: 'CARA KERJA PERKIRAANMU',
     strength: { strong: 'kuat', moderate: 'sedang', emerging: 'baru' },
+    healthspan: 'TETAP KUAT DAN MANDIRI',
+    healthspanNote: 'Yang menjaga tahun-tahun akhir tetap sehat: pita hijau di kalender Hidup-mu. Ketuk salah satu untuk melihat angka dan sumbernya.',
+    strengthNote: (years) =>
+      `Efek terbesarnya adalah menjagamu tetap kuat dan mandiri: dua kali seminggu bisa menambah sekitar ${years} tahun dalam keadaan sehat.`,
+    strengthKeep: 'Dua kali seminggu menjagamu lebih kuat dan stabil lebih lama. Pertahankan.',
   },
 
   evidence: {
@@ -403,8 +447,9 @@ export const id: Strings = {
     },
     strength: {
       title: 'Latihan kekuatan',
-      summary: '30–60 menit seminggu dikaitkan dengan angka kematian 10–17% lebih rendah.',
-      detail: 'Sebagai tambahan latihan aerobik, bukan penggantinya. Manfaat di atas sekitar satu jam seminggu belum jelas.',
+      summary: '30–60 menit seminggu dikaitkan dengan kematian 10–17% lebih rendah, dan tetap kuat dan mandiri lebih lama.',
+      detail:
+        'Sebagai tambahan latihan aerobik, bukan penggantinya; manfaat di atas sekitar satu jam seminggu belum jelas. Efek terbesarnya pada tahun-tahun akhir: latihan kekuatan dan keseimbangan berarti lebih jarang jatuh dan lebih sedikit disabilitas (lihat "Tetap kuat dan mandiri"). Di aplikasi ini, dua kali seminggu dihitung ×0,85 pada risiko kematian dan ×0,82 pada risiko kehilangan kesehatan yang baik.',
     },
     purpose: {
       title: 'Rasa punya tujuan',
@@ -434,6 +479,30 @@ export const id: Strings = {
       detail:
         'Menonaktifkan Facebook selama 4 minggu meningkatkan kesejahteraan dan waktu luring bersama teman dan keluarga. Membatasi media sosial sekitar 30 menit sehari selama 3 minggu menurunkan kesepian dan depresi.',
     },
+    healthyHabits: {
+      title: 'Kebiasaan sehat menambah tahun sehat',
+      summary: 'Di usia 50, 4–5 kebiasaan sehat disertai sekitar 10,7 (perempuan) dan 7,6 (laki-laki) tahun lebih bebas kanker, penyakit jantung, dan diabetes.',
+      detail:
+        'Di dua kohort besar Harvard, total tahun naik hampir sama (+9,4 perempuan, +8,1 laki-laki): hampir semua waktu tambahan adalah waktu sehat, dan tahun-tahun dengan penyakit hampir tidak berubah. Kebiasaannya: tidak merokok, berat badan sehat, 30+ menit aktivitas sehari, sedikit atau tanpa alkohol, pola makan baik. Aplikasi ini menggeser tahun sehatmu sesuai kebiasaanmu.',
+    },
+    falls: {
+      title: 'Olahraga mencegah jatuh',
+      summary: 'Olahraga mengurangi jatuh pada lansia sebesar 23%; program dengan kekuatan dan keseimbangan sekitar sepertiga.',
+      detail:
+        'Tinjauan Cochrane atas 108 uji (23.407 orang di atas 60 yang tinggal di rumah). Rasio laju keseluruhan 0,77 (bukti kepastian tinggi); latihan keseimbangan dan fungsional 0,76; beberapa jenis sekaligus, biasanya keseimbangan plus kekuatan, 0,66 (kepastian sedang).',
+    },
+    mobility: {
+      title: 'Tetap bisa berjalan sendiri',
+      summary: 'Dalam uji pada 1.635 orang berusia 70–89, berjalan disertai latihan kekuatan dan keseimbangan mengurangi disabilitas mobilitas berat sebesar 18%.',
+      detail:
+        'Uji LIFE: program sedang yang terstruktur (jalan kaki, kekuatan, kelenturan, keseimbangan) dibanding edukasi kesehatan, selama 2,6 tahun. Kehilangan kemampuan berjalan 400 m: 30,1% vs 35,5% (HR 0,82). Satu uji besar atas program gabungan, jadi porsi dari kekuatan saja tidak diketahui. Aplikasi ini memakai 0,82 untuk latihan kekuatan dua kali seminggu.',
+    },
+    grip: {
+      title: 'Kekuatan genggaman',
+      summary: 'Orang di atas 60 dengan genggaman lemah sekitar 1,8× lebih mungkin kehilangan fungsi, dan meninggal, selama pemantauan.',
+      detail:
+        'Meta-analisis 34 studi pada orang berusia 60 ke atas yang tinggal di rumah: rasio gabungan 1,78 untuk penurunan fungsi fisik dan 1,79 untuk kematian, genggaman lemah vs kuat. Genggaman adalah penanda kekuatan keseluruhan; ini observasional, jadi lebih menunjukkan siapa yang berisiko daripada apa yang harus dilakukan, tetapi kekuatan dijaga dengan berlatih.',
+    },
   },
 
   howItWorks: [
@@ -442,6 +511,8 @@ export const id: Strings = {
     'Kami mengikuti risiko itu bulan demi bulan dari usiamu sekarang. Usia saat separuh orang sepertimu telah meninggal adalah median-mu; tanda 25% dan 75% memberi rentangmu.',
     'Aturan praktis: tahun ≈ ln(pengali risiko) ÷ 0,085. Karena itu risiko dua kali lipat mengurangi sekitar 8 tahun, dan berhenti merokok bisa mengembalikan sekitar 9.',
     'Beberapa perubahan sekaligus menambah lebih sedikit dari jumlah masing-masing, dan kami membatasi totalnya 14 tahun, selisih terbesar dari semua kebiasaan dalam sebuah studi besar di AS.',
+    'Tahun sehat berangkat dari harapan hidup sehat negaramu (WHO, 2023): bagian dari tahun-tahun ke depan yang dijalani orang seusiamu dalam keadaan sehat. Waktu yang kurang sehat kami kumpulkan di akhir, tempat sebagian besarnya jatuh, sehingga tampak sebagai pita yang memudar, bukan tanggal.',
+    'Kebiasaan menggeser tahun sehat hampir sebesar total tahun, seperti dalam sebuah studi besar Harvard, dan latihan kekuatan lebih lagi: menjaga orang tetap kuat, stabil, dan mandiri. Batas 14 tahun yang sama berlaku.',
     'Ini adalah keterkaitan dari studi populasi, bukan sebab-akibat, dan bukan nasihat medis.',
   ],
 
@@ -481,6 +552,7 @@ export const id: Strings = {
       morning: 'pagi hari',
       cigarette: 'saat ingin merokok',
       atLunch: 'saat makan siang',
+      coffee: 'setelah kopi pagiku',
     },
     call: (name) => `menelepon ${name}`,
     messageOrCall: (name) => `mengirim pesan atau menelepon ${name}`,
@@ -491,6 +563,7 @@ export const id: Strings = {
       smoke: 'jalan kaki 5 menit dulu',
       drink: 'minum segelas air soda dulu',
       plate: 'mengisi setengah piring dengan sayuran',
+      strength: 'melakukan 10 menit squat, push-up, dan mengangkat beban',
     },
     withAnchor: (action, anchor) => `${action} ${anchor}`,
     capitalize: (s) => s.charAt(0).toUpperCase() + s.slice(1),
@@ -711,6 +784,92 @@ export const id: Strings = {
     next: 'Berikutnya',
   },
 
+  gentle: {
+    setting: 'Sembunyikan angka',
+    settingNote:
+      'Kata-kata sebagai ganti tahun, minggu, dan hitungan di Hidup, Yang Dicinta, Hari Ini, dan pembuka. Kalendernya tetap, tanpa angka.',
+    ahead: {
+      most: 'Sebagian besar hidupmu masih di depan.',
+      plenty: 'Kemungkinan masih banyak tahun baik di depan.',
+      some: 'Masih ada tahun-tahun baik di depan. Gunakan untuk yang kamu cintai.',
+      gift: 'Setiap hari mulai sekarang adalah hadiah. Gunakan untuk yang kamu cintai.',
+    },
+    caption: {
+      life: 'Tahun hidupmu ini sedang berjalan. ',
+      weeks: 'Minggu hidupmu ini sedang berjalan. ',
+      year: {
+        early: 'Sebagian besar tahun ini masih di depan.',
+        middle: 'Tahun ini sudah jauh berjalan. Masih ada waktu baik di dalamnya.',
+        late: 'Tahun ini hampir selesai. Buat minggu-minggu terakhirnya berarti.',
+      },
+      today: {
+        early: 'Sebagian besar hari ini masih di depan. Jalani dengan sengaja.',
+        middle: 'Hari ini sudah jauh berjalan. Jalani sisanya dengan sengaja.',
+        late: 'Hari ini hampir selesai. Jalani sisanya dengan sengaja.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Sebagian adalah tidur (waktu yang dipakai dengan baik) dan sebagian di ponsel; sisanya terjaga dan jauh dari ponsel.'
+          : ' Sebagian adalah tidur, waktu yang dipakai dengan baik; sisanya terjaga.',
+      health: ' Banyak di antaranya kemungkinan dijalani dengan kuat dan mandiri: pita hijau, yang memudar di bagian orang-orang berbeda.',
+    },
+    range:
+      'Sebuah rentang, bukan tanggal: lingkaran penuh kemungkinan besar, cincin jika keberuntungan mengizinkan, dan kebiasaan bisa menggesernya.',
+    whatIfA11y: (label) => `Bagaimana jika: ${label}, bisa menambah waktu`,
+    triedTotal: (several) =>
+      several
+        ? 'Bersama-sama bisa menambah waktu yang baik: kurang dari jumlahnya, karena efek kebiasaan saling tumpang tindih.'
+        : 'Ini bisa menambah waktu yang baik.',
+    phoneLine: (share) => `Ponselmu memakan ${share} jam terjagamu.`,
+    phoneSwap:
+      'Setengah jam lebih sedikit sehari bisa menjadi lebih banyak waktu dengan orang-orang yang kamu cintai. Dalam eksperimen, mengurangi media sosial berarti lebih banyak waktu dengan keluarga dan teman serta lebih sedikit kesepian.',
+    habitsEffect: (adds) => (adds ? 'Kebiasaanmu menambah waktu pada perkiraanmu.' : 'Kebiasaanmu mengurangi sedikit waktu dari perkiraanmu.'),
+    adds: 'menambah waktu',
+    costs: 'mengurangi waktu',
+    couldAdd: 'bisa menambah waktu yang baik',
+    together: (several) =>
+      several
+        ? 'Bersama-sama bisa menambah tahun-tahun baik. Coba di kalender dengan Bagaimana jika.'
+        : 'Coba di kalender dengan Bagaimana jika.',
+    howMany: {
+      few: 'Beberapa kali lagi, lebih dari yang kamu kira.',
+      many: 'Masih banyak kali lagi, jika kamu memberi ruang.',
+    },
+    pace: 'Dengan ritme sekarang.',
+    loveSub: 'Dengan ritme sekarang, selama waktu yang kemungkinan kamu punya.',
+    agency: (label) => `${label} bisa menambah lebih banyak lagi. Kamu bisa mencobanya di kalender Hidup.`,
+    moreVisits: (name) => `Lebih banyak kunjungan dengan ${name} daripada yang kamu kira, dengan ritme sekarang.`,
+    reachOut: 'Lebih banyak kunjungan daripada yang kamu kira, dengan ritme sekarang. Mengirim pesan hanya butuh semenit.',
+    smallStep: (label) => `${label} bisa menambah waktu yang baik. Ini langkah kecil ke sana.`,
+    suggestPerson: (name) =>
+      `Lebih banyak kunjungan dengan ${name} daripada yang kamu kira, dengan ritme sekarang. Rencana membuat kunjungan berikutnya lebih mungkin.`,
+    suggestLever: (label) => `${label} bisa menambah waktu yang baik. Rencana kecil adalah cara untuk mulai.`,
+    birthday: (name) =>
+      `Selamat ulang tahun${name ? `, ${name}` : ''}. Kamu sudah menjalani banyak minggu, sebagian di antaranya indah. Apa satu hal yang bisa kamu lakukan di tahun mendatang?`,
+    isolation: 'Orang yang tetap dekat dengan orang lain cenderung hidup lebih lama dan lebih sehat.',
+    connectionLever: 'Bagimu, bertemu orang-orang yang kamu cintai setiap minggu bisa menambah waktu yang baik.',
+    noneLogged: 'Belum ada telepon atau kunjungan yang dicatat sebulan terakhir.',
+    someThisMonth: 'Sebulan terakhir kamu berbicara dengan atau bertemu beberapa orang yang kamu cintai.',
+    healthy: {
+      years:
+        'Banyak tahun di depan kemungkinan dijalani dengan kuat dan mandiri: pita hijau di kalendermu, yang memudar di bagian orang-orang berbeda.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} bisa membuatmu kuat dan mandiri lebih lama: kaki lebih kuat, keseimbangan lebih baik, lebih jarang jatuh.`
+          : `${label} bisa menambah tahun-tahun sehat.`,
+      tried: ' Pita hijaunya juga bertambah.',
+      reveal: (lever) => 'Banyak dari minggu-minggu itu kemungkinan dijalani dengan kuat dan mandiri.' + (lever ? ` ${lever} bisa menambah lebih banyak lagi.` : ''),
+    },
+    reveal: {
+      fullLife: 'Hidup yang penuh adalah rangkaian panjang minggu, dan kamu sedang di perjalanan. Mari buat sisanya berarti.',
+      person: (label, howMany) => `Itu termasuk ${label}. ${howMany}`,
+      phone: 'Ponselmu memakan sebagian darinya. Setengah jam lebih sedikit sehari bisa menjadi lebih banyak waktu dengan orang-orang yang kamu cintai.',
+      lever: (label) => ` ${label} bisa menambah tahun-tahun baik.`,
+      range: (country) =>
+        `Ini rentang, bukan tanggal, dari berapa lama orang yang hidup sepertimu${country ? ` di ${country}` : ''} biasanya hidup. Bukan nasihat medis.`,
+    },
+  },
+
   account: {
     title: 'Kamu',
     edit: 'Ubah jawabanmu',
@@ -797,6 +956,10 @@ export const id: Strings = {
       zhao2023: 'Alkohol: banyak minum ×1,4; sedikit minum tidak melindungi.',
       fadnes2022: 'Apa yang kamu makan.',
       momma2022: 'Latihan kekuatan.',
+      who2023hale: 'Tahun sehat: bagian tahun-tahun ke depan yang dijalani orang seusiamu dalam keadaan sehat, menurut negara dan jenis kelamin.',
+      pahor2014: 'Tetap bisa berjalan sendiri: efek latihan kekuatan pada tahun sehat.',
+      sherrington2019: 'Olahraga dengan kekuatan dan keseimbangan mencegah jatuh.',
+      rijk2016: 'Kekuatan genggaman sebagai penanda kemandirian.',
       cohen2016: 'Rasa punya tujuan hidup.',
       lee2019: 'Optimisme dan mencapai usia 85.',
       okun2013: 'Menolong orang lain.',
@@ -860,19 +1023,24 @@ export const id: Strings = {
       'Di kalender, tambahan gabungan dibagi di antara perubahan yang kamu coba sebanding dengan tambahan masing-masing, sehingga tiap perubahan punya warnanya sendiri.',
     notInEstimate: (items) =>
       `Beberapa hal di layar Kebiasaan hanya ditampilkan sebagai arah dan belum masuk ke angkamu: ${items}.`,
-    timeTitle: '6 · Waktu ponsel dan tidur',
+    healthyTitle: '6 · Tahun sehat',
+    healthyBody:
+      'Tahun sehat berangkat dari harapan hidup sehat negaramu (WHO, 2023): bagian tahun-tahun ke depan yang dijalani orang seusia dan sejenis kelamin denganmu dalam keadaan sehat, sejak lahir dan sejak 60. Kami mencocokkan kurva berapa banyak orang yang tidak sehat di tiap usia dengan dua bagian itu, lalu memakainya untuk menimbang tahun-tahunmu ke depan, mengumpulkan waktu yang kurang sehat di akhir hidup, tempat sebagian besarnya jatuh. Karena itu pita hijau di kalender memudar sepanjang rentang, bukan berakhir di satu tanggal. WHO menimbang tiap kondisi menurut seberapa membatasinya, jadi “sehat” di sini mirip, tetapi tidak sama, dengan mandiri.',
+    healthyHabits: (k, cap) => `Kebiasaan menggeser tahun sehat hampir sebesar total tahun, seperti dalam sebuah studi besar Harvard: pengali risiko tiap kebiasaan menggeser kurva kesehatan ${k} kali sejauh risiko kematian. Batas ${cap} tahun yang sama berlaku.`,
+    healthyStrength: (hr) => `Latihan kekuatan dua kali seminggu juga menurunkan risiko kehilangan kesehatan yang baik (${hr}), dari uji di mana berjalan dengan latihan kekuatan dan keseimbangan mengurangi disabilitas mobilitas berat sebesar 18%. Olahraga dengan kekuatan dan keseimbangan juga mencegah jatuh.`,
+    timeTitle: '7 · Waktu ponsel dan tidur',
     timePhone: (waking) =>
       `Waktu ponsel adalah perkiraanmu sendiri, dalam jam per hari (dimulai dari 4, dekat perkiraan umum untuk orang dewasa di AS). Selama tahun-tahun yang mungkin masih kamu punya, jumlahnya jam × tahun ÷ 24. Sebagai bagian dari waktu terjagamu, itu jam ÷ ${waking}.`,
     timeSleep: (ok, short) =>
       `Tampilan “Terjaga” dan “Tanpa ponsel” mengeluarkan tidur dari kalender: sekitar ${ok} jam semalam, atau ${short} bila kamu menjawab kurang dari 6. Tidur adalah waktu yang terpakai dengan baik, bukan hilang.`,
     timeSwap: (minutes) =>
       `Pertukaran ini mengusulkan mengambil kembali ${minutes} menit sehari dari ponsel dan menunjukkan bisa jadi apa, misalnya jalan-jalan setiap hari dengan anjingmu selama tahun-tahun yang mungkin kalian punya bersama.`,
-    lovesTitle: '7 · Yang kamu cintai: “N kali lagi”',
+    lovesTitle: '8 · Yang kamu cintai: “N kali lagi”',
     lovesBody:
       'Untuk tiap orang, hewan, atau kegiatan, aplikasi menghitung tahun yang mungkin kalian lalui bersama, lalu mengalikannya dengan seberapa sering kamu bertemu atau melakukannya. Tahun-tahun itu berakhir pada yang paling awal dari: usia median kamu; usia saat kamu bilang akan berhenti melakukan kegiatan; usia median orang itu (dari usianya, dirata-ratakan untuk kedua jenis kelamin karena aplikasi tidak menanyakannya, dan dianggap tinggal di negaramu); atau umur khas hewan peliharaan.',
     lovesPets: (dog, cat) =>
       `Umur khas: anjing sekitar ${dog} tahun, kucing sekitar ${cat}, dari catatan dokter hewan di Inggris. Ras dan ukuran sangat berpengaruh. Hewan yang sudah tua selalu dihitung setidaknya setengah tahun.`,
-    limitsTitle: '8 · Yang tidak bisa diberitahukannya',
+    limitsTitle: '9 · Yang tidak bisa diberitahukannya',
     limits: [
       'Ini rata-rata populasi. Angka ini menggambarkan berapa lama kelompok orang dengan jawaban seperti milikmu biasanya hidup, bukan apa yang akan terjadi padamu. Angka ini tidak tahu apa pun tentang riwayat kesehatan, gen, atau perawatan medismu.',
       'Kaitan antara kebiasaan dan umur berasal dari studi observasional: orang yang melakukan X cenderung hidup lebih lama, sebagian karena X dan sebagian karena segala hal yang menyertainya. Mengubah kebiasaan belum tentu mengubah umurmu sebesar yang ditampilkan.',

@@ -15,13 +15,14 @@ import { useT } from '@/i18n';
 import { dec1, num } from '@/i18n/format';
 import { habitOptions } from '@/i18n/labels';
 import { countryName } from '@/lib/country';
-import { WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
+import { HEALTHSPAN, WHAT_MATTERS, type Evidence, type Strength } from '@/lib/evidence';
 import {
   GOMPERTZ_B,
   HABIT_KEYS,
   ageAt,
   estimate,
   hazardMultiplier,
+  healthEstimate,
   stepsHR,
   survival,
   yearsFromHR,
@@ -69,6 +70,14 @@ function Habits({ profile }: { profile: Profile }) {
         <ThemedText type="heading">{h.whatMatters}</ThemedText>
         <ThemedText type="small">{h.ranked}</ThemedText>
         {WHAT_MATTERS.map((e, i) => (
+          <EvidenceRow key={e.key} rank={i + 1} item={e} />
+        ))}
+      </View>
+
+      <View style={styles.section}>
+        <ThemedText type="heading">{h.healthspan}</ThemedText>
+        <ThemedText type="small">{h.healthspanNote}</ThemedText>
+        {HEALTHSPAN.map((e, i) => (
           <EvidenceRow key={e.key} rank={i + 1} item={e} />
         ))}
       </View>
@@ -143,8 +152,18 @@ function Factor({
           );
         })}
       </View>
+      {habit === 'strength' ? <StrengthNote profile={profile} now={now} /> : null}
     </View>
   );
+}
+
+/** Strength training does more for the years in good health than for the total, so say so under its options. */
+function StrengthNote({ profile, now }: { profile: Profile; now: number }) {
+  const h = useT().habitsScreen;
+  if (profile.strength === 'regular') return <ThemedText type="small">{h.strengthKeep}</ThemedText>;
+  const base = healthEstimate(profile, now).health.med;
+  const next = healthEstimate({ ...profile, strength: 'regular' }, now).health.med;
+  return <ThemedText type="small">{h.strengthNote(dec1(next - base))}</ThemedText>;
 }
 
 /** Daily steps with the math shown step by step; replaces the exercise answer when set. */

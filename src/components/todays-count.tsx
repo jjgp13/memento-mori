@@ -7,11 +7,12 @@ import { SourceLink } from '@/components/source-link';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useT } from '@/i18n';
+import { useT, type Strings } from '@/i18n';
 import { dec1, fmt } from '@/i18n/format';
 import { impactAgency, type Impact } from '@/lib/daily';
 import { PLANS } from '@/lib/evidence';
 import type { Love } from '@/lib/loves';
+import { usePrefs } from '@/lib/prefs';
 import type { Profile } from '@/lib/profile';
 
 /**
@@ -32,6 +33,7 @@ export function TodaysCount({
 }) {
   const theme = useTheme();
   const t = useT();
+  const { hideNumbers: hide } = usePrefs();
   const agency = impactAgency(profile, impact, now);
   const love = impact.love;
 
@@ -40,9 +42,10 @@ export function TodaysCount({
       <ThemedText type="eyebrow" themeColor="muted">
         {impact.back ? t.opening.lookBack : t.opening.todaysCount}
       </ThemedText>
-      <CountUp to={impact.n} style={styles.big} themeColor="accent" />
+      {hide ? null : <CountUp to={impact.n} style={styles.big} themeColor="accent" />}
       <ThemedText style={styles.what}>{impact.what}</ThemedText>
-      <ThemedText type="small">{impact.sub}</ThemedText>
+      {hide ? <ThemedText>{gentleCount(impact, t)}</ThemedText> : null}
+      <ThemedText type="small">{hide && impact.love ? t.gentle.loveSub : impact.sub}</ThemedText>
 
       {love?.kind === 'person' ? (
         <ReachOut love={love} onChange={onChangeLove} compact />
@@ -55,12 +58,21 @@ export function TodaysCount({
         </>
       ) : agency ? (
         <>
-          <RichText parts={t.todaysCount.agency(t.levers[agency.key], dec1(agency.years), fmt(agency.more), impact.what)} />
+          {hide ? (
+            <ThemedText>{t.gentle.agency(t.levers[agency.key])}</ThemedText>
+          ) : (
+            <RichText parts={t.todaysCount.agency(t.levers[agency.key], dec1(agency.years), fmt(agency.more), impact.what)} />
+          )}
           <SourceLink of={agency.key} />
         </>
       ) : null}
     </View>
   );
+}
+
+/** A count in words for "Hide numbers": a little or a lot. A look back needs none. */
+export function gentleCount(impact: Impact, t: Strings) {
+  return impact.back ? '' : t.gentle.howMany[impact.n < 100 ? 'few' : 'many'];
 }
 
 const styles = StyleSheet.create({
