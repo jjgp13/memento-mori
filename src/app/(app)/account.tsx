@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
@@ -10,6 +10,7 @@ import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { signOut } from '@/lib/auth';
+import { setPref, usePrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
 import { useAuth } from '@/providers/auth-provider';
 
@@ -22,6 +23,7 @@ export default function YouScreen() {
   const t = useT();
   const a = t.account;
   const { session } = useAuth();
+  const { hideNumbers } = usePrefs();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +59,24 @@ export default function YouScreen() {
             {a.dataBody}
           </ThemedText>
           {session ? <ThemedText type="small">{a.guestNote(!!session.user.is_anonymous)}</ThemedText> : null}
+        </View>
+
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <View style={styles.row}>
+            <ThemedText type="heading" style={styles.flex}>
+              {t.gentle.setting}
+            </ThemedText>
+            <Switch
+              value={hideNumbers}
+              onValueChange={(on) => setPref('hideNumbers', on)}
+              accessibilityLabel={t.gentle.setting}
+              trackColor={{ false: theme.line, true: theme.accent }}
+              thumbColor={theme.fg}
+              // react-native-web colors the "on" thumb with its own prop (teal by default).
+              {...{ activeThumbColor: theme.fg }}
+            />
+          </View>
+          <ThemedText type="small">{t.gentle.settingNote}</ThemedText>
         </View>
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
@@ -112,5 +132,13 @@ const styles = StyleSheet.create({
   },
   confirm: {
     gap: 10,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  flex: {
+    flex: 1,
   },
 });

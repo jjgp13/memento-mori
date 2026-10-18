@@ -34,7 +34,7 @@ import {
   healthyGainFrom,
   type Lever,
 } from '@/lib/habit-impact';
-import { ZOOMS, lifeView, type Zoom } from '@/lib/life-views';
+import { ZOOMS, aheadLevel, lifeView, type Zoom } from '@/lib/life-views';
 import { DAY_MS, WEEKS_PER_YEAR, YEAR_MS, ageAt, birthTime, estimate, healthEstimate, type Healthspan, type Survival } from '@/lib/model';
 import { defaultHabitPlan, planSentence } from '@/lib/plans';
 import { setPref, usePrefs } from '@/lib/prefs';
@@ -93,20 +93,28 @@ function Life({ profile }: { profile: Profile }) {
   const tried = splitGain(gain, triedLevers);
   const phone = profile.phoneHours;
   const lifeZoom = zoom === 'life' || zoom === 'weeks';
-  const view = lifeView(zoom, profile.dob, est, now, t, {
-    gains: tried.map((x) => x.share),
-    sleep: show === 'all' ? 0 : sleepHours(profile) / 24,
-    phone: show === 'free' && phone ? phone / 24 : 0,
-    health: shiftHealth(health, est, healthyGain, gain),
-  });
+  // Optional ticking (off by default), only while this tab is on screen; no clock while numbers are hidden.
+  const { tickLife, hideNumbers: hide } = usePrefs();
+  const focused = useIsFocused();
+  useClockTick(tickLife && focused && !hide);
+  const view = lifeView(
+    zoom,
+    profile.dob,
+    est,
+    now,
+    t,
+    {
+      gains: tried.map((x) => x.share),
+      sleep: show === 'all' ? 0 : sleepHours(profile) / 24,
+      phone: show === 'free' && phone ? phone / 24 : 0,
+      health: shiftHealth(health, est, healthyGain, gain),
+    },
+    hide,
+  );
   // The median is found in monthly steps from the current age, so re-estimating every tick would
   // pin "time left" to a constant. Anchor it to when the screen opened so the clock really counts down.
   const [anchor] = useState(() => Date.now());
   const end = birthTime(profile.dob) + estimate(profile, anchor).med * YEAR_MS;
-  // Optional ticking (off by default), only while this tab is on screen.
-  const { tickLife } = usePrefs();
-  const focused = useIsFocused();
-  useClockTick(tickLife && focused);
 
   // Changes are drawn on the whole-life views, so jump to one from Year or Today.
   const seeLife = () => {
@@ -127,9 +135,9 @@ function Life({ profile }: { profile: Profile }) {
       <View>
         <View style={styles.clockHead}>
           <ThemedText type="eyebrow">{t.life.eyebrow(profile.name)}</ThemedText>
-          <SoundToggle on={tickLife} onChange={(on) => setPref('tickLife', on)} />
+          {hide ? null : <SoundToggle on={tickLife} onChange={(on) => setPref('tickLife', on)} />}
         </View>
-        <Clock end={end} />
+        {hide ? <ThemedText style={styles.ahead}>{t.gentle.ahead[aheadLevel(age, est)]}</ThemedText> : <Clock end={end} />}
       </View>
 
       <Segmented
@@ -147,7 +155,7 @@ function Life({ profile }: { profile: Profile }) {
           sleep={lifeZoom && show !== 'all'}
           phone={lifeZoom && show === 'free' && !!phone}
         />
-        {levers.length ? <Toggles levers={levers} tries={tries} onToggle={toggle} /> : null}
+        {levers.length ? <Toggles levers={levers} tries={tries} onToggle={toggle} hide={hide} /> : null}
         <Animated.View key={zoom} entering={FadeIn.duration(300)}>
           <LifeGrid view={view} reachColors={tried.map((x) => theme[LEVER_COLOR[x.key]])} />
         </Animated.View>
@@ -159,6 +167,7 @@ function Life({ profile }: { profile: Profile }) {
       <PhoneCard
         profile={profile}
         now={now}
+        hide={hide}
         onChange={(phoneHours) => {
           saveProfile({ ...profile, phoneHours });
           // Show the change where it lands: the part of life that's awake and off the phone.
@@ -166,19 +175,25 @@ function Life({ profile }: { profile: Profile }) {
           seeLife();
         }}
       />
-      <WhatIf profile={profile} now={now} tried={tried} gain={gain} healthyGain={healthyGain} anyLevers={levers.length > 0} />
+      <WhatIf profile={profile} now={now} tried={tried} gain={gain} healthyGain={healthyGain} anyLevers={levers.length > 0} hide={hide} />
 
       <View style={styles.head}>
-        <RichText style={styles.verdict} parts={t.life.verdict(dec1(age), Math.round(est.med), Math.round(est.med - age))} />
-        <ThemedText type="small">
-          {t.life.range(Math.round(est.q25), Math.round(est.q75), Math.round(est.p80 * 100))}
-        </ThemedText>
+        {hide ? (
+          <ThemedText type="small">{t.gentle.range}</ThemedText>
+        ) : (
+          <>
+            <RichText style={styles.verdict} parts={t.life.verdict(dec1(age), Math.round(est.med), Math.round(est.med - age))} />
+            <ThemedText type="small">
+              {t.life.range(Math.round(est.q25), Math.round(est.q75), Math.round(est.p80 * 100))}
+            </ThemedText>
+          </>
+        )}
         <TablesNote country={profile.country} />
       </View>
 
-      <HealthyCard profile={profile} now={now} health={health} age={age} />
+      <HealthyCard profile={profile} now={now} health={health} age={age} hide={hide} />
 
-      <HabitsCard profile={profile} now={now} levers={levers} />
+      <HabitsCard profile={profile} now={now} levers={levers} hide={hide} />
 
       <ThemedText type="small">{t.common.notAdvice}</ThemedText>
     </>
@@ -202,7 +217,19 @@ function shiftHealth(health: Healthspan, life: Survival, healthyGain: number, ga
  * (death reminders work when paired with one doable action: docs/nudges.md §1g). Strength training comes
  * first when it's open to them: it does the most for staying independent.
  */
-function HealthyCard({ profile, now, health, age }: { profile: Profile; now: number; health: Healthspan; age: number }) {
+function HealthyCard({
+  profile,
+  now,
+  health,
+  age,
+  hide,
+}: {
+  profile: Profile;
+  now: number;
+  health: Healthspan;
+  age: number;
+  hide: boolean;
+}) {
   const theme = useTheme();
   const t = useT();
   const h = t.life.healthy;
@@ -219,17 +246,25 @@ function HealthyCard({ profile, now, health, age }: { profile: Profile; now: num
           {h.eyebrow}
         </ThemedText>
       </View>
-      <RichText parts={h.years(years(health.med), years(health.q25), years(health.q75))} />
+      {hide ? (
+        <ThemedText>{t.gentle.healthy.years}</ThemedText>
+      ) : (
+        <RichText parts={h.years(years(health.med), years(health.q25), years(health.q75))} />
+      )}
       <ThemedText type="small">{h.later}</ThemedText>
       {lever && lever.healthy >= 0.2 ? (
         <View style={[styles.lever, { borderTopColor: theme.line }]}>
-          <RichText
-            parts={h.lever(
-              t.levers[lever.key],
-              dec1(lever.healthy),
-              lever.key === 'strength' ? 'strength' : lever.healthy > lever.years + 0.1 ? 'more' : 'plain',
-            )}
-          />
+          {hide ? (
+            <ThemedText>{t.gentle.healthy.lever(t.levers[lever.key], lever.key === 'strength')}</ThemedText>
+          ) : (
+            <RichText
+              parts={h.lever(
+                t.levers[lever.key],
+                dec1(lever.healthy),
+                lever.key === 'strength' ? 'strength' : lever.healthy > lever.years + 0.1 ? 'more' : 'plain',
+              )}
+            />
+          )}
           <SourceLink of={lever.key === 'strength' ? 'mobility' : 'healthy'} />
           <LeverPlan profile={profile} lever={lever} />
         </View>
@@ -255,7 +290,17 @@ function HealthyCard({ profile, now, health, age }: { profile: Profile; now: num
  * "What if…" switches on the calendar itself, one per change that would add time for this person (from
  * their onboarding answers), each in the color it's drawn with.
  */
-function Toggles({ levers, tries, onToggle }: { levers: Lever[]; tries: Lever['key'][]; onToggle: (key: Lever['key']) => void }) {
+function Toggles({
+  levers,
+  tries,
+  onToggle,
+  hide,
+}: {
+  levers: Lever[];
+  tries: Lever['key'][];
+  onToggle: (key: Lever['key']) => void;
+  hide: boolean;
+}) {
   const theme = useTheme();
   const t = useT();
 
@@ -273,13 +318,16 @@ function Toggles({ levers, tries, onToggle }: { levers: Lever[]; tries: Lever['k
               key={l.key}
               accessibilityRole="switch"
               aria-checked={on}
-              accessibilityLabel={t.life.whatIfA11y(t.levers[l.key], dec1(l.years), dec1(l.healthy))}
+              accessibilityLabel={hide ? t.gentle.whatIfA11y(t.levers[l.key]) : t.life.whatIfA11y(t.levers[l.key], dec1(l.years), dec1(l.healthy))}
               onPress={() => onToggle(l.key)}
               hitSlop={4}
               style={[styles.toggle, { borderColor: on ? color : theme.line, backgroundColor: on ? theme.bg : 'transparent' }]}>
               <View style={[styles.dot, on ? { backgroundColor: color } : { borderWidth: 1.5, borderColor: color }]} />
               <ThemedText type="mono" style={[styles.toggleText, { color: on ? theme.fg : theme.muted }]}>
-                {t.levers[l.key]} <ThemedText type="mono" style={[styles.toggleText, { color }]}>{t.life.whatIfYears(dec1(l.years))}</ThemedText>
+                {t.levers[l.key]}
+                {hide ? null : (
+                  <ThemedText type="mono" style={[styles.toggleText, { color }]}>{` ${t.life.whatIfYears(dec1(l.years))}`}</ThemedText>
+                )}
               </ThemedText>
             </Pressable>
           );
@@ -300,6 +348,7 @@ function WhatIf({
   gain,
   healthyGain,
   anyLevers,
+  hide,
 }: {
   profile: Profile;
   now: number;
@@ -307,6 +356,7 @@ function WhatIf({
   gain: number;
   healthyGain: number;
   anyLevers: boolean;
+  hide: boolean;
 }) {
   const theme = useTheme();
   const t = useT();
@@ -322,6 +372,7 @@ function WhatIf({
       </ThemedText>
       <TimeBar
         unit={t.life.weeksUnit}
+        hideNumbers={hide}
         parts={[
           { key: 'free', label: t.life.bar.free, value: weeks * (1 - sleep - phoneShare), color: theme.remain },
           { key: 'phone', label: t.life.bar.phone, value: weeks * phoneShare, color: theme.screen },
@@ -337,18 +388,25 @@ function WhatIf({
 
       {tried.length ? (
         <Animated.View key={tried.map((x) => x.key).join()} entering={FadeIn.duration(400)} style={styles.result}>
-          <RichText
-            parts={[
-              ...t.life.triedTotal(tried.length > 1, fmt(gain * WEEKS_PER_YEAR), dec1(gain), gain >= MAX_TOTAL_GAIN),
-              ...(healthyGain >= 0.1 ? t.life.triedHealthy(dec1(healthyGain)) : []),
-            ]}
-          />
+          {hide ? (
+            <ThemedText>
+              {t.gentle.triedTotal(tried.length > 1)}
+              {healthyGain >= 0.1 ? t.gentle.healthy.tried : ''}
+            </ThemedText>
+          ) : (
+            <RichText
+              parts={[
+                ...t.life.triedTotal(tried.length > 1, fmt(gain * WEEKS_PER_YEAR), dec1(gain), gain >= MAX_TOTAL_GAIN),
+                ...(healthyGain >= 0.1 ? t.life.triedHealthy(dec1(healthyGain)) : []),
+              ]}
+            />
+          )}
           {tried.map((x) => (
             <View key={x.key} style={styles.triedRow}>
               <View style={[styles.dot, { backgroundColor: theme[LEVER_COLOR[x.key]] }]} />
               <View style={styles.flex}>
                 <ThemedText type="small" themeColor="fg">
-                  {t.life.triedOne(t.levers[x.key], dec1(x.years), dec1(x.healthy))}
+                  {hide ? t.levers[x.key] : t.life.triedOne(t.levers[x.key], dec1(x.years), dec1(x.healthy))}
                 </ThemedText>
                 <SourceLink of={x.key} />
               </View>
@@ -362,8 +420,13 @@ function WhatIf({
         <ThemedText type="small">{t.life.allGood}</ThemedText>
       )}
 
-      <ThemedText type="small">{t.claims.personalNumbers}</ThemedText>
-      <SourceLink source={PERSONAL_NUMBERS.source} />
+      {/* Why the screen shows personal numbers; moot while they're hidden. */}
+      {hide ? null : (
+        <>
+          <ThemedText type="small">{t.claims.personalNumbers}</ThemedText>
+          <SourceLink source={PERSONAL_NUMBERS.source} />
+        </>
+      )}
     </View>
   );
 }
@@ -476,7 +539,17 @@ function Legend({ life, healthy, dense, sleep, phone }: { life: boolean; healthy
  * Daily phone time in time-left terms, and what half an hour of it could become. The one place to set
  * it; a change shows right away on the calendar above.
  */
-function PhoneCard({ profile, now, onChange }: { profile: Profile; now: number; onChange: (hours: number) => void }) {
+function PhoneCard({
+  profile,
+  now,
+  hide,
+  onChange,
+}: {
+  profile: Profile;
+  now: number;
+  hide: boolean;
+  onChange: (hours: number) => void;
+}) {
   const theme = useTheme();
   const t = useT();
   const hours = profile.phoneHours;
@@ -499,9 +572,15 @@ function PhoneCard({ profile, now, onChange }: { profile: Profile; now: number; 
       </View>
       {hours != null ? (
         <>
-          <RichText parts={t.life.phoneLine(num(hours), dec1(yearsOfHours(hours, left)), shareOfWaking(hours, t))} />
+          {hide ? (
+            <ThemedText>{t.gentle.phoneLine(shareOfWaking(hours, t))}</ThemedText>
+          ) : (
+            <RichText parts={t.life.phoneLine(num(hours), dec1(yearsOfHours(hours, left)), shareOfWaking(hours, t))} />
+          )}
           {hours >= SWAP_HOURS ? (
-            <ThemedText type="small">{t.life.phoneSwap(swapSuggestion(profile, profile.loves ?? [], t, now))}</ThemedText>
+            <ThemedText type="small">
+              {hide ? t.gentle.phoneSwap : t.life.phoneSwap(swapSuggestion(profile, profile.loves ?? [], t, now))}
+            </ThemedText>
           ) : null}
           <SourceLink of="phone" />
         </>
@@ -516,13 +595,14 @@ function PhoneCard({ profile, now, onChange }: { profile: Profile; now: number; 
  * What the person's habits do to the estimate, and every change within reach, each linked to its study.
  * Each change can be tried on the calendar with the "What if" switches.
  */
-function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; levers: Lever[] }) {
+function HabitsCard({ profile, now, levers, hide }: { profile: Profile; now: number; levers: Lever[]; hide: boolean }) {
   const theme = useTheme();
   const t = useT();
   const gain = combinedGain(profile, now);
   const total = habitsEffect(profile, now);
   const items = habitBreakdown(profile, t, now);
   const signed = (y: number) => `${y > 0 ? '+' : '−'}${dec1(Math.abs(y))}`;
+  const effect = (y: number) => (hide ? (y > 0 ? t.gentle.adds : t.gentle.costs) : t.common.yrs(signed(y)));
 
   return (
     <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
@@ -530,7 +610,13 @@ function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; l
         {t.life.habitsTitle}
       </ThemedText>
       <RichText
-        parts={Math.abs(total) < 0.2 ? [{ text: t.life.habitsNeutral }] : t.life.habitsEffect(total > 0, dec1(Math.abs(total)))}
+        parts={
+          Math.abs(total) < 0.2
+            ? [{ text: t.life.habitsNeutral }]
+            : hide
+              ? [{ text: t.gentle.habitsEffect(total > 0) }]
+              : t.life.habitsEffect(total > 0, dec1(Math.abs(total)))
+        }
       />
       {items.map((it) => (
         <View key={it.key} style={styles.habitRow}>
@@ -541,7 +627,7 @@ function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; l
             <SourceLink of={it.key} prefix={t.common.why} />
           </View>
           <ThemedText type="mono" themeColor={it.years > 0 ? 'accent' : 'muted'}>
-            {t.common.yrs(signed(it.years))}
+            {effect(it.years)}
           </ThemedText>
         </View>
       ))}
@@ -556,17 +642,23 @@ function HabitsCard({ profile, now, levers }: { profile: Profile; now: number; l
               <View style={styles.habitRow}>
                 <View style={styles.flex}>
                   <ThemedText>{t.levers[l.key]}</ThemedText>
-                  <ThemedText type="small">{t.life.moreWeekends(fmt(l.years * WEEKS_PER_YEAR))}</ThemedText>
+                  <ThemedText type="small">{hide ? t.gentle.couldAdd : t.life.moreWeekends(fmt(l.years * WEEKS_PER_YEAR))}</ThemedText>
                   <SourceLink of={l.key} />
                 </View>
-                <ThemedText type="mono" themeColor="accent">
-                  {t.common.yrs(signed(l.years))}
-                </ThemedText>
+                {hide ? null : (
+                  <ThemedText type="mono" themeColor="accent">
+                    {t.common.yrs(signed(l.years))}
+                  </ThemedText>
+                )}
               </View>
               <LeverPlan profile={profile} lever={l} />
             </View>
           ))}
-          <RichText parts={t.life.together(levers.length > 1, dec1(gain), gain >= MAX_TOTAL_GAIN)} />
+          {hide ? (
+            <ThemedText>{t.gentle.together(levers.length > 1)}</ThemedText>
+          ) : (
+            <RichText parts={t.life.together(levers.length > 1, dec1(gain), gain >= MAX_TOTAL_GAIN)} />
+          )}
         </View>
       ) : (
         <ThemedText type="small">{t.life.allGood}</ThemedText>
@@ -619,6 +711,12 @@ const styles = StyleSheet.create({
   verdict: {
     fontSize: 21,
     lineHeight: 29,
+  },
+  ahead: {
+    fontFamily: Fonts.display,
+    fontSize: 21,
+    lineHeight: 28,
+    letterSpacing: 0.6,
   },
   clock: {
     fontFamily: Fonts.mono,

@@ -788,6 +788,90 @@ export const fr: Strings = {
     next: 'Suivant',
   },
 
+  gentle: {
+    setting: 'Masquer les chiffres',
+    settingNote:
+      'Des mots au lieu des années, des semaines et des décomptes dans Vie, Amours, Aujourd’hui et l’ouverture. Le calendrier reste, sans ses chiffres.',
+    ahead: {
+      most: 'La plus grande partie de ta vie est encore devant toi.',
+      plenty: 'Beaucoup de belles années sont sans doute encore devant toi.',
+      some: 'De belles années sont encore devant toi. Consacre-les à ce que tu aimes.',
+      gift: 'Chaque jour à partir d’ici est un cadeau. Consacre-le à ce que tu aimes.',
+    },
+    caption: {
+      life: 'Cette année de ta vie est en cours. ',
+      weeks: 'Cette semaine de ta vie est en cours. ',
+      year: {
+        early: 'La plus grande partie de cette année est encore devant toi.',
+        middle: 'Cette année est bien avancée. Il y reste du bon temps.',
+        late: 'Cette année touche à sa fin. Fais compter ses dernières semaines.',
+      },
+      today: {
+        early: 'La plus grande partie de la journée est devant toi. Vis-la avec intention.',
+        middle: 'La journée est bien avancée. Vis ce qui reste avec intention.',
+        late: 'La journée touche à sa fin. Vis ce qui reste avec intention.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Une part est du sommeil (du temps bien employé) et une part sur ton téléphone ; le reste est éveillé et loin de lui.'
+          : ' Une part est du sommeil, du temps bien employé ; le reste est éveillé.',
+      health: ' Beaucoup seront sans doute en forme et autonomes : la bande verte, qui s’estompe là où les gens diffèrent.',
+    },
+    range:
+      'Une fourchette, pas une date : les cercles pleins sont probables, les anneaux si la chance le permet, et les habitudes peuvent les déplacer.',
+    whatIfA11y: (label) => `Et si : ${label}, pourrait ajouter du temps`,
+    triedTotal: (several) =>
+      several
+        ? 'Ensemble, ils pourraient ajouter du bon temps : moins que la somme, car les effets des habitudes se recoupent.'
+        : 'Cela pourrait ajouter du bon temps.',
+    phoneLine: (share) => `Ton téléphone prend ${share} de tes heures éveillées.`,
+    phoneSwap:
+      'Une demi-heure de moins par jour pourrait devenir plus de temps avec les gens que tu aimes. Dans des expériences, moins de réseaux sociaux signifiait plus de temps en famille et entre amis, et moins de solitude.',
+    habitsEffect: (adds) => (adds ? 'Tes habitudes ajoutent du temps à ton estimation.' : 'Tes habitudes retirent un peu de temps à ton estimation.'),
+    adds: 'ajoute du temps',
+    costs: 'retire du temps',
+    couldAdd: 'pourrait ajouter du bon temps',
+    together: (several) =>
+      several ? 'Ensemble, ils pourraient ajouter de belles années. Essaie-les sur le calendrier avec Et si.' : 'Essaie-le sur le calendrier avec Et si.',
+    howMany: {
+      few: 'Quelques fois de plus que tu ne le penses.',
+      many: 'Bien des fois encore, si tu leur fais de la place.',
+    },
+    pace: 'À ton rythme actuel.',
+    loveSub: 'À ton rythme actuel, sur le temps que tu as probablement.',
+    agency: (label) => `${label} pourrait en ajouter d’autres. Tu peux l’essayer sur le calendrier Vie.`,
+    moreVisits: (name) => `Plus de visites avec ${name} que tu ne le penses, à ton rythme actuel.`,
+    reachOut: 'Plus de visites que tu ne le penses, à ton rythme actuel. Un message prend une minute.',
+    smallStep: (label) => `${label} pourrait ajouter du bon temps. C’est un petit pas dans cette direction.`,
+    suggestPerson: (name) =>
+      `Plus de visites avec ${name} que tu ne le penses, à ton rythme actuel. Un plan rend la prochaine plus probable.`,
+    suggestLever: (label) => `${label} pourrait ajouter du bon temps. Un petit plan est une façon de commencer.`,
+    birthday: (name) =>
+      `Joyeux anniversaire${name ? `, ${name}` : ''}. Tu as vécu beaucoup de semaines, certaines merveilleuses. Quelle chose pourrais-tu faire de l’année qui vient ?`,
+    isolation: 'Les personnes qui restent proches des autres ont tendance à vivre plus longtemps et en meilleure santé.',
+    connectionLever: 'Pour toi, voir chaque semaine les gens que tu aimes pourrait ajouter du bon temps.',
+    noneLogged: 'Aucun appel ni visite noté ce dernier mois pour l’instant.',
+    someThisMonth: 'Ce dernier mois, tu as parlé avec ou vu certaines des personnes que tu aimes.',
+    healthy: {
+      years:
+        'Beaucoup des années à venir seront sans doute en forme et autonomes : la bande verte de ton calendrier, qui s’estompe là où les gens diffèrent.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} pourrait te garder en forme et autonome plus longtemps : des jambes plus fortes, un meilleur équilibre, moins de chutes.`
+          : `${label} pourrait ajouter des années en bonne santé.`,
+      tried: ' La bande verte grandit aussi.',
+      reveal: (lever) => 'Beaucoup de ces semaines seront sans doute en forme et autonomes.' + (lever ? ` ${lever} pourrait en ajouter d’autres.` : ''),
+    },
+    reveal: {
+      fullLife: 'Une vie pleine est une longue suite de semaines, et tu es en chemin. Faisons compter la suite.',
+      person: (label, howMany) => `Cela inclut ${label}. ${howMany}`,
+      phone: 'Ton téléphone en prend une part. Une demi-heure de moins par jour pourrait devenir plus de temps avec les gens que tu aimes.',
+      lever: (label) => ` ${label} pourrait ajouter de belles années.`,
+      range: (country) =>
+        `C’est une fourchette, pas une date, d’après la durée de vie habituelle des personnes qui vivent comme toi${country ? ` en ${country}` : ''}. Pas un avis médical.`,
+    },
+  },
+
   account: {
     title: 'Toi',
     edit: 'Modifier tes réponses',
