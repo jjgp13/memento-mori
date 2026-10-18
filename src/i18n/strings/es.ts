@@ -788,6 +788,90 @@ export const es: Strings = {
     next: 'Siguiente',
   },
 
+  gentle: {
+    setting: 'Ocultar números',
+    settingNote:
+      'Palabras en lugar de años, semanas y cuentas en Vida, Amores, Hoy y la apertura. El calendario se queda, sin sus números.',
+    ahead: {
+      most: 'La mayor parte de tu vida está por delante.',
+      plenty: 'Es probable que tengas muchos años buenos por delante.',
+      some: 'Todavía hay años buenos por delante. Dedícalos a lo que amas.',
+      gift: 'Cada día a partir de aquí es un regalo. Dedícalo a lo que amas.',
+    },
+    caption: {
+      life: 'Este año de tu vida está en marcha. ',
+      weeks: 'Esta semana de tu vida está en marcha. ',
+      year: {
+        early: 'La mayor parte de este año está por delante.',
+        middle: 'Este año va avanzado. Todavía le queda buen tiempo.',
+        late: 'Este año casi termina. Haz que sus últimas semanas cuenten.',
+      },
+      today: {
+        early: 'La mayor parte del día está por delante. Úsalo con intención.',
+        middle: 'El día va avanzado. Usa lo que queda con intención.',
+        late: 'El día casi termina. Usa lo que queda con intención.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Una parte es sueño (tiempo bien usado) y otra es en el celular; el resto es despierto y lejos de él.'
+          : ' Una parte es sueño, tiempo bien usado; el resto es despierto.',
+      health: ' Muchos de ellos probablemente serán con fuerza e independencia: la franja verde, que se desvanece donde las personas difieren.',
+    },
+    range:
+      'Un rango, no una fecha: los círculos llenos son probables, los anillos son si la suerte lo permite, y los hábitos pueden moverlos.',
+    whatIfA11y: (label) => `¿Y si…?: ${label}, podría sumar tiempo`,
+    triedTotal: (several) =>
+      several
+        ? 'Juntos podrían sumar buen tiempo: menos que la suma, porque los efectos de los hábitos se traslapan.'
+        : 'Esto podría sumar buen tiempo.',
+    phoneLine: (share) => `Tu celular se lleva ${share} de tus horas despierto.`,
+    phoneSwap:
+      'Media hora menos al día podría convertirse en más tiempo con la gente que amas. En experimentos, usar menos redes sociales significó más tiempo con familia y amigos y menos soledad.',
+    habitsEffect: (adds) => (adds ? 'Tus hábitos suman tiempo a tu estimación.' : 'Tus hábitos le restan algo de tiempo a tu estimación.'),
+    adds: 'suma tiempo',
+    costs: 'resta tiempo',
+    couldAdd: 'podría sumar buen tiempo',
+    together: (several) =>
+      several ? 'Juntos podrían sumar años buenos. Pruébalos en el calendario con ¿Y si…?' : 'Pruébalo en el calendario con ¿Y si…?',
+    howMany: {
+      few: 'Unas cuantas veces más de las que crees.',
+      many: 'Muchas veces más, si les haces espacio.',
+    },
+    pace: 'A tu ritmo actual.',
+    loveSub: 'A tu ritmo actual, en el tiempo que probablemente tienes.',
+    agency: (label) => `${label} podría sumar más de estos. Puedes probarlo en el calendario de Vida.`,
+    moreVisits: (name) => `Más visitas con ${name} de las que crees, a tu ritmo actual.`,
+    reachOut: 'Más visitas de las que crees, a tu ritmo actual. Un mensaje toma un minuto.',
+    smallStep: (label) => `${label} podría sumar buen tiempo. Este es un paso pequeño hacia eso.`,
+    suggestPerson: (name) =>
+      `Más visitas con ${name} de las que crees, a tu ritmo actual. Un plan hace más probable la siguiente.`,
+    suggestLever: (label) => `${label} podría sumar buen tiempo. Un plan pequeño es una forma de empezar.`,
+    birthday: (name) =>
+      `Feliz cumpleaños${name ? `, ${name}` : ''}. Has vivido muchas semanas, algunas maravillosas. ¿Qué es algo que podrías hacer con el año que viene?`,
+    isolation: 'Las personas que se mantienen cerca de otras tienden a vivir más y con más salud.',
+    connectionLever: 'Para ti, ver cada semana a la gente que amas podría sumar buen tiempo.',
+    noneLogged: 'Todavía no hay llamadas ni visitas registradas este último mes.',
+    someThisMonth: 'Este último mes hablaste con o viste a algunas de las personas que amas.',
+    healthy: {
+      years:
+        'Es probable que muchos de los años por delante sean con fuerza e independencia: la franja verde de tu calendario, que se desvanece donde las personas difieren.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} podría mantenerte con fuerza e independencia por más tiempo: piernas más fuertes, mejor equilibrio, menos caídas.`
+          : `${label} podría sumar años con salud.`,
+      tried: ' La franja verde también crece.',
+      reveal: (lever) => 'Es probable que muchas de esas semanas sean con fuerza e independencia.' + (lever ? ` ${lever} podría sumar más.` : ''),
+    },
+    reveal: {
+      fullLife: 'Una vida plena es una larga serie de semanas, y vas a medio camino. Hagamos que el resto cuente.',
+      person: (label, howMany) => `Eso incluye ${label}. ${howMany}`,
+      phone: 'Tu celular se lleva una parte. Media hora menos al día podría convertirse en más tiempo con la gente que amas.',
+      lever: (label) => ` ${label} podría sumar años buenos.`,
+      range: (country) =>
+        `Esto es un rango, no una fecha, de cuánto suelen vivir las personas que viven como tú${country ? ` en ${country}` : ''}. No es consejo médico.`,
+    },
+  },
+
   account: {
     title: 'Tú',
     edit: 'Editar tus respuestas',

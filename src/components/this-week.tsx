@@ -56,7 +56,7 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
   const theme = useTheme();
   const t = useT();
   const w = t.thisWeek;
-  const { planNudgeDismissedAt } = usePrefs();
+  const { planNudgeDismissedAt, hideNumbers: hide } = usePrefs();
   const loves = profile.loves ?? [];
   const setLove = (next: Love) => saveProfile({ ...profile, loves: loves.map((l) => (l.id === next.id ? next : l)) });
   const week = weekStart(now);
@@ -112,7 +112,11 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
             {cueLabel(l.plan, t)} · {status(planMoments(l.plan, l), l.plan, t, now)}
           </ThemedText>
           <ThemedText style={styles.action}>{capitalize(l.plan.action)}</ThemedText>
-          <ThemedText type="small">{w.moreVisits(fmt(loveCount(l, profile, now).times), nameInSentence(l.name, t))}</ThemedText>
+          <ThemedText type="small">
+            {hide
+              ? t.gentle.moreVisits(nameInSentence(l.name, t))
+              : w.moreVisits(fmt(loveCount(l, profile, now).times), nameInSentence(l.name, t))}
+          </ThemedText>
           <ReachOut love={l} onChange={setLove} compact />
         </View>
       ))}
@@ -125,7 +129,9 @@ export function ThisWeek({ profile, now, lastSeen, freshToday }: { profile: Prof
           <ThemedText style={styles.action}>{capitalize(habit.action)}</ThemedText>
           {lever ? (
             <>
-              <ThemedText type="small">{w.smallStep(t.levers[lever.key], dec1(lever.years))}</ThemedText>
+              <ThemedText type="small">
+                {hide ? t.gentle.smallStep(t.levers[lever.key]) : w.smallStep(t.levers[lever.key], dec1(lever.years))}
+              </ThemedText>
               <SourceLink of={lever.key} />
             </>
           ) : null}
@@ -160,6 +166,7 @@ function Suggestion({ profile, now }: { profile: Profile; now: number }) {
   const theme = useTheme();
   const t = useT();
   const w = t.thisWeek;
+  const { hideNumbers: hide } = usePrefs();
   const [editing, setEditing] = useState(false);
   const loves = profile.loves ?? [];
   const person = personToPlan(loves);
@@ -179,9 +186,15 @@ function Suggestion({ profile, now }: { profile: Profile; now: number }) {
         {w.suggestHeading}
       </ThemedText>
       {person ? (
-        <ThemedText type="small">{w.suggestPerson(fmt(loveCount(person, profile, now).times), nameInSentence(person.name, t))}</ThemedText>
+        <ThemedText type="small">
+          {hide
+            ? t.gentle.suggestPerson(nameInSentence(person.name, t))
+            : w.suggestPerson(fmt(loveCount(person, profile, now).times), nameInSentence(person.name, t))}
+        </ThemedText>
       ) : lever ? (
-        <ThemedText type="small">{w.suggestLever(t.levers[lever.key], dec1(lever.years))}</ThemedText>
+        <ThemedText type="small">
+          {hide ? t.gentle.suggestLever(t.levers[lever.key]) : w.suggestLever(t.levers[lever.key], dec1(lever.years))}
+        </ThemedText>
       ) : null}
       <SourceLink source={PLANS.source} prefix={w.whyPlans} />
       {editing ? (

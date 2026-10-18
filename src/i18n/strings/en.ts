@@ -829,6 +829,99 @@ export const en = {
     next: 'Next',
   },
 
+  /**
+   * Words in place of numbers while "Hide numbers" is on (the You screen): no years, weeks, ages, counts or
+   * percentages on Life, Loves, Today, the opening and the reveal. Never a digit in here.
+   */
+  gentle: {
+    setting: 'Hide numbers',
+    settingNote:
+      'Words instead of years, weeks and counts on Life, Loves, Today and the opening. The calendar stays, without its numbers.',
+    /** How much of a likely life is ahead, from the share already lived (lib/life-views.ts aheadLevel). */
+    ahead: {
+      most: 'Most of your life is still ahead.',
+      plenty: 'Plenty of good years are likely still ahead.',
+      some: 'Good years are still ahead. Spend them on what you love.',
+      gift: 'Every day from here is a gift. Spend it on what you love.',
+    },
+    /** How far through this year or today: early, under way, nearly done. */
+    caption: {
+      life: 'This year of your life is under way. ',
+      weeks: 'This week of your life is under way. ',
+      year: {
+        early: 'Most of this year is still ahead.',
+        middle: 'This year is well under way. There is good time left in it.',
+        late: 'This year is nearly done. Make its last weeks count.',
+      },
+      today: {
+        early: 'Most of today is still ahead. Spend it on purpose.',
+        middle: 'Today is well under way. Spend what is left on purpose.',
+        late: 'Today is nearly done. Spend what is left on purpose.',
+      },
+      layers: (phone: boolean): string =>
+        phone
+          ? ' Some of it is sleep (time well spent) and some is on your phone; the rest is awake and off it.'
+          : ' Some of it is sleep, time well spent; the rest is awake.',
+      /** The healthy band in words. */
+      health: ' Many of them are likely strong and independent: the green band, fading where people differ.',
+    },
+    range: 'A range, not a date: the filled circles are likely, the rings are if fortune allows, and habits can move them.',
+    whatIfA11y: (label: string) => `What if: ${label}, could add time`,
+    triedTotal: (several: boolean): string =>
+      several
+        ? 'Together they could add good time: less than the sum, since habit effects overlap.'
+        : 'This could add good time.',
+    phoneLine: (share: string) => `Your phone takes ${share} of your waking hours.`,
+    phoneSwap:
+      'Half an hour less a day could become more time with the people you love. In experiments, cutting back on social media meant more time with family and friends and less loneliness.',
+    habitsEffect: (adds: boolean): string => (adds ? 'Your habits add time to your estimate.' : 'Your habits cost some time in your estimate.'),
+    adds: 'adds time',
+    costs: 'costs time',
+    couldAdd: 'could add good time',
+    together: (several: boolean): string =>
+      several ? 'Together they could add good years. Try them on the calendar with What if.' : 'Try it on the calendar with What if.',
+    /** In place of a love's count: a little or a lot, never how many. */
+    howMany: {
+      few: 'A few more times than you might think.',
+      many: 'Many more times, if you make room for them.',
+    },
+    pace: 'At your current pace.',
+    loveSub: 'At your current pace, over the time you likely have.',
+    agency: (label: string) => `${label} could add more of these. You can try it on the Life calendar.`,
+    moreVisits: (name: string) => `More visits with ${name} than you might think, at your current pace.`,
+    reachOut: 'More visits than you might think, at your current pace. A message takes a minute.',
+    smallStep: (label: string) => `${label} could add good time. This is a small step toward it.`,
+    suggestPerson: (name: string) =>
+      `More visits with ${name} than you might think, at your current pace. A plan makes the next one more likely.`,
+    suggestLever: (label: string) => `${label} could add good time. A small plan is a way to start.`,
+    birthday: (name: string) =>
+      `Happy birthday${name ? `, ${name}` : ''}. You have lived many weeks, some of them wonderful. What is one thing you could do with the year ahead?`,
+    isolation: 'People who stay close to others tend to live longer and healthier lives.',
+    connectionLever: 'For you, seeing the people you love every week could add good time.',
+    noneLogged: 'No calls or visits logged this past month yet.',
+    someThisMonth: 'This past month you talked with or saw some of the people you love.',
+    /** The healthy band and the Strong and independent card. */
+    healthy: {
+      years:
+        'Many of the years ahead are likely strong and independent: the green band on your calendar, fading where people differ.',
+      lever: (label: string, strength: boolean) =>
+        strength
+          ? `${label} could keep you strong and independent for longer: stronger legs, steadier balance, fewer falls.`
+          : `${label} could add healthy years.`,
+      tried: ' The green band grows too.',
+      reveal: (lever: string | null) => 'Many of those weeks are likely strong and independent.' + (lever ? ` ${lever} could add more of them.` : ''),
+    },
+    reveal: {
+      fullLife: "A full life is a long run of weeks, and you are part way along. Let's make the rest count.",
+      /** "more visits with Mom" + gentle.howMany */
+      person: (label: string, howMany: string) => `That includes ${label}. ${howMany}`,
+      phone: 'Your phone takes some of that. Half an hour less a day could become more time with the people you love.',
+      lever: (label: string) => ` ${label} could add good years.`,
+      range: (country: string | null) =>
+        `This is a range, not a date, from how long people living like you${country ? ` in ${country}` : ''} tend to live. Not medical advice.`,
+    },
+  },
+
   account: {
     title: 'You',
     edit: 'Edit your answers',

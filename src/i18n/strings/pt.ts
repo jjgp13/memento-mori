@@ -789,6 +789,90 @@ export const pt: Strings = {
     next: 'Próximo',
   },
 
+  gentle: {
+    setting: 'Ocultar números',
+    settingNote:
+      'Palavras em vez de anos, semanas e contagens em Vida, Amores, Hoje e na abertura. O calendário fica, sem os números.',
+    ahead: {
+      most: 'A maior parte da sua vida ainda está pela frente.',
+      plenty: 'Provavelmente ainda há muitos anos bons pela frente.',
+      some: 'Ainda há anos bons pela frente. Dedique-os ao que você ama.',
+      gift: 'Cada dia daqui em diante é um presente. Dedique-o ao que você ama.',
+    },
+    caption: {
+      life: 'Este ano da sua vida está em andamento. ',
+      weeks: 'Esta semana da sua vida está em andamento. ',
+      year: {
+        early: 'A maior parte deste ano ainda está pela frente.',
+        middle: 'Este ano já vai adiantado. Ainda há tempo bom nele.',
+        late: 'Este ano está quase no fim. Faça as últimas semanas valerem.',
+      },
+      today: {
+        early: 'A maior parte do dia ainda está pela frente. Use-o com intenção.',
+        middle: 'O dia já vai adiantado. Use o que resta com intenção.',
+        late: 'O dia está quase no fim. Use o que resta com intenção.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Uma parte é sono (tempo bem gasto) e outra no celular; o resto é acordado e longe dele.'
+          : ' Uma parte é sono, tempo bem gasto; o resto é acordado.',
+      health: ' Muitos deles provavelmente serão com força e independência: a faixa verde, que esmaece onde as pessoas diferem.',
+    },
+    range:
+      'Uma faixa, não uma data: os círculos cheios são prováveis, os anéis são se a sorte permitir, e os hábitos podem movê-los.',
+    whatIfA11y: (label) => `E se: ${label}, poderia somar tempo`,
+    triedTotal: (several) =>
+      several
+        ? 'Juntos poderiam somar tempo bom: menos que a soma, porque os efeitos dos hábitos se sobrepõem.'
+        : 'Isso poderia somar tempo bom.',
+    phoneLine: (share) => `Seu celular ocupa ${share} das suas horas acordado.`,
+    phoneSwap:
+      'Meia hora a menos por dia poderia virar mais tempo com as pessoas que você ama. Em experimentos, usar menos redes sociais significou mais tempo com família e amigos e menos solidão.',
+    habitsEffect: (adds) => (adds ? 'Seus hábitos somam tempo à sua estimativa.' : 'Seus hábitos tiram um pouco de tempo da sua estimativa.'),
+    adds: 'soma tempo',
+    costs: 'tira tempo',
+    couldAdd: 'poderia somar tempo bom',
+    together: (several) =>
+      several ? 'Juntos poderiam somar anos bons. Teste-os no calendário com E se.' : 'Teste no calendário com E se.',
+    howMany: {
+      few: 'Algumas vezes a mais do que você imagina.',
+      many: 'Muitas vezes mais, se você abrir espaço para elas.',
+    },
+    pace: 'No seu ritmo atual.',
+    loveSub: 'No seu ritmo atual, ao longo do tempo que você provavelmente tem.',
+    agency: (label) => `${label} poderia somar mais destes. Você pode testar no calendário da Vida.`,
+    moreVisits: (name) => `Mais visitas com ${name} do que você imagina, no seu ritmo atual.`,
+    reachOut: 'Mais visitas do que você imagina, no seu ritmo atual. Uma mensagem leva um minuto.',
+    smallStep: (label) => `${label} poderia somar tempo bom. Este é um pequeno passo nessa direção.`,
+    suggestPerson: (name) =>
+      `Mais visitas com ${name} do que você imagina, no seu ritmo atual. Um plano torna a próxima mais provável.`,
+    suggestLever: (label) => `${label} poderia somar tempo bom. Um pequeno plano é um jeito de começar.`,
+    birthday: (name) =>
+      `Feliz aniversário${name ? `, ${name}` : ''}. Você já viveu muitas semanas, algumas maravilhosas. O que você poderia fazer com o ano que vem?`,
+    isolation: 'Pessoas que se mantêm próximas dos outros tendem a viver mais e com mais saúde.',
+    connectionLever: 'Para você, ver toda semana as pessoas que ama poderia somar tempo bom.',
+    noneLogged: 'Nenhuma ligação ou visita registrada no último mês ainda.',
+    someThisMonth: 'No último mês você falou com ou viu algumas das pessoas que ama.',
+    healthy: {
+      years:
+        'Muitos dos anos pela frente provavelmente serão com força e independência: a faixa verde do seu calendário, que esmaece onde as pessoas diferem.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} poderia manter você com força e independência por mais tempo: pernas mais fortes, mais equilíbrio, menos quedas.`
+          : `${label} poderia somar anos com saúde.`,
+      tried: ' A faixa verde também cresce.',
+      reveal: (lever) => 'Muitas dessas semanas provavelmente serão com força e independência.' + (lever ? ` ${lever} poderia somar mais delas.` : ''),
+    },
+    reveal: {
+      fullLife: 'Uma vida plena é uma longa sequência de semanas, e você está no caminho. Vamos fazer o resto valer.',
+      person: (label, howMany) => `Isso inclui ${label}. ${howMany}`,
+      phone: 'Seu celular ocupa uma parte disso. Meia hora a menos por dia poderia virar mais tempo com as pessoas que você ama.',
+      lever: (label) => ` ${label} poderia somar anos bons.`,
+      range: (country) =>
+        `Isto é uma faixa, não uma data, a partir de quanto costumam viver as pessoas que vivem como você${country ? ` em ${country}` : ''}. Não é conselho médico.`,
+    },
+  },
+
   account: {
     title: 'Você',
     edit: 'Editar suas respostas',

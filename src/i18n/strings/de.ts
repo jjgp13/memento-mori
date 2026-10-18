@@ -792,6 +792,93 @@ export const de: Strings = {
     next: 'Weiter',
   },
 
+  gentle: {
+    setting: 'Zahlen ausblenden',
+    settingNote:
+      'Worte statt Jahren, Wochen und Zählungen in Leben, Liebe, Heute und beim Öffnen. Der Kalender bleibt, ohne seine Zahlen.',
+    ahead: {
+      most: 'Der größte Teil deines Lebens liegt noch vor dir.',
+      plenty: 'Wahrscheinlich liegen noch viele gute Jahre vor dir.',
+      some: 'Es liegen noch gute Jahre vor dir. Verbring sie mit dem, was du liebst.',
+      gift: 'Jeder Tag von hier an ist ein Geschenk. Verbring ihn mit dem, was du liebst.',
+    },
+    caption: {
+      life: 'Dieses Jahr deines Lebens ist im Gang. ',
+      weeks: 'Diese Woche deines Lebens ist im Gang. ',
+      year: {
+        early: 'Der größte Teil dieses Jahres liegt noch vor dir.',
+        middle: 'Dieses Jahr ist weit fortgeschritten. Es steckt noch gute Zeit darin.',
+        late: 'Dieses Jahr ist fast vorbei. Lass seine letzten Wochen zählen.',
+      },
+      today: {
+        early: 'Der größte Teil des Tages liegt noch vor dir. Nutze ihn bewusst.',
+        middle: 'Der Tag ist weit fortgeschritten. Nutze den Rest bewusst.',
+        late: 'Der Tag ist fast vorbei. Nutze den Rest bewusst.',
+      },
+      layers: (phone) =>
+        phone
+          ? ' Ein Teil davon ist Schlaf (gut verbrachte Zeit) und ein Teil am Handy; der Rest ist wach und ohne Handy.'
+          : ' Ein Teil davon ist Schlaf, gut verbrachte Zeit; der Rest ist wach.',
+      health: ' Viele davon sind wahrscheinlich stark und selbstständig: das grüne Band, das dort verblasst, wo Menschen sich unterscheiden.',
+    },
+    range:
+      'Eine Spanne, kein Datum: Die gefüllten Kreise sind wahrscheinlich, die Ringe, wenn das Glück es erlaubt, und Gewohnheiten können sie verschieben.',
+    whatIfA11y: (label) => `Was wäre, wenn: ${label}, könnte Zeit hinzufügen`,
+    triedTotal: (several) =>
+      several
+        ? 'Zusammen könnten sie gute Zeit hinzufügen: weniger als die Summe, weil sich die Wirkungen von Gewohnheiten überschneiden.'
+        : 'Das könnte gute Zeit hinzufügen.',
+    phoneLine: (share) => `Dein Handy nimmt ${share} deiner wachen Stunden ein.`,
+    phoneSwap:
+      'Eine halbe Stunde weniger am Tag könnte zu mehr Zeit mit den Menschen werden, die du liebst. In Experimenten bedeutete weniger Social Media mehr Zeit mit Familie und Freunden und weniger Einsamkeit.',
+    habitsEffect: (adds) =>
+      adds ? 'Deine Gewohnheiten fügen deiner Schätzung Zeit hinzu.' : 'Deine Gewohnheiten kosten deine Schätzung etwas Zeit.',
+    adds: 'fügt Zeit hinzu',
+    costs: 'kostet Zeit',
+    couldAdd: 'könnte gute Zeit hinzufügen',
+    together: (several) =>
+      several
+        ? 'Zusammen könnten sie gute Jahre hinzufügen. Probier sie im Kalender mit „Was wäre, wenn“ aus.'
+        : 'Probier es im Kalender mit „Was wäre, wenn“ aus.',
+    howMany: {
+      few: 'Ein paar Mal mehr, als du vielleicht denkst.',
+      many: 'Noch viele Male, wenn du ihnen Raum gibst.',
+    },
+    pace: 'In deinem jetzigen Tempo.',
+    loveSub: 'In deinem jetzigen Tempo, über die Zeit, die du wahrscheinlich hast.',
+    agency: (label) => `${label} könnte noch mehr davon bringen. Du kannst es im Lebenskalender ausprobieren.`,
+    moreVisits: (name) => `Mehr Besuche mit ${name}, als du vielleicht denkst, in deinem jetzigen Tempo.`,
+    reachOut: 'Mehr Besuche, als du vielleicht denkst, in deinem jetzigen Tempo. Eine Nachricht dauert eine Minute.',
+    smallStep: (label) => `${label} könnte gute Zeit hinzufügen. Das ist ein kleiner Schritt dorthin.`,
+    suggestPerson: (name) =>
+      `Mehr Besuche mit ${name}, als du vielleicht denkst, in deinem jetzigen Tempo. Ein Plan macht den nächsten wahrscheinlicher.`,
+    suggestLever: (label) => `${label} könnte gute Zeit hinzufügen. Ein kleiner Plan ist ein Anfang.`,
+    birthday: (name) =>
+      `Alles Gute zum Geburtstag${name ? `, ${name}` : ''}. Du hast viele Wochen gelebt, manche davon wunderbar. Was könntest du mit dem kommenden Jahr anfangen?`,
+    isolation: 'Menschen, die anderen nahe bleiben, leben meist länger und gesünder.',
+    connectionLever: 'Für dich könnte es gute Zeit hinzufügen, die Menschen, die du liebst, jede Woche zu sehen.',
+    noneLogged: 'Im letzten Monat noch keine Anrufe oder Besuche eingetragen.',
+    someThisMonth: 'Im letzten Monat hast du mit einigen der Menschen, die du liebst, gesprochen oder sie gesehen.',
+    healthy: {
+      years:
+        'Viele der kommenden Jahre sind wahrscheinlich stark und selbstständig: das grüne Band in deinem Kalender, das dort verblasst, wo Menschen sich unterscheiden.',
+      lever: (label, strength) =>
+        strength
+          ? `${label} könnte dich länger stark und selbstständig halten: kräftigere Beine, besseres Gleichgewicht, weniger Stürze.`
+          : `${label} könnte gesunde Jahre hinzufügen.`,
+      tried: ' Das grüne Band wächst mit.',
+      reveal: (lever) => 'Viele dieser Wochen sind wahrscheinlich stark und selbstständig.' + (lever ? ` ${lever} könnte noch mehr davon bringen.` : ''),
+    },
+    reveal: {
+      fullLife: 'Ein volles Leben ist eine lange Reihe von Wochen, und du bist unterwegs. Lass uns den Rest zählen lassen.',
+      person: (label, howMany) => `Dazu gehören ${label}. ${howMany}`,
+      phone: 'Dein Handy nimmt einen Teil davon ein. Eine halbe Stunde weniger am Tag könnte zu mehr Zeit mit den Menschen werden, die du liebst.',
+      lever: (label) => ` ${label} könnte gute Jahre hinzufügen.`,
+      range: (country) =>
+        `Das ist eine Spanne, kein Datum, danach, wie lange Menschen, die wie du leben${country ? `, in ${country}` : ''}, meist leben. Keine medizinische Beratung.`,
+    },
+  },
+
   account: {
     title: 'Du',
     edit: 'Antworten bearbeiten',
