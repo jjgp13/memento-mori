@@ -171,7 +171,7 @@ const PRIVACY: LegalDoc = {
       body: [
         'None of your answers. We don’t run analytics or crash reporting, and the app sets no tracking cookies.',
         'The web version is hosted on GitHub Pages. Like any website host, GitHub receives technical information when your browser loads the app, such as your IP address and browser type, and handles it under the [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). When the app is in the App Store or Google Play, Apple and Google handle downloads under their own policies.',
-        'Earlier test versions offered a “guest” sign-in, run by our database provider, Supabase (servers in the United States). If you used it, Supabase holds a random account ID, when it was created and last used, and the technical logs that come with signing in (such as IP address and device type). It holds none of your answers. Deleting everything in the app signs it out; to have the account itself erased, email us at the address below. The app does not offer sign-in today.',
+        'Earlier test versions offered a “guest” sign-in, run by our database provider, Supabase (servers in the United States). If you used it, Supabase holds a random account ID, when it was created and last used, and the technical logs that come with signing in (such as IP address and device type). It holds none of your answers. Deleting everything in the app erases this account and its empty profile from Supabase too, before it clears your device. If the app can’t reach Supabase at that moment, it tells you and deletes nothing; you can try again, delete on your device only, or email us at the address below to erase the account. The app does not offer sign-in today.',
         'If we later offer optional sign-in for backup and sync across devices, we will ask first, explain exactly what would leave your device, and update this policy before anything does.',
       ],
     },
@@ -202,9 +202,9 @@ const PRIVACY: LegalDoc = {
         'Depending on where you live, laws such as the EU and UK GDPR, the California Consumer Privacy Act (CCPA/CPRA) and Washington’s My Health My Data Act give you rights to know what is held about you, to see it, correct it, delete it, take a copy, object to or restrict its use, withdraw consent, and not be treated differently for using these rights.',
         'Because your information stays on your device, you can do most of this yourself:',
         '- See and correct it: everything is shown in the app; You → Edit your answers.',
-        '- Delete it: You → Delete everything on this device.',
+        '- Delete it: You → Delete everything on this device. If you have a guest account from an early test, this erases it too.',
         '- Take a copy: You → Download my data saves everything the app keeps on your device as one readable file (JSON, which any text editor opens). On a phone it opens your share sheet, so you choose where the file goes; it holds your health answers, so keep it somewhere private.',
-        `For anything else, including a guest account from an early test, email ${P.contact}. We will answer within 30 days (45 days where the law allows), and we won’t ask for more information than we need to confirm the request is yours. In the EU or UK you can also complain to your local data protection authority.`,
+        `For anything else, including a guest account you can no longer reach from the app, email ${P.contact}. We will answer within 30 days (45 days where the law allows), and we won’t ask for more information than we need to confirm the request is yours. In the EU or UK you can also complain to your local data protection authority.`,
         'California residents: we do not sell or share personal information (as those words are defined in the CCPA), and we don’t use sensitive personal information to infer characteristics about you.',
       ],
     },
@@ -223,7 +223,7 @@ const PRIVACY: LegalDoc = {
     {
       heading: 'How long we keep things',
       body: [
-        'Your answers stay on your device until you delete them. Guest accounts from early tests are kept until you ask us to erase them, or until we retire them.',
+        'Your answers stay on your device until you delete them. Guest accounts from early tests are kept until you delete everything in the app or ask us to erase them, or until we retire them. Erasing an account removes it at once; Supabase’s technical logs of past sign-ins expire on their own under its retention rules.',
       ],
     },
     {
@@ -240,10 +240,11 @@ const PRIVACY: LegalDoc = {
   reviewNotes: [
     'Confirm whether the operator is a “controller” under GDPR for data that never leaves the device, and whether an EU/UK representative (Art. 27) is needed.',
     'Confirm the legal basis wording, and whether consent for special-category (health) data needs an explicit opt-in step even though processing is on device.',
-    'Guest accounts: signOut() does not delete the Supabase auth user or the empty profiles row. Consider an in-app account deletion (Edge Function) or retiring the guest accounts before launch.',
+    'Guest accounts: “Delete everything” calls the delete-account Edge Function (supabase/functions/delete-account), which hard-deletes the caller’s Supabase auth user; the empty profiles row goes with it (on delete cascade). The function must be deployed for this text to be true of the live app. People who no longer have the app or browser can’t reach theirs, so still consider retiring the remaining guest accounts before launch.',
+    'Confirm how long Supabase keeps auth and API logs (which include IP addresses) after an account is erased, and whether the retention sentence needs a specific period.',
     'GitHub Pages logs: confirm the disclosure is enough, or move hosting if needed.',
     'CCPA thresholds probably don’t apply to a free app with no revenue; the section is included for transparency. Confirm.',
-    'Take a copy: You → Download my data exports the profile (mm.profile.v1) and settings (mm.prefs.v1) as JSON, which is “structured, commonly used and machine-readable” (GDPR Art. 20; CCPA “readily usable format”). It does not include a guest account’s sign-in session; data held by Supabase for early guest accounts still needs an emailed request. Confirm this is enough.',
+    'Take a copy: You → Download my data exports the profile (mm.profile.v1) and settings (mm.prefs.v1) as JSON, which is “structured, commonly used and machine-readable” (GDPR Art. 20; CCPA “readily usable format”). It does not include what Supabase holds for a guest account from an early test (account ID, timestamps, sign-in logs); a copy of that still needs an emailed request. Confirm this is enough.',
   ],
 };
 

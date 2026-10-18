@@ -113,3 +113,22 @@ export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
+
+/**
+ * Erases the signed-in account on the server (Edge Function supabase/functions/delete-account: the auth
+ * user and its profile row), then forgets the session on this device. Throws if the server could not be
+ * reached or refused, so the caller can say so; nothing is signed out in that case.
+ */
+export async function deleteAccount() {
+  const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+  if (error) throw error;
+  await signOutLocally();
+}
+
+/**
+ * Forgets the session on this device. supabase-js removes the stored session even when the server call
+ * fails (offline, or the user was just deleted), so the result is ignored.
+ */
+export async function signOutLocally() {
+  await supabase.auth.signOut({ scope: 'local' });
+}

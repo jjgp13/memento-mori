@@ -760,13 +760,16 @@ export const en = {
     dataBody:
       'Everything you enter stays on this device. There is no account, no ads and no tracking. Your estimate is worked out right here, on your phone or in your browser.',
     guestNote: (guest: boolean) =>
-      `You also have a ${guest ? 'guest account' : 'signed-in account'} from an earlier test. It holds nothing but an empty profile; deleting below signs it out.`,
+      `You also have a ${guest ? 'guest account' : 'signed-in account'} from an earlier test. It holds nothing but an empty profile; deleting below erases it too.`,
     confirm:
       "This erases your answers, the people and things you love, and everything else on this device. It can't be undone.",
     yesDelete: 'Yes, delete everything',
     keep: 'Keep my data',
     deleteAll: 'Delete everything on this device',
-    signOutFailed: 'Could not sign out.',
+    /** Shown when the server could not erase the account; nothing was deleted. */
+    accountFailed:
+      "We couldn't reach the server to erase your account from the earlier test, so nothing has been deleted yet. You can try again, or delete on this device only; the empty account then stays until you email us to erase it.",
+    deviceOnly: 'Delete on this device only',
     exportButton: 'Download my data',
     exportNote: 'A copy of everything this app keeps on this device, as a file you can open in any text editor.',
     exportDone: (name: string) => `Your copy is ready: ${name}. It holds your health answers, so keep it somewhere private.`,

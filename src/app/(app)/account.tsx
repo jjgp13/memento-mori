@@ -10,7 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
-import { signOut } from '@/lib/auth';
+import { deleteAccount, signOutLocally } from '@/lib/auth';
 import { dataExport } from '@/lib/data-export';
 import { clearPrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
@@ -27,7 +27,9 @@ export default function YouScreen() {
   const a = t.account;
   const { session } = useAuth();
   const [confirming, setConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  /** The server couldn't erase the account; nothing has been deleted yet. */
+  const [accountFailed, setAccountFailed] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exported, setExported] = useState<{ ok: boolean; name: string } | null>(null);
 
@@ -45,17 +47,31 @@ export default function YouScreen() {
     setExporting(false);
   }
 
-  async function deleteEverything() {
-    setError(null);
-    try {
-      if (session) await signOut();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : a.signOutFailed);
-      return;
-    }
+  function clearDevice() {
     // With no answers left, the app guard sends them back to onboarding.
     clearPrefs();
     clearProfile();
+  }
+
+  async function deleteEverything() {
+    setAccountFailed(false);
+    setDeleting(true);
+    try {
+      // An account from an early test is erased on the server first, so a failure leaves everything as it was.
+      if (session) await deleteAccount();
+    } catch (e) {
+      console.warn('Account deletion failed', e);
+      setAccountFailed(true);
+      setDeleting(false);
+      return;
+    }
+    clearDevice();
+  }
+
+  async function deleteOnDeviceOnly() {
+    setDeleting(true);
+    await signOutLocally();
+    clearDevice();
   }
 
   return (
@@ -101,17 +117,33 @@ export default function YouScreen() {
             <ThemedText type="small" themeColor="fg">
               {a.confirm}
             </ThemedText>
-            <Button title={a.yesDelete} onPress={deleteEverything} style={{ backgroundColor: theme.danger }} />
-            <Button title={a.keep} variant="link" onPress={() => setConfirming(false)} />
+            <Button
+              title={a.yesDelete}
+              onPress={deleteEverything}
+              loading={deleting}
+              style={{ backgroundColor: theme.danger }}
+            />
+            {accountFailed ? (
+              <>
+                <ThemedText type="small" themeColor="fg" accessibilityLiveRegion="polite">
+                  {a.accountFailed}
+                </ThemedText>
+                <Button title={a.deviceOnly} variant="ghost" disabled={deleting} onPress={deleteOnDeviceOnly} />
+              </>
+            ) : null}
+            <Button
+              title={a.keep}
+              variant="link"
+              disabled={deleting}
+              onPress={() => {
+                setConfirming(false);
+                setAccountFailed(false);
+              }}
+            />
           </View>
         ) : (
           <Button title={a.deleteAll} variant="ghost" onPress={() => setConfirming(true)} />
         )}
-        {error ? (
-          <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
-            {error}
-          </ThemedText>
-        ) : null}
 
         <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
           <ThemedText type="heading">{t.methods.accountHeading}</ThemedText>

@@ -722,13 +722,15 @@ export const fr: Strings = {
     dataBody:
       'Tout ce que tu saisis reste sur cet appareil. Pas de compte, pas de pub, pas de pistage. Ton estimation est calculée ici même, sur ton téléphone ou dans ton navigateur.',
     guestNote: (guest) =>
-      `Tu as aussi un ${guest ? 'compte invité' : 'compte connecté'} d’un test précédent. Il ne contient qu’un profil vide ; la suppression ci-dessous t’en déconnecte.`,
+      `Tu as aussi un ${guest ? 'compte invité' : 'compte connecté'} d’un test précédent. Il ne contient qu’un profil vide ; la suppression ci-dessous l’efface aussi.`,
     confirm:
       'Cela efface tes réponses, les personnes et les choses que tu aimes, et tout le reste sur cet appareil. C’est irréversible.',
     yesDelete: 'Oui, tout effacer',
     keep: 'Garder mes données',
     deleteAll: 'Tout effacer sur cet appareil',
-    signOutFailed: 'Impossible de se déconnecter.',
+    accountFailed:
+      'Impossible de joindre le serveur pour effacer ton compte du test précédent, donc rien n’a encore été effacé. Tu peux réessayer, ou effacer seulement sur cet appareil ; le compte vide restera alors jusqu’à ce que tu nous écrives pour l’effacer.',
+    deviceOnly: 'Effacer seulement sur cet appareil',
     exportButton: 'Télécharger mes données',
     exportNote: 'Une copie de tout ce que l’app garde sur cet appareil, dans un fichier lisible avec n’importe quel éditeur de texte.',
     exportDone: (name: string) => `Ta copie est prête : ${name}. Elle contient tes réponses de santé : garde-la dans un endroit privé.`,
