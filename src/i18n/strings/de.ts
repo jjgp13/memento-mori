@@ -775,6 +775,17 @@ export const de: Strings = {
     lived: { what: 'schon gelebte Wochenenden', sub: 'Manche waren wunderbar. Sei dankbar dafür, und mach Platz für mehr.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'Eine Geschichte',
+    practice: 'Eine Übung',
+    retoldFrom: (cite: string) => `Nacherzählt nach ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Du könntest',
+    someoneYouLove: 'einen Menschen, den du liebst',
+    readIn: (translator: string) => `In der Übersetzung von ${translator} lesen`,
+    ourTranslation: (translator: string, year: string) => `Unsere Übersetzung, nach der englischen von ${translator} (${year})`,
+  },
   opening: {
     lookBack: 'Zurückblicken',
     todaysCount: 'Die Zahl des Tages',
@@ -988,6 +999,8 @@ export const de: Strings = {
       oneill2015: 'Katzen: mittlere Lebensdauer 14 Jahre.',
     },
     quotesHeading: 'Zitate',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Zitate, Geschichten und Übungen von Menschen, die vor uns gelebt haben. Jedes Zitat stammt aus einer dieser gemeinfreien Übersetzungen und nennt die genaue Stelle; Geschichten erzählen wir mit eigenen Worten nach.',
     quotes:
       'Mark Aurel (Selbstbetrachtungen, engl. Übers. George Long, 1862), Seneca (Briefe und Von der Kürze des Lebens, engl. Übers. Richard M. Gummere, 1917–25, u. a.) und Epiktet (Handbüchlein, engl. Übers. Thomas Wentworth Higginson, 1865). Gemeinfreie Übersetzungen, teils leicht angepasst.',
     footnote:

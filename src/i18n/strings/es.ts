@@ -742,28 +742,6 @@ export const es: Strings = {
   },
 
   daily: {
-    quotes: [
-      ['No vivas como si fueras a vivir diez mil años. Mientras vivas, mientras esté en tu poder, sé bueno.', 'Marco Aurelio · Meditaciones IV.17'],
-      ['Mientras aplazamos las cosas, la vida pasa de prisa.', 'Séneca · Cartas 1'],
-      ['Piensa que ya has muerto, que ya viviste tu vida. Ahora toma lo que te queda y vívelo como se debe.', 'Marco Aurelio · Meditaciones VII.56'],
-      ['Preparemos el ánimo como si hubiéramos llegado al final de la vida. No aplacemos nada.', 'Séneca · Cartas 101'],
-      ['No es que tengamos poco tiempo para vivir, sino que desperdiciamos mucho.', 'Séneca · Sobre la brevedad de la vida'],
-      ['Ten cada día ante tus ojos la muerte, y nunca tendrás un pensamiento mezquino.', 'Epicteto · Enquiridión 21'],
-      ['Cada quien vive solo este momento presente. Todo lo demás ya pasó o es incierto.', 'Marco Aurelio · Meditaciones III.10'],
-      ['Empieza ya a vivir, y cuenta cada día como una vida aparte.', 'Séneca · Cartas 101'],
-      ['Podrías dejar la vida ahora mismo. Que eso decida lo que haces, dices y piensas.', 'Marco Aurelio · Meditaciones II.11'],
-      ['Nadie es libre si no es dueño de sí mismo.', 'Epicteto · Fragmentos'],
-    ],
-    questions: [
-      '¿Qué haría que el día de hoy valiera la pena?',
-      '¿Quién merece hoy toda tu atención?',
-      '¿Qué estás aplazando que lamentarías no haber hecho nunca?',
-      '¿Qué está hoy en tus manos y qué no?',
-      'Si este fuera tu último {day} normal, ¿qué dejarías igual?',
-      '¿Qué harías hoy si no tuvieras miedo?',
-      '¿Qué puedes soltar hoy?',
-      '¿Por qué quieres que te recuerden, y el día de hoy te acercó a eso?',
-    ],
     loveSub: (pace) => `${pace}, en el tiempo que probablemente tienes.`,
     weekends: { what: 'fines de semana más', sub: 'Cada uno es un sábado y un domingo que puedes vivir con intención.' },
     summers: { what: 'veranos más', sub: 'Tardes largas. Noches tibias. No son infinitos.' },
@@ -771,6 +749,17 @@ export const es: Strings = {
     lived: { what: 'fines de semana ya vividos', sub: 'Algunos fueron maravillosos. Agradece esos, y haz espacio para más.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries are in src/lib/wisdom-data.ts and wisdom-<lang>.ts. */
+  wisdom: {
+    story: 'Una historia',
+    practice: 'Una práctica',
+    retoldFrom: (cite: string) => `Contado a partir de ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Podrías',
+    someoneYouLove: 'alguien que quieres',
+    readIn: (translator: string) => `Léelo (en inglés) en la traducción de ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Traducción nuestra, de la versión inglesa de ${translator} (${year})`,
+  },
   opening: {
     lookBack: 'Mira atrás',
     todaysCount: 'La cuenta de hoy',
@@ -981,6 +970,8 @@ export const es: Strings = {
       oneill2015: 'Gatos: longevidad mediana de 14 años.',
     },
     quotesHeading: 'Citas',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Citas, historias y prácticas de personas que vivieron antes que nosotros. Eclesiastés y los Salmos citan la Reina-Valera 1909 palabra por palabra; el resto es nuestra traducción de estas traducciones inglesas de dominio público, y cada cita indica el lugar exacto. Las historias las contamos con nuestras palabras.',
     quotes:
       'Marco Aurelio (Meditaciones, trad. al inglés de George Long, 1862), Séneca (Cartas y Sobre la brevedad de la vida, trad. al inglés de Richard M. Gummere, 1917–25, y otros) y Epicteto (Enquiridión, trad. al inglés de Thomas Wentworth Higginson, 1865). Traducciones de dominio público, algunas ligeramente adaptadas.',
     footnote:

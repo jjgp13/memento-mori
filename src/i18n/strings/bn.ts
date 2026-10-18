@@ -763,6 +763,17 @@ export const bn: Strings = {
     lived: { what: 'সপ্তাহান্ত কেটে গেছে', sub: 'তার কিছু ছিল চমৎকার। সেগুলোর জন্য কৃতজ্ঞ থাকুন, আর আরও কিছুর জন্য জায়গা রাখুন।' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'একটি গল্প',
+    practice: 'একটি অনুশীলন',
+    retoldFrom: (cite: string) => `${cite} থেকে পুনর্কথিত`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'চাইলে আপনি',
+    someoneYouLove: 'প্রিয় কেউ',
+    readIn: (translator: string) => `${translator}-এর অনুবাদে পড়ুন`,
+    ourTranslation: (translator: string, year: string) => `আমাদের অনুবাদ, ${translator}-এর ইংরেজি অনুবাদ (${year}) থেকে`,
+  },
   opening: {
     lookBack: 'পেছনে তাকান',
     todaysCount: 'আজকের হিসাব',
@@ -972,6 +983,8 @@ export const bn: Strings = {
       oneill2015: 'বিড়াল: মধ্যমা আয়ু 14 বছর।',
     },
     quotesHeading: 'উদ্ধৃতি',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'আমাদের আগে যাঁরা বেঁচে ছিলেন, তাঁদের উক্তি, গল্প ও অনুশীলন। প্রতিটি উক্তি এই পাবলিক-ডোমেইন অনুবাদগুলোর একটি থেকে নেওয়া, সঠিক স্থান উল্লেখসহ; গল্পগুলো আমাদের নিজের ভাষায় বলা।',
     quotes:
       'মার্কাস অরেলিয়াস (Meditations, জর্জ লং-এর ইংরেজি অনুবাদ, 1862), সেনেকা (Letters ও On the Shortness of Life, রিচার্ড এম. গামেয়ারের ইংরেজি অনুবাদ, 1917–25, ও অন্যান্য) এবং এপিকটেটাস (Enchiridion, টমাস ওয়েন্টওয়ার্থ হিগিনসনের ইংরেজি অনুবাদ, 1865)। পাবলিক ডোমেইনের অনুবাদ, কয়েকটি সামান্য বদলানো।',
     footnote:

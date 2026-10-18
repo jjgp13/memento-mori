@@ -13,13 +13,15 @@ import { Fonts, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
 import { dec1, fmt } from '@/i18n/format';
-import { impactAgency, todaysImpact, todaysQuestion, todaysQuote } from '@/lib/daily';
+import { TodaysWords } from '@/components/wisdom-card';
+import { impactAgency, todaysImpact } from '@/lib/daily';
 import { gentleCount } from '@/components/todays-count';
 import { usePrefs } from '@/lib/prefs';
 import type { Profile } from '@/lib/profile';
 
 /**
- * Every open: today's count (often someone they love), then a Stoic quote and question, then the
+ * Every open: today's count (often someone they love), then words from someone who lived before us
+ * and a question (src/lib/wisdom.ts), then the
  * calendar. One tap moves on; Skip closes it.
  */
 export function OpeningSequence({ profile, onClose }: { profile: Profile; onClose: () => void }) {
@@ -31,8 +33,6 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
 
   const impact = todaysImpact(profile, t, now);
   const agency = impactAgency(profile, impact, now);
-  const quote = todaysQuote(t, now);
-  const question = todaysQuestion(t, now);
 
   const cards = [
     <Stagger key="impact">
@@ -54,13 +54,7 @@ export function OpeningSequence({ profile, onClose }: { profile: Profile; onClos
     </Stagger>,
     <Stagger key="quote">
       <ThemedText type="eyebrow">{t.opening.today}</ThemedText>
-      <View style={[styles.quote, { borderLeftColor: theme.accent }]}>
-        <ThemedText type="quote">{quote.text}</ThemedText>
-        <ThemedText type="eyebrow" themeColor="muted" style={styles.cite}>
-          {quote.source}
-        </ThemedText>
-      </View>
-      <ThemedText style={styles.question}>{question}</ThemedText>
+      <TodaysWords profile={profile} now={now} love={impact.love} questionStyle={styles.question} />
       <ThemedText type="eyebrow" themeColor="muted">
         {t.opening.tapToSee}
       </ThemedText>
@@ -151,14 +145,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingTop: 14,
     gap: 6,
-  },
-  quote: {
-    borderLeftWidth: 2,
-    paddingLeft: 18,
-    gap: 12,
-  },
-  cite: {
-    letterSpacing: 0.8,
   },
   question: {
     fontFamily: Fonts.display,

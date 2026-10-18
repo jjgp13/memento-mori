@@ -741,6 +741,17 @@ export const zh: Strings = {
     lived: { what: '个已经度过的周末', sub: '其中有些很美好。为它们心怀感激，并为更多的美好腾出空间。' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: '一个故事',
+    practice: '一个练习',
+    retoldFrom: (cite: string) => `改写自 ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: '你可以',
+    someoneYouLove: '你爱的人',
+    readIn: (translator: string) => `阅读 ${translator} 的译本`,
+    ourTranslation: (translator: string, year: string) => `我们的译文，译自 ${translator} 的英译本（${year}）`,
+  },
   opening: {
     lookBack: '回望',
     todaysCount: '今天的数字',
@@ -941,6 +952,8 @@ export const zh: Strings = {
       oneill2015: '猫：寿命中位数 14 年。',
     },
     quotesHeading: '引文',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: '前人留下的话语、故事和练习。每条引文都出自以下某个公有领域译本，并注明确切出处；故事由我们用自己的话复述。',
     quotes:
       '马可·奥勒留（《沉思录》，George Long 英译，1862 年）、塞涅卡（《书信集》和《论生命之短暂》，Richard M. Gummere 等英译，1917–25 年）以及爱比克泰德（《手册》，Thomas Wentworth Higginson 英译，1865 年）。均为公有领域译本，部分略有改编。',
     footnote:

@@ -742,6 +742,17 @@ export const ja: Strings = {
     lived: { what: 'すでに過ごした週末', sub: '中にはすばらしい週末もありました。それに感謝し、もっと多くのための余白をつくりましょう。' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'ある物語',
+    practice: 'ひとつの実践',
+    retoldFrom: (cite: string) => `${cite} より再話`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'できること：',
+    someoneYouLove: '大切な人',
+    readIn: (translator: string) => `${translator} の翻訳で読む`,
+    ourTranslation: (translator: string, year: string) => `${translator} の英訳（${year}）からの私たちの訳`,
+  },
   opening: {
     lookBack: 'ふりかえる',
     todaysCount: '今日のかず',
@@ -943,6 +954,8 @@ export const ja: Strings = {
       oneill2015: '猫：寿命の中央値14年。',
     },
     quotesHeading: '引用',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: '先人たちの言葉、物語、実践。引用はすべて以下のパブリックドメインの翻訳のいずれかから取り、正確な箇所を示しています。物語は私たちの言葉で語り直しています。',
     quotes:
       'マルクス・アウレリウス（『自省録』、ジョージ・ロングによる英訳、1862年）、セネカ（『書簡』『人生の短さについて』、リチャード・M・ガミアによる英訳、1917〜25年、ほか）、エピクテトス（『提要』、トマス・ウェントワース・ヒギンソンによる英訳、1865年）。パブリックドメインの翻訳で、一部を少し調整しています。',
     footnote:

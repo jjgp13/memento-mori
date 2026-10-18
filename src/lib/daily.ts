@@ -1,8 +1,8 @@
 /**
  * What the app shows on each open: one "count" (an impact card) and the day's quote and question.
- * Bundled with the app, so it works offline and needs no account; the phrases library can move to a
- * database later. Ported from impactPool() and QUOTES/QUESTIONS in prototype/index.html; the quotes and
- * questions themselves are in the language catalogs (src/i18n), under `daily`.
+ * Ported from impactPool() and QUOTES/QUESTIONS in prototype/index.html. In English the quote and
+ * question come from the verified wisdom library (src/lib/wisdom.ts, docs/wisdom.md) in every language
+ * that has it; the others use the short lists in their catalogs (src/i18n, under `daily`) until then.
  */
 import type { Strings } from '@/i18n/strings/en';
 import { bestLever } from '@/lib/habit-impact';
@@ -15,14 +15,17 @@ export function dayOfYear(now = Date.now()) {
   return Math.floor((now - new Date(d.getFullYear(), 0, 0).getTime()) / DAY_MS);
 }
 
+/** The catalog's fallback quote, or null in a language that has the wisdom library instead. */
 export function todaysQuote(t: Strings, now = Date.now()) {
   const quotes = t.daily.quotes;
+  if (!quotes?.length) return null;
   const [text, source] = quotes[dayOfYear(now) % quotes.length];
   return { text, source };
 }
 
 export function todaysQuestion(t: Strings, now = Date.now()) {
   const questions = t.daily.questions;
+  if (!questions?.length) return null;
   const weekday = t.date.weekdays[new Date(now).getDay()];
   return questions[dayOfYear(now) % questions.length].replace('{day}', weekday);
 }

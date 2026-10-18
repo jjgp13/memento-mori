@@ -21,6 +21,11 @@ export type Prefs = {
   planNudgeDismissedAt: number;
   /** When today's fresh-start offer was waved off. */
   freshStartDismissedAt: number;
+  /** Local date ("2026-10-15") of the wisdom entry picked for today, so every screen shows the same one. */
+  wisdomDay: string;
+  wisdomId: string;
+  /** Wisdom entries already shown, most recent first, so they don't come back for a while. */
+  wisdomSeen: string[];
   /** Which Terms/policies version they agreed to at the start of onboarding (LEGAL_VERSION), and when. */
   agreedVersion: string;
   agreedAt: number;
@@ -37,6 +42,9 @@ const DEFAULTS: Prefs = {
   lastSeen: 0,
   planNudgeDismissedAt: 0,
   freshStartDismissedAt: 0,
+  wisdomDay: '',
+  wisdomId: '',
+  wisdomSeen: [],
   agreedVersion: '',
   agreedAt: 0,
   disclaimerAt: 0,
@@ -56,7 +64,12 @@ function read(): Prefs {
 export const getPrefs = () => current;
 
 export function setPref<K extends keyof Prefs>(key: K, value: Prefs[K]) {
-  current = { ...current, [key]: value };
+  setPrefs({ [key]: value } as Partial<Prefs>);
+}
+
+/** Several settings at once, with one save and one re-render. */
+export function setPrefs(next: Partial<Prefs>) {
+  current = { ...current, ...next };
   try {
     localStorage.setItem(KEY, JSON.stringify(current));
   } catch {

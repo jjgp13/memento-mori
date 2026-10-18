@@ -18,6 +18,13 @@ const list = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1)
 
 const PER: Record<Per, string> = { day: 'a day', week: 'a week', month: 'a month', year: 'a year' };
 
+/**
+ * A short quote list and question list for the opening and Today, only in languages whose wisdom library
+ * isn't translated yet (docs/wisdom.md §5). English and Spanish have the library, so they leave it out.
+ * `{day}` in a question becomes today's weekday.
+ */
+type DailyFallback = { quotes?: [text: string, source: string][]; questions?: string[] };
+
 export const en = {
   common: {
     back: '← Back',
@@ -781,30 +788,7 @@ export const en = {
   },
 
   daily: {
-    /** Public-domain Stoic sources (Long 1862, Gummere 1917–25, Higginson 1865 translations; some lightly adapted). */
-    quotes: [
-      ['Do not act as if you had ten thousand years to live. While you live, while it is in your power, be good.', 'Marcus Aurelius · Meditations IV.17'],
-      ['While we are postponing, life speeds by.', 'Seneca · Letters 1'],
-      ['Think of yourself as dead. You have lived your life. Now take what is left and live it properly.', 'Marcus Aurelius · Meditations VII.56'],
-      ['Let us prepare our minds as if we had come to the very end of life. Let us postpone nothing.', 'Seneca · Letters 101'],
-      ['It is not that we have a short time to live, but that we waste much of it.', 'Seneca · On the Shortness of Life'],
-      ['Let death be daily before your eyes, and you will never have an abject thought.', 'Epictetus · Enchiridion 21'],
-      ['Every man lives only this present moment. All the rest is either past or uncertain.', 'Marcus Aurelius · Meditations III.10'],
-      ['Begin at once to live, and count each separate day as a separate life.', 'Seneca · Letters 101'],
-      ['You could leave life right now. Let that decide what you do and say and think.', 'Marcus Aurelius · Meditations II.11'],
-      ['No man is free who is not master of himself.', 'Epictetus · Fragments'],
-    ] as [text: string, source: string][],
-    /** `{day}` becomes today's weekday. */
-    questions: [
-      'What would make today worth it?',
-      'Who deserves your full attention today?',
-      'What are you postponing that you would regret never doing?',
-      'What is in your control today, and what is not?',
-      'If this were your last ordinary {day}, what would you keep the same?',
-      'What would you do today if you were not afraid?',
-      'What can you let go of today?',
-      'What do you want to be remembered for, and did today move you toward it?',
-    ],
+    ...({} as DailyFallback),
     loveSub: (pace: string) => `At ${pace}, over the time you likely have.`,
     weekends: { what: 'more weekends', sub: 'Each one is a Saturday and a Sunday you get to spend on purpose.' },
     summers: { what: 'more summers', sub: 'Long evenings. Warm nights. Not unlimited.' },
@@ -812,6 +796,18 @@ export const en = {
     lived: { what: 'weekends already lived', sub: 'Some of them were wonderful. Be grateful for those, and make room for more.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries are in src/lib/wisdom-data.ts and wisdom-<lang>.ts. */
+  wisdom: {
+    story: 'A story',
+    practice: 'A practice',
+    retoldFrom: (cite: string) => `Retold from ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'You could',
+    someoneYouLove: 'someone you love',
+    readIn: (translator: string) => `Read it in ${translator}'s translation`,
+    /** Under a quote we translated ourselves from the English translation the library quotes. */
+    ourTranslation: (translator: string, year: string) => `Our translation, from ${translator}'s English (${year})`,
+  },
   opening: {
     lookBack: 'Look back',
     todaysCount: "Today's count",
@@ -1039,6 +1035,8 @@ export const en = {
       oneill2015: 'Cats: median longevity 14 years.',
     } satisfies Record<StudyId, string>,
     quotesHeading: 'Quotes',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Quotes, stories and practices from people who lived before us. Every quote is taken word for word from one of these public-domain translations and cited to the exact place; stories are retold in our own words.',
     quotes:
       'Marcus Aurelius (Meditations, tr. George Long, 1862), Seneca (Letters and On the Shortness of Life, tr. Richard M. Gummere, 1917–25, and others) and Epictetus (Enchiridion, tr. Thomas Wentworth Higginson, 1865). Public-domain translations, some lightly adapted.',
     footnote:

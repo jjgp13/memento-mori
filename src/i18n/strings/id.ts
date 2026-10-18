@@ -767,6 +767,17 @@ export const id: Strings = {
     lived: { what: 'akhir pekan sudah dijalani', sub: 'Sebagian di antaranya indah. Syukuri itu, dan beri ruang untuk lebih banyak lagi.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'Sebuah kisah',
+    practice: 'Sebuah latihan',
+    retoldFrom: (cite: string) => `Diceritakan ulang dari ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Kamu bisa',
+    someoneYouLove: 'seseorang yang kamu sayangi',
+    readIn: (translator: string) => `Baca dalam terjemahan ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Terjemahan kami, dari terjemahan bahasa Inggris ${translator} (${year})`,
+  },
   opening: {
     lookBack: 'Menengok ke belakang',
     todaysCount: 'Hitungan hari ini',
@@ -978,6 +989,8 @@ export const id: Strings = {
       oneill2015: 'Kucing: median umur 14 tahun.',
     },
     quotesHeading: 'Kutipan',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Kutipan, kisah, dan latihan dari orang-orang yang hidup sebelum kita. Setiap kutipan diambil dari salah satu terjemahan domain publik ini dan menyebut letak persisnya; kisah diceritakan ulang dengan kata-kata kami.',
     quotes:
       'Marcus Aurelius (Meditations, terj. Inggris George Long, 1862), Seneca (Surat-surat dan Tentang Singkatnya Hidup, terj. Inggris Richard M. Gummere, 1917–25, dan lainnya), serta Epictetus (Enchiridion, terj. Inggris Thomas Wentworth Higginson, 1865). Terjemahan domain publik, sebagian sedikit disesuaikan.',
     footnote:

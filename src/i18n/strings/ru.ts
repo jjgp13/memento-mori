@@ -773,6 +773,17 @@ export const ru: Strings = {
     lived: { what: 'выходных уже прожито', sub: 'Некоторые были чудесными. Будь благодарен(-на) за них и оставь место для новых.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'История',
+    practice: 'Практика',
+    retoldFrom: (cite: string) => `Пересказ по: ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Можно',
+    someoneYouLove: 'близкий человек',
+    readIn: (translator: string) => `Читать в переводе: ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Наш перевод с английского перевода: ${translator} (${year})`,
+  },
   opening: {
     lookBack: 'Оглянуться назад',
     todaysCount: 'Счёт дня',
@@ -984,6 +995,8 @@ export const ru: Strings = {
       oneill2015: 'Кошки: медианная продолжительность жизни 14 лет.',
     },
     quotesHeading: 'Цитаты',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Цитаты, истории и практики людей, живших до нас. Каждая цитата взята из одного из этих переводов, перешедших в общественное достояние, с точным указанием места; истории пересказаны своими словами.',
     quotes:
       'Марк Аврелий («Размышления», англ. пер. Джорджа Лонга, 1862), Сенека («Письма» и «О скоротечности жизни», англ. пер. Ричарда М. Гаммира, 1917–25, и другие) и Эпиктет («Энхиридион», англ. пер. Томаса Уэнтворта Хиггинсона, 1865). Переводы в общественном достоянии, некоторые слегка адаптированы.',
     footnote:

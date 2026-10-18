@@ -762,6 +762,17 @@ export const hi: Strings = {
     lived: { what: 'वीकेंड जो बीत चुके हैं', sub: 'उनमें से कुछ बहुत सुंदर थे। उनके लिए आभारी रहें, और और के लिए जगह बनाएँ।' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'एक कहानी',
+    practice: 'एक अभ्यास',
+    retoldFrom: (cite: string) => `${cite} से पुनर्कथित`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'आप चाहें तो',
+    someoneYouLove: 'कोई अपना',
+    readIn: (translator: string) => `${translator} के अनुवाद में पढ़ें`,
+    ourTranslation: (translator: string, year: string) => `हमारा अनुवाद, ${translator} के अंग्रेज़ी अनुवाद (${year}) से`,
+  },
   opening: {
     lookBack: 'पीछे मुड़कर देखें',
     todaysCount: 'आज की गिनती',
@@ -971,6 +982,8 @@ export const hi: Strings = {
       oneill2015: 'बिल्लियाँ: माध्यिका उम्र 14 साल।',
     },
     quotesHeading: 'उद्धरण',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'हमसे पहले जी चुके लोगों के उद्धरण, कहानियाँ और अभ्यास। हर उद्धरण इन सार्वजनिक-डोमेन अनुवादों में से किसी एक से लिया गया है और उसका सटीक स्थान दिया गया है; कहानियाँ हमारे अपने शब्दों में हैं।',
     quotes:
       'मार्कस ऑरेलियस (Meditations, जॉर्ज लॉन्ग का अंग्रेज़ी अनुवाद, 1862), सेनेका (Letters और On the Shortness of Life, रिचर्ड एम. गमेयर का अंग्रेज़ी अनुवाद, 1917–25, और अन्य) और एपिक्टेटस (Enchiridion, थॉमस वेंटवर्थ हिगिन्सन का अंग्रेज़ी अनुवाद, 1865)। सार्वजनिक डोमेन के अनुवाद, कुछ हल्के बदलाव के साथ।',
     footnote:

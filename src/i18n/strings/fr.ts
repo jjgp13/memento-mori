@@ -771,6 +771,17 @@ export const fr: Strings = {
     lived: { what: 'week-ends déjà vécus', sub: 'Certains étaient merveilleux. Sois reconnaissant·e pour ceux-là, et fais de la place pour d’autres.' },
   },
 
+  /** Words from people who lived before us (src/lib/wisdom.ts). The entries themselves are English for now. */
+  wisdom: {
+    story: 'Une histoire',
+    practice: 'Une pratique',
+    retoldFrom: (cite: string) => `Raconté d’après ${cite}`,
+    /** Comes before an action, e.g. "You could" + "call Mom today." */
+    youCould: 'Tu pourrais',
+    someoneYouLove: 'quelqu’un que tu aimes',
+    readIn: (translator: string) => `À lire dans la traduction de ${translator}`,
+    ourTranslation: (translator: string, year: string) => `Notre traduction, d'après la version anglaise de ${translator} (${year})`,
+  },
   opening: {
     lookBack: 'Regarder en arrière',
     todaysCount: 'Le compte du jour',
@@ -981,6 +992,8 @@ export const fr: Strings = {
       oneill2015: 'Chats : longévité médiane de 14 ans.',
     },
     quotesHeading: 'Citations',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Citations, histoires et pratiques de personnes qui ont vécu avant nous. Chaque citation vient de l’une de ces traductions du domaine public et indique l’endroit exact ; les histoires sont racontées avec nos mots.',
     quotes:
       'Marc Aurèle (Pensées, trad. anglaise de George Long, 1862), Sénèque (Lettres et De la brièveté de la vie, trad. anglaise de Richard M. Gummere, 1917–25, entre autres) et Épictète (Manuel, trad. anglaise de Thomas Wentworth Higginson, 1865). Traductions du domaine public, parfois légèrement adaptées.',
     footnote:
