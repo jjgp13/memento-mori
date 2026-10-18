@@ -742,6 +742,11 @@ export const fr: Strings = {
     accountFailed:
       'Impossible de joindre le serveur pour effacer ton compte du test précédent, donc rien n’a encore été effacé. Tu peux réessayer, ou effacer seulement sur cet appareil ; le compte vide restera alors jusqu’à ce que tu nous écrives pour l’effacer.',
     deviceOnly: 'Effacer seulement sur cet appareil',
+    exportButton: 'Télécharger mes données',
+    exportNote: 'Une copie de tout ce que l’app garde sur cet appareil, dans un fichier lisible avec n’importe quel éditeur de texte.',
+    exportDone: (name: string) => `Ta copie est prête : ${name}. Elle contient tes réponses de santé : garde-la dans un endroit privé.`,
+    exportFailed: 'Impossible de créer le fichier. Réessaie.',
+    exportAbout: 'Tout ce que Memento Mori garde sur cet appareil. « profile » contient tes réponses et ce que tu aimes ; « settings », les petits réglages de l’app.',
     disclaimer:
       'Les estimations viennent d’études de population. Elles indiquent une direction et un ordre de grandeur, pas une promesse, et ne sont pas un avis médical.',
   },

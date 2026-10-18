@@ -743,6 +743,11 @@ export const pt: Strings = {
     accountFailed:
       'Não conseguimos falar com o servidor para apagar sua conta do teste anterior, então nada foi apagado ainda. Você pode tentar de novo ou apagar só neste aparelho; a conta vazia fica até você nos escrever pedindo para apagá-la.',
     deviceOnly: 'Apagar só neste aparelho',
+    exportButton: 'Baixar meus dados',
+    exportNote: 'Uma cópia de tudo o que o app guarda neste aparelho, num arquivo que você abre em qualquer editor de texto.',
+    exportDone: (name: string) => `Sua cópia está pronta: ${name}. Ela tem suas respostas de saúde, então guarde-a em um lugar privado.`,
+    exportFailed: 'Não foi possível criar o arquivo. Tente de novo.',
+    exportAbout: 'Tudo o que o Memento Mori guarda neste aparelho. "profile" tem suas respostas e o que você ama; "settings", pequenos ajustes do app.',
     disclaimer:
       'As estimativas vêm de estudos populacionais. Mostram a direção e o tamanho aproximado, não são uma promessa nem orientação médica.',
   },
