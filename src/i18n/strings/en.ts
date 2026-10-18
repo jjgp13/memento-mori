@@ -856,6 +856,8 @@ export const en = {
       oneill2015: 'Cats: median longevity 14 years.',
     } satisfies Record<StudyId, string>,
     quotesHeading: 'Quotes',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Quotes, stories and practices from people who lived before us. Every quote is taken word for word from one of these public-domain translations and cited to the exact place; stories are retold in our own words.',
     quotes:
       'Marcus Aurelius (Meditations, tr. George Long, 1862), Seneca (Letters and On the Shortness of Life, tr. Richard M. Gummere, 1917–25, and others) and Epictetus (Enchiridion, tr. Thomas Wentworth Higginson, 1865). Public-domain translations, some lightly adapted.',
     footnote:

@@ -826,6 +826,8 @@ export const fr: Strings = {
       oneill2015: 'Chats : longévité médiane de 14 ans.',
     },
     quotesHeading: 'Citations',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Citations, histoires et pratiques de personnes qui ont vécu avant nous. Chaque citation vient de l’une de ces traductions du domaine public et indique l’endroit exact ; les histoires sont racontées avec nos mots.',
     quotes:
       'Marc Aurèle (Pensées, trad. anglaise de George Long, 1862), Sénèque (Lettres et De la brièveté de la vie, trad. anglaise de Richard M. Gummere, 1917–25, entre autres) et Épictète (Manuel, trad. anglaise de Thomas Wentworth Higginson, 1865). Traductions du domaine public, parfois légèrement adaptées.',
     footnote:

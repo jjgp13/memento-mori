@@ -821,6 +821,8 @@ export const id: Strings = {
       oneill2015: 'Kucing: median umur 14 tahun.',
     },
     quotesHeading: 'Kutipan',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Kutipan, kisah, dan latihan dari orang-orang yang hidup sebelum kita. Setiap kutipan diambil dari salah satu terjemahan domain publik ini dan menyebut letak persisnya; kisah diceritakan ulang dengan kata-kata kami.',
     quotes:
       'Marcus Aurelius (Meditations, terj. Inggris George Long, 1862), Seneca (Surat-surat dan Tentang Singkatnya Hidup, terj. Inggris Richard M. Gummere, 1917–25, dan lainnya), serta Epictetus (Enchiridion, terj. Inggris Thomas Wentworth Higginson, 1865). Terjemahan domain publik, sebagian sedikit disesuaikan.',
     footnote:

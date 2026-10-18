@@ -143,6 +143,12 @@ export function wisdomCite(w: Wisdom, lang: Lang) {
 }
 
 /** Where to read it in full: the exact letter or chapter when the source is split that way. */
+/** The translations a language's library quotes, in the order they first appear (for the Sources screen). */
+export function librarySources(library: Wisdom[]) {
+  const keys = [...new Set(library.map((w) => w.source))];
+  return keys.map((key) => ({ key, ...SOURCES[key] }));
+}
+
 export function wisdomSource(w: Wisdom, t: Strings) {
   const s = SOURCES[w.source];
   let url = s.url;

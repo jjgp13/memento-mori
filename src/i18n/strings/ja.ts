@@ -795,6 +795,8 @@ export const ja: Strings = {
       oneill2015: '猫：寿命の中央値14年。',
     },
     quotesHeading: '引用',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: '先人たちの言葉、物語、実践。引用はすべて以下のパブリックドメインの翻訳のいずれかから取り、正確な箇所を示しています。物語は私たちの言葉で語り直しています。',
     quotes:
       'マルクス・アウレリウス（『自省録』、ジョージ・ロングによる英訳、1862年）、セネカ（『書簡』『人生の短さについて』、リチャード・M・ガミアによる英訳、1917〜25年、ほか）、エピクテトス（『提要』、トマス・ウェントワース・ヒギンソンによる英訳、1865年）。パブリックドメインの翻訳で、一部を少し調整しています。',
     footnote:

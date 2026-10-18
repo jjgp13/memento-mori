@@ -827,6 +827,8 @@ export const pt: Strings = {
       oneill2015: 'Gatos: longevidade mediana de 14 anos.',
     },
     quotesHeading: 'Citações',
+    /** Above the list of translations the wisdom library quotes, in languages that have the library. */
+    wisdomIntro: 'Citações, histórias e práticas de pessoas que viveram antes de nós. Cada citação vem de uma destas traduções em domínio público e indica o lugar exato; as histórias são recontadas com nossas palavras.',
     quotes:
       'Marco Aurélio (Meditações, trad. inglesa de George Long, 1862), Sêneca (Cartas e Sobre a brevidade da vida, trad. inglesa de Richard M. Gummere, 1917–25, entre outras) e Epicteto (Encheirídion, trad. inglesa de Thomas Wentworth Higginson, 1865). Traduções em domínio público, algumas levemente adaptadas.',
     footnote:
