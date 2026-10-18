@@ -30,6 +30,7 @@ Without Supabase settings, sign-in is switched off and the app opens straight to
 6. **Authentication → Providers**:
    - **Google**: in Google Cloud Console, create an OAuth client (Web application) with JavaScript origins `https://jjgp13.github.io` and `http://localhost:8081` and redirect URI `https://<project-ref>.supabase.co/auth/v1/callback`; publish the consent screen so anyone can sign in. Paste the client ID and secret into Supabase, then set `google: true` in `SIGN_IN_METHODS`.
    - **Apple**: needs an Apple Developer account (Services ID, key, team ID). Before App Store review, switch iOS to native Sign in with Apple (`expo-apple-authentication` + `signInWithIdToken`), as noted in `src/lib/auth.ts`.
+7. **Account deletion:** deploy the Edge Function that "Delete everything on this device" calls for anyone with an account: `supabase functions deploy delete-account --project-ref <project-ref>` (keep JWT verification on, the default). It deletes the caller's auth user; their `profiles` row cascades. Until it is deployed, the You screen says it couldn't erase the account and offers to delete on the device only.
 
 ## Layout
 
@@ -45,6 +46,7 @@ src/lib/auth.ts          OAuth, email OTP, deep-link code exchange
 src/providers/           auth session context
 src/constants/theme.ts   colors and fonts from the prototype
 supabase/migrations/     SQL schema with row-level security
+supabase/functions/      Edge Functions (Deno): delete-account
 prototype/               original single-file web prototype
 ```
 

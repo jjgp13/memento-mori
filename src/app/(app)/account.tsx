@@ -4,12 +4,14 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/button';
+import { ScreenLink, SupportLine } from '@/components/disclaimer';
 import { LanguagePicker } from '@/components/language-picker';
 import { ThemedText } from '@/components/themed-text';
 import { MaxContentWidth, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useT } from '@/i18n';
-import { signOut } from '@/lib/auth';
+import { deleteAccount, signOutLocally } from '@/lib/auth';
+import { clearPrefs } from '@/lib/prefs';
 import { clearProfile } from '@/lib/profile';
 import { useAuth } from '@/providers/auth-provider';
 
@@ -23,18 +25,35 @@ export default function YouScreen() {
   const a = t.account;
   const { session } = useAuth();
   const [confirming, setConfirming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  /** The server couldn't erase the account; nothing has been deleted yet. */
+  const [accountFailed, setAccountFailed] = useState(false);
+
+  function clearDevice() {
+    // With no answers left, the app guard sends them back to onboarding.
+    clearPrefs();
+    clearProfile();
+  }
 
   async function deleteEverything() {
-    setError(null);
+    setAccountFailed(false);
+    setDeleting(true);
     try {
-      if (session) await signOut();
+      // An account from an early test is erased on the server first, so a failure leaves everything as it was.
+      if (session) await deleteAccount();
     } catch (e) {
-      setError(e instanceof Error ? e.message : a.signOutFailed);
+      console.warn('Account deletion failed', e);
+      setAccountFailed(true);
+      setDeleting(false);
       return;
     }
-    // With no answers left, the app guard sends them back to onboarding.
-    clearProfile();
+    clearDevice();
+  }
+
+  async function deleteOnDeviceOnly() {
+    setDeleting(true);
+    await signOutLocally();
+    clearDevice();
   }
 
   return (
@@ -70,19 +89,52 @@ export default function YouScreen() {
             <ThemedText type="small" themeColor="fg">
               {a.confirm}
             </ThemedText>
-            <Button title={a.yesDelete} onPress={deleteEverything} style={{ backgroundColor: theme.danger }} />
-            <Button title={a.keep} variant="link" onPress={() => setConfirming(false)} />
+            <Button
+              title={a.yesDelete}
+              onPress={deleteEverything}
+              loading={deleting}
+              style={{ backgroundColor: theme.danger }}
+            />
+            {accountFailed ? (
+              <>
+                <ThemedText type="small" themeColor="fg" accessibilityLiveRegion="polite">
+                  {a.accountFailed}
+                </ThemedText>
+                <Button title={a.deviceOnly} variant="ghost" disabled={deleting} onPress={deleteOnDeviceOnly} />
+              </>
+            ) : null}
+            <Button
+              title={a.keep}
+              variant="link"
+              disabled={deleting}
+              onPress={() => {
+                setConfirming(false);
+                setAccountFailed(false);
+              }}
+            />
           </View>
         ) : (
           <Button title={a.deleteAll} variant="ghost" onPress={() => setConfirming(true)} />
         )}
-        {error ? (
-          <ThemedText type="small" themeColor="danger" accessibilityLiveRegion="polite">
-            {error}
-          </ThemedText>
-        ) : null}
 
-        <ThemedText type="small">{a.disclaimer}</ThemedText>
+        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.line }]}>
+          <ThemedText type="heading">{t.methods.accountHeading}</ThemedText>
+          <ThemedText type="small" themeColor="fg">
+            {a.disclaimer}
+          </ThemedText>
+          <View style={styles.links}>
+            <ScreenLink href="/how-it-works" title={t.disclaimer.howItWorks} />
+            <ScreenLink href="/sources" title={t.disclaimer.sources} />
+          </View>
+        </View>
+
+        <View style={styles.links}>
+          <ScreenLink href="/legal/terms" title={t.legal.terms} />
+          <ScreenLink href="/legal/privacy" title={t.legal.privacy} />
+          <ScreenLink href="/legal/health-data" title={t.legal.health} />
+        </View>
+
+        <SupportLine />
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,5 +164,11 @@ const styles = StyleSheet.create({
   },
   confirm: {
     gap: 10,
+  },
+  links: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: 16,
+    rowGap: 4,
   },
 });

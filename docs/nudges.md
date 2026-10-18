@@ -150,6 +150,9 @@ Daily nags, streak shame, leaderboards, guilt, dark patterns, or tracking people
 ---
 
 ## Sources
+
+The studies the app cites in its copy are also in `src/lib/sources.ts`, which the in-app Sources screen and [sources.md](sources.md) are generated from.
+
 - Gollwitzer P.M., Sheeran P. Implementation intentions and goal achievement: a meta-analysis. *Adv Exp Soc Psychol* 2006. — [Konstanz](https://www.socmot.uni-konstanz.de/publications/implementation-intentions-and-goal-achievement-meta-analysis-effects-and-processes), [NCI](https://cancercontrol.cancer.gov/brp/research/constructs/implementation-intentions)
 - Klasnja P. et al. HeartSteps micro-randomized trial. *Ann Behav Med* 2018/19. — [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC6401341)
 - Bidargaddi N. et al. To prompt or not to prompt? Micro-randomized trial of push notifications. *JMIR mHealth* 2018. — [JMIR](https://mhealth.jmir.org/2018/11/e10123)

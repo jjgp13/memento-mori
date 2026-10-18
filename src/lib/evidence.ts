@@ -2,7 +2,10 @@
  * "What matters most": the ranked list on the Habits screen, condensed from docs/science.md.
  * Keep the two in step; numbers here are associations from population studies, not promises.
  * Titles, summaries and details are in the language catalogs (src/i18n), under `evidence`.
+ * Every source comes from the catalog in src/lib/sources.ts via cite(), so the Sources screen lists it.
  */
+import { cite, type Source } from '@/lib/sources';
+
 export type Strength = 'strong' | 'moderate' | 'emerging';
 
 export type EvidenceKey =
@@ -25,7 +28,9 @@ export type EvidenceKey =
 export type Evidence = {
   key: EvidenceKey;
   strength: Strength;
-  source: { label: string; url: string };
+  source: Source;
+  /** Other studies behind claims in the catalog's `detail`. */
+  also?: Source[];
   /** Already part of this app's estimate (vs. shown for direction only, for now). */
   inEstimate: boolean;
 };
@@ -34,67 +39,71 @@ export const WHAT_MATTERS: Evidence[] = [
   {
     key: 'smoking',
     strength: 'strong',
-    source: { label: 'Li et al., Circulation 2018', url: 'https://www.heart.org/en/news/2018/05/03/americans-could-live-up-to-14-years-longer-by-doing-five-things' },
+    source: cite('li2018'),
     inEstimate: true,
   },
   {
     key: 'moving',
     strength: 'strong',
-    source: { label: 'Paluch et al., Lancet Public Health 2022', url: 'https://doaj.org/article/c3639c468b4348958202e52793ab979d' },
+    source: cite('paluch2022'),
+    also: [cite('mandsager2018')],
     inEstimate: true,
   },
   {
     key: 'relationships',
     strength: 'strong',
-    source: { label: 'Holt-Lunstad et al., Perspectives on Psychological Science 2015', url: 'https://scholarsarchive.byu.edu/facpub/7516' },
+    source: cite('holtLunstad2015'),
+    also: [cite('holtLunstad2010'), cite('waldinger2016')],
     inEstimate: true,
   },
   {
     key: 'diet',
     strength: 'strong',
-    source: { label: 'Fadnes et al., PLOS Medicine 2022', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8824353' },
+    source: cite('fadnes2022'),
     inEstimate: false,
   },
   {
     key: 'weight',
     strength: 'strong',
-    source: { label: 'Li et al., BMJ 2020', url: 'https://www.bmj.com/content/368/bmj.l6669' },
+    source: cite('li2020'),
     inEstimate: true,
   },
   {
     key: 'strength',
     strength: 'moderate',
-    source: { label: 'Momma et al., Br J Sports Med 2022', url: 'https://bjsm.bmj.com/content/56/13/755' },
+    source: cite('momma2022'),
     inEstimate: true,
   },
   {
     key: 'purpose',
     strength: 'moderate',
-    source: { label: 'Cohen et al., Psychosomatic Medicine 2016', url: 'https://eurekalert.org/news-releases/529471' },
+    source: cite('cohen2016'),
+    also: [cite('lee2019')],
     inEstimate: false,
   },
   {
     key: 'sleep',
     strength: 'moderate',
-    source: { label: 'Cappuccio et al., Sleep 2010', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2864873/' },
+    source: cite('cappuccio2010'),
     inEstimate: true,
   },
   {
     key: 'alcohol',
     strength: 'moderate',
-    source: { label: 'Zhao et al., JAMA Network Open 2023', url: 'https://www.healio.com/news/primary-care/20230405/metaanalysis-alcohol-consumption-does-not-lower-allcause-mortality-risk' },
+    source: cite('zhao2023'),
     inEstimate: true,
   },
   {
     key: 'helping',
     strength: 'moderate',
-    source: { label: 'Okun et al., Psychology and Aging 2013', url: 'https://keep.lib.asu.edu/items/129666' },
+    source: cite('okun2013'),
     inEstimate: false,
   },
   {
     key: 'scrolling',
     strength: 'emerging',
-    source: { label: 'Allcott et al., American Economic Review 2020', url: 'https://www.aeaweb.org/doi/10.1257/aer.20190658' },
+    source: cite('allcott2020'),
+    also: [cite('hunt2018')],
     inEstimate: false,
   },
 ];
@@ -138,46 +147,55 @@ export const HEALTHY_LIFE_TABLES = {
 /** Where the baseline comes from: each country's life table (src/lib/country-tables.ts). */
 export const LIFE_TABLES = {
   /** The claim itself is in the language catalogs, under `claims`. */
-  source: { label: 'UN World Population Prospects 2024', url: 'https://population.un.org/wpp/' },
+  source: cite('wpp2024'),
 };
+
+/** The cap on combined gains (MAX_TOTAL_GAIN in src/lib/habit-impact.ts); the claim is `t.methods.capClaim`. */
+export const GAIN_CAP = { source: cite('li2018') };
+
+/** The model's shape: Gompertz's exponential rise with age, plus Makeham's constant term. */
+export const MODEL_SHAPE = [cite('gompertz1825'), cite('makeham1860')];
+
+/** Typical pet lifespans (PET_LIFESPAN in src/lib/loves.ts). */
+export const PET_LIFESPANS = [cite('mcmillan2024'), cite('oneill2013'), cite('oneill2015')];
+
+/** The phone question starts at 4 hours a day, near common (widely varying) estimates for US adults. */
+export const PHONE_TIME = { source: cite('phoneTime2025') };
 
 /** Behavior findings used in copy (see docs/nudges.md), not ranked as health factors. */
 export const REACHING_OUT = {
   /** The claim itself is `t.reach.claim`. */
-  source: { label: 'Liu et al., J Pers Soc Psychol 2023', url: 'https://www.apa.org/news/press/releases/2022/07/friends-enjoy-being-reached' },
+  source: cite('liu2023'),
 };
 
 /** If-then plans (docs/nudges.md §1a). */
 export const PLANS = {
   /** The claim itself is in the language catalogs, under `claims`. */
-  source: {
-    label: 'Gollwitzer & Sheeran, Adv Exp Soc Psychol 2006',
-    url: 'https://www.socmot.uni-konstanz.de/publications/implementation-intentions-and-goal-achievement-meta-analysis-effects-and-processes',
-  },
+  source: cite('gollwitzer2006'),
 };
 
 /** Fresh starts (docs/nudges.md §1d). */
 export const FRESH_START = {
   /** The claim itself is in the language catalogs, under `claims`. */
-  source: { label: 'Dai, Milkman & Riis, Management Science 2014', url: 'https://faculty.wharton.upenn.edu/wp-content/uploads/2014/06/Dai_Fresh_Start_2014_Mgmt_Sci.pdf' },
+  source: cite('dai2014'),
 };
 
 /** Welcome-backs (docs/nudges.md §1e). */
 export const COMING_BACK = {
   /** The claim itself is in the language catalogs, under `claims`. */
-  source: { label: 'Milkman et al., Nature 2021', url: 'https://authors.library.caltech.edu/records/mys88-cc756' },
+  source: cite('milkman2021'),
 };
 
 /** Personal numbers, like "lung age" (docs/nudges.md §1k). */
 export const PERSONAL_NUMBERS = {
   /** The claim itself is in the language catalogs, under `claims`. */
-  source: { label: 'Parkes et al., BMJ 2008', url: 'https://www.bmj.com/content/336/7644/598' },
+  source: cite('parkes2008'),
 };
 
 /** Short walks after meals (docs/nudges.md §1j). */
 export const WALK_AFTER_MEALS = {
   /** The claim itself is in the language catalogs, under `claims`. */
-  source: { label: 'Buffey et al., Sports Med 2022', url: 'https://ktvz.com/health/cnn-health/2023/09/08/just-2-minutes-of-walking-after-eating-can-help-blood-sugar-study-says-2/' },
+  source: cite('buffey2022'),
 };
 
 /** Which evidence backs each habit, lever or claim, so every number in the app can link to its source. */

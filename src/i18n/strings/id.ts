@@ -791,13 +791,163 @@ export const id: Strings = {
     dataBody:
       'Semua yang kamu masukkan tetap di perangkat ini. Tidak ada akun, iklan, atau pelacakan. Perkiraanmu dihitung di sini, di ponsel atau browser-mu.',
     guestNote: (guest) =>
-      `Kamu juga punya ${guest ? 'akun tamu' : 'akun yang sudah masuk'} dari uji coba sebelumnya. Isinya hanya profil kosong; menghapus di bawah akan mengeluarkannya.`,
+      `Kamu juga punya ${guest ? 'akun tamu' : 'akun yang sudah masuk'} dari uji coba sebelumnya. Isinya hanya profil kosong; menghapus di bawah juga akan menghapusnya.`,
     confirm: 'Ini menghapus jawabanmu, orang dan hal yang kamu cintai, dan semua hal lain di perangkat ini. Tidak bisa dibatalkan.',
     yesDelete: 'Ya, hapus semuanya',
     keep: 'Simpan dataku',
     deleteAll: 'Hapus semua di perangkat ini',
-    signOutFailed: 'Tidak bisa keluar.',
+    accountFailed:
+      'Server tidak bisa dihubungi untuk menghapus akunmu dari uji coba sebelumnya, jadi belum ada yang dihapus. Kamu bisa coba lagi, atau hapus di perangkat ini saja; akun kosong itu akan tetap ada sampai kamu meminta kami menghapusnya lewat email.',
+    deviceOnly: 'Hapus di perangkat ini saja',
     disclaimer:
       'Perkiraan ini berasal dari studi populasi. Ia menunjukkan arah dan perkiraan besarnya, bukan janji, dan bukan nasihat medis.',
+  },
+
+  disclaimer: {
+    short: 'Perkiraan dari rata-rata populasi, untuk renungan dan belajar. Bukan ramalan kematianmu, dan bukan nasihat medis.',
+    points: [
+      'Ini perkiraan dari rata-rata populasi, bukan ramalan kapan kamu akan meninggal. Tak ada yang bisa tahu itu.',
+      'Ini bukan nasihat, diagnosis, atau pengobatan medis. Untuk pertanyaan soal kesehatanmu, bicarakan dengan dokter atau tenaga kesehatan lain.',
+      'Ini ada untuk renungan dan belajar: membantumu memakai waktu yang kamu punya untuk hal yang penting bagimu.',
+    ],
+    support:
+      'Kalau memikirkan kematian terasa berat sekarang, kamu tidak harus menanggungnya sendirian. Di AS, telepon atau kirim pesan ke [988](https://988lifeline.org). Di tempat lain, [findahelpline.com](https://findahelpline.com) mencantumkan layanan dukungan gratis dan rahasia di dekatmu. Dalam keadaan darurat, hubungi nomor darurat setempat.',
+    howItWorks: 'Cara kerjanya',
+    sources: 'Sumber',
+    beforeEyebrow: 'Sebelum kamu melihatnya',
+    beforeTitle: 'Beberapa kata jujur',
+    understand: 'Saya mengerti',
+  },
+
+  legal: {
+    terms: 'Ketentuan Penggunaan',
+    privacy: 'Kebijakan Privasi',
+    health: 'Kebijakan Privasi Data Kesehatan',
+    eyebrow: 'Hukum',
+    draft: 'Draf',
+    draftNotice: 'Ini masih draf. Belum ditinjau pengacara dan bisa berubah sebelum Memento Mori diluncurkan.',
+    englishOnly: 'Untuk saat ini dokumen ini hanya tersedia dalam bahasa Inggris. Terjemahannya menyusul setelah versi bahasa Inggris ditinjau pengacara.',
+    version: (v) => `Versi ${v}`,
+    notFound: 'Tidak ditemukan',
+    notFoundBody: 'Tidak ada dokumen di sini.',
+    agree:
+      'Dengan memulai, kamu menyetujui [Ketentuan Penggunaan](/legal/terms) dan menyatakan bahwa usiamu 18 tahun atau lebih. Jawabanmu, termasuk kebiasaan kesehatan, tidak pernah keluar dari perangkat ini: lihat [Kebijakan Privasi](/legal/privacy) dan [Kebijakan Privasi Data Kesehatan](/legal/health-data).',
+  },
+
+  sources: {
+    eyebrow: 'Sumber',
+    title: 'Riset di balik aplikasi ini',
+    lede: (n) => `Semua ${n} studi dan kumpulan data yang dikutip aplikasi, dikelompokkan menurut kegunaannya. Ketuk salah satu untuk membukanya.`,
+    usedFor: (what) => `Dipakai untuk: ${what}`,
+    opens: 'Terbuka di browser.',
+    topics: {
+      model: { title: 'Cara perkiraan disusun', blurb: 'Kurva kematian, tabel kehidupan yang dipakai untuk menyesuaikannya, dan batas atas tambahan gabungan.' },
+      habits: { title: 'Kebiasaan dalam perkiraanmu', blurb: 'Dari mana pengali risiko tiap kebiasaan berasal.' },
+      direction: {
+        title: 'Sebagai arah, belum masuk perkiraan',
+        blurb: 'Temuan di layar Kebiasaan yang menunjukkan arah tetapi belum masuk ke angka.',
+      },
+      behavior: { title: 'Rencana, pengingat, dan menghubungi orang', blurb: 'Ilmu perilaku di balik rencana, awal baru, dan sambutan kembali.' },
+      time: { title: 'Ke mana jam-jammu pergi', blurb: 'Waktu di ponsel dan apa yang bisa didapat dengan mengambil kembali sebagian.' },
+      loves: { title: 'Yang kamu cintai: “N kali lagi”', blurb: 'Umur khas hewan peliharaan untuk menghitung waktu bersamanya.' },
+    },
+    uses: {
+      gompertz1825: 'Bentuk kurva: risiko meninggal per tahun naik secara eksponensial seiring usia.',
+      makeham1860: 'Bagian risiko yang tetap, tidak bergantung pada usia (suku “A”).',
+      wpp2024: 'Titik awalmu: tabel kehidupan untuk negara dan jenis kelaminmu.',
+      li2018: 'Batas 14 tahun untuk tambahan gabungan; tidak merokok sebagai pengungkit terbesar.',
+      holtLunstad2015: 'Kedekatan: jarang bertemu orang dekat ×1,29.',
+      holtLunstad2010: 'Ikatan sosial yang kuat dan peluang bertahan hidup sekitar 1,5 kali (148 studi).',
+      paluch2022: 'Olahraga dan langkah harian.',
+      mandsager2018: 'Kebugaran kardio sebagai salah satu prediktor terkuat untuk bertahan hidup.',
+      li2020: 'Berat badan sehat, dan tahun-tahun bebas penyakit kronis.',
+      cappuccio2010: 'Tidur: kurang dari 6 jam ×1,15.',
+      zhao2023: 'Alkohol: banyak minum ×1,4; sedikit minum tidak melindungi.',
+      fadnes2022: 'Apa yang kamu makan.',
+      momma2022: 'Latihan kekuatan.',
+      cohen2016: 'Rasa punya tujuan hidup.',
+      lee2019: 'Optimisme dan mencapai usia 85.',
+      okun2013: 'Menolong orang lain.',
+      waldinger2016: 'Kepuasan dalam hubungan di usia 50 dan kesehatan di usia 80.',
+      allcott2020: 'Lebih sedikit menggulir, lebih banyak waktu dengan orang.',
+      hunt2018: 'Membatasi media sosial 30 menit sehari.',
+      phoneTime2025: 'Titik awal 4 jam pada pertanyaan ponsel (perkiraannya beragam).',
+      liu2023: 'Menghubungi orang.',
+      gollwitzer2006: 'Rencana “jika… maka”.',
+      dai2014: 'Awal baru: hari Senin, tanggal 1, ulang tahun.',
+      milkman2021: 'Sambutan kembali setelah lama absen, bukan rentetan hari.',
+      parkes2008: 'Menunjukkan angka milik orang itu sendiri.',
+      buffey2022: 'Jalan singkat setelah makan.',
+      oneill2013: 'Anjing: median umur sekitar 12 tahun.',
+      mcmillan2024: 'Anjing: median harapan hidup 12,5 tahun (584.734 anjing di Inggris).',
+      oneill2015: 'Kucing: median umur 14 tahun.',
+    },
+    quotesHeading: 'Kutipan',
+    quotes:
+      'Marcus Aurelius (Meditations, terj. Inggris George Long, 1862), Seneca (Surat-surat dan Tentang Singkatnya Hidup, terj. Inggris Richard M. Gummere, 1917–25, dan lainnya), serta Epictetus (Enchiridion, terj. Inggris Thomas Wentworth Higginson, 1865). Terjemahan domain publik, sebagian sedikit disesuaikan.',
+    footnote:
+      'Beberapa tautan mengarah ke ringkasan atau siaran pers bila makalah lengkapnya berbayar. Kaitan dari studi populasi tidak membuktikan sebab-akibat, dan tidak ada di sini yang merupakan nasihat medis.',
+  },
+
+  methods: {
+    eyebrow: 'Cara kerjanya',
+    title: 'Dari mana angkamu berasal',
+    lede: 'Semua yang ditampilkan aplikasi dihitung di perangkatmu dari jawabanmu dan riset yang telah terbit. Inilah tiap langkahnya, beserta studi di baliknya.',
+    everyStep: 'Setiap langkah, dengan sumbernya',
+    accountHeading: 'CARA KERJANYA',
+    curveTitle: '1 · Kurva tempat semua orang bermula',
+    curveIntro:
+      'Pada orang dewasa, risiko meninggal per tahun naik terus seiring usia, kira-kira berlipat dua setiap 7 sampai 8 tahun. Para aktuaris menggambarkannya selama dua abad sebagai kurva Gompertz–Makeham:',
+    curveParts: (child, youth) =>
+      `B · e^(b·x) adalah bagian yang tumbuh seiring usia x (Gompertz); A adalah risiko kecil yang tidak bergantung pada usia, seperti kecelakaan (Makeham). Kematian di masa kanak-kanak dan remaja tidak mengikuti bentuk itu, jadi ditambahkan dua suku tetap: satu sebelum usia ${child} dan satu dari ${child} sampai ${youth}.`,
+    placeTitle: '2 · Tempat kamu tinggal',
+    placeBody: (n) =>
+      `Tempat tinggal lebih berpengaruh daripada kebiasaan apa pun: pada 2023, median usia saat meninggal berkisar dari sekitar 59 hingga lebih dari 90 tahun antarnegara. Karena itu kurvanya disesuaikan terpisah untuk tiap jenis kelamin di tiap ${n} negara dan wilayah, dengan tabel kehidupan PBB untuk 2023 (World Population Prospects 2024). A, B, dan b diambil dari angka kematian usia 30 hingga 100; suku masa kanak-kanak dan remaja membuat peluang hidup sampai 15 dan 30 tahun sama persis dengan tabel. Di semua negara dan kedua jenis kelamin, median usia saat meninggal sejak lahir menurut model berselisih kurang dari setahun dari tabel PBB.`,
+    placeUs: (mA, mB, fA, fB, b) =>
+      `Tanpa negara, aplikasi memakai pendekatan lama tabel AS: A = ${mA}, B = ${mB} untuk laki-laki; A = ${fA}, B = ${fB} untuk perempuan; b = ${b} (sekitar 75 dan 81 tahun saat lahir).`,
+    placeLeftOut:
+      'Penghasilan dan pendidikan juga memprediksi umur di dalam satu negara. Keduanya sengaja tidak dipakai: kamu tidak bisa mengubahnya di sini, dan terdengar seperti vonis.',
+    habitsTitle: '3 · Kebiasaanmu',
+    habitsIntro:
+      'Setiap jawaban mengalikan risiko tahunan di setiap usia. ×1 berarti tidak berubah; ×2 berarti risikonya dua kali lipat. Pengalinya dibulatkan dari studi dan tinjauan besar: semuanya pendekatan, dan berasal dari kaitan, bukan eksperimen.',
+    habitsConnection: (middle) =>
+      `Untuk kedekatan, jawaban tengah (${middle}) berada di antara tingkat yang diukur; jawaban itu sendiri tidak diukur. Studinya melaporkan rasio odds, yang di sini dipakai sebagai pengali risiko, pendekatan yang cukup dekat.`,
+    habitsSteps: (at4k, at10k) =>
+      `Langkah harian, bila kamu isi, menggantikan jawaban olahraga, jadi gerak tidak pernah dihitung dua kali. Risiko turun sekitar 7% untuk setiap tambahan 1.000 langkah, diukur dari 6.000 sehari, dan mendatar di 10.000: pengali = e^(−0,072 × (langkah − 6.000) ÷ 1.000). Jadi 4.000 langkah adalah ${at4k} dan 10.000 adalah ${at10k}.`,
+    rangeTitle: '4 · Dari risiko ke rentang',
+    rangeBody:
+      'Mulai dari usiamu hari ini, aplikasi mengikuti risiko bulan demi bulan sampai usia 121, dikalikan dengan kebiasaanmu. Usia saat separuh orang sepertimu telah meninggal adalah median kamu. Usia saat seperempat dan tiga perempat telah meninggal memberi rentang yang mungkin. Aplikasi juga menunjukkan peluang mencapai 80.',
+    rangeRule: (b, years, doubling) =>
+      `Patokan kasar di balik angka kebiasaan: tahun bertambah ≈ ln(1 ÷ pengali) ÷ ${b}. Memangkas risikomu separuhnya menambah sekitar ${years} tahun, karena dengan b = ${b} risiko berlipat dua kira-kira setiap ${doubling} tahun usia (kurva negara hasil penyesuaian sedikit lebih curam). Layar-layar menghitung selisih sebenarnya, bukan jalan pintas ini.`,
+    combineTitle: '5 · Bagaimana jika: menggabungkan perubahan',
+    combineBody: (cap) =>
+      `Setiap “bagaimana jika” adalah selisih antara median kamu sekarang dan median kamu bila kebiasaan itu diubah. Beberapa perubahan sekaligus saling mengalikan, jadi hasilnya kurang dari jumlah masing-masing, karena efek kebiasaan saling tumpang tindih. Totalnya juga dibatasi ${cap} tahun.`,
+    capClaim: (cap) =>
+      `${cap} tahun: selisih terbesar antara orang dengan kelima kebiasaan sehat dan orang tanpa satu pun, dalam dua kohort besar di AS.`,
+    combineCalendar:
+      'Di kalender, tambahan gabungan dibagi di antara perubahan yang kamu coba sebanding dengan tambahan masing-masing, sehingga tiap perubahan punya warnanya sendiri.',
+    notInEstimate: (items) =>
+      `Beberapa hal di layar Kebiasaan hanya ditampilkan sebagai arah dan belum masuk ke angkamu: ${items}.`,
+    timeTitle: '6 · Waktu ponsel dan tidur',
+    timePhone: (waking) =>
+      `Waktu ponsel adalah perkiraanmu sendiri, dalam jam per hari (dimulai dari 4, dekat perkiraan umum untuk orang dewasa di AS). Selama tahun-tahun yang mungkin masih kamu punya, jumlahnya jam × tahun ÷ 24. Sebagai bagian dari waktu terjagamu, itu jam ÷ ${waking}.`,
+    timeSleep: (ok, short) =>
+      `Tampilan “Terjaga” dan “Tanpa ponsel” mengeluarkan tidur dari kalender: sekitar ${ok} jam semalam, atau ${short} bila kamu menjawab kurang dari 6. Tidur adalah waktu yang terpakai dengan baik, bukan hilang.`,
+    timeSwap: (minutes) =>
+      `Pertukaran ini mengusulkan mengambil kembali ${minutes} menit sehari dari ponsel dan menunjukkan bisa jadi apa, misalnya jalan-jalan setiap hari dengan anjingmu selama tahun-tahun yang mungkin kalian punya bersama.`,
+    lovesTitle: '7 · Yang kamu cintai: “N kali lagi”',
+    lovesBody:
+      'Untuk tiap orang, hewan, atau kegiatan, aplikasi menghitung tahun yang mungkin kalian lalui bersama, lalu mengalikannya dengan seberapa sering kamu bertemu atau melakukannya. Tahun-tahun itu berakhir pada yang paling awal dari: usia median kamu; usia saat kamu bilang akan berhenti melakukan kegiatan; usia median orang itu (dari usianya, dirata-ratakan untuk kedua jenis kelamin karena aplikasi tidak menanyakannya, dan dianggap tinggal di negaramu); atau umur khas hewan peliharaan.',
+    lovesPets: (dog, cat) =>
+      `Umur khas: anjing sekitar ${dog} tahun, kucing sekitar ${cat}, dari catatan dokter hewan di Inggris. Ras dan ukuran sangat berpengaruh. Hewan yang sudah tua selalu dihitung setidaknya setengah tahun.`,
+    limitsTitle: '8 · Yang tidak bisa diberitahukannya',
+    limits: [
+      'Ini rata-rata populasi. Angka ini menggambarkan berapa lama kelompok orang dengan jawaban seperti milikmu biasanya hidup, bukan apa yang akan terjadi padamu. Angka ini tidak tahu apa pun tentang riwayat kesehatan, gen, atau perawatan medismu.',
+      'Kaitan antara kebiasaan dan umur berasal dari studi observasional: orang yang melakukan X cenderung hidup lebih lama, sebagian karena X dan sebagian karena segala hal yang menyertainya. Mengubah kebiasaan belum tentu mengubah umurmu sebesar yang ditampilkan.',
+      'Itulah sebabnya aplikasi menampilkan rentang, tidak pernah tanggal. Separuh orang sepertimu hidup melewati median; banyak yang jauh melewatinya.',
+    ],
+    versionTitle: 'Versi model',
+    versionBody: 'Model hanya berubah bila ada bukti kuat, seperti meta-analisis, dan setiap perubahan mendapat versi baru.',
+    allSources: 'Semua sumber, lengkap',
   },
 };
