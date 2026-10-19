@@ -155,6 +155,28 @@ export const en = {
   },
 
   onboarding: {
+    /** The live calendar over the habit questions (components/onboarding/habit-calendar.tsx). */
+    calendar: {
+      title: 'Your likely years ahead, a circle for each',
+      legend: { likely: 'Likely', phone: 'On your phone', gain: 'Added by your habits', cost: 'Taken by your habits' },
+      same: 'So far, the same as the average for people like you.',
+      effect: (adds: boolean, years: string): Rich => [
+        s(`Your answers so far ${adds ? 'add' : 'take'} about `),
+        b(`${years} years`),
+        s(adds ? ' to the average.' : ' from the average.'),
+      ],
+      a11y: (left: string, avg: string) =>
+        `About ${left} years likely ahead, a circle for each. The average for people like you is about ${avg}.`,
+    },
+    /** Under an answer that costs time: the single change that could win it back. */
+    winBack: (cost: string, label: string, years: string): Rich => [
+      s('This answer takes about '),
+      b(`${cost} years`),
+      s(`. ${label} could add about `),
+      b(`${years} years`),
+      s('.'),
+    ],
+    skipHabits: 'Skip, use the average',
     welcomeEyebrow: 'Remember you will die',
     welcomeLede:
       'The Stoics kept death in mind so they would not waste their days. This app counts the time you likely have left, so today gets the weight it deserves, and points it at what you love.',
@@ -837,6 +859,14 @@ export const en = {
    * percentages on Life, Loves, Today, the opening and the reveal. Never a digit in here.
    */
   gentle: {
+    /** The habit questions' live calendar. */
+    calendar: {
+      same: 'So far, the same as the average for people like you.',
+      effect: (adds: boolean): string =>
+        adds ? 'Your answers so far add time to the average.' : 'Your answers so far take some time from the average.',
+      a11y: 'Circles for the years likely ahead, a circle for each.',
+      winBack: (label: string) => `This answer takes some time. ${label} could add good time back.`,
+    },
     setting: 'Hide numbers',
     settingNote:
       'Words instead of years, weeks and counts on Life, Loves, Today and the opening. The calendar stays, without its numbers.',

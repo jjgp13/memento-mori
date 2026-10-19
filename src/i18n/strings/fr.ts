@@ -137,6 +137,25 @@ export const fr: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: 'Tes années probables à venir, un cercle par an',
+      legend: { likely: 'Probables', phone: 'Sur ton téléphone', gain: 'Ajoutées par tes habitudes', cost: 'Retirées par tes habitudes' },
+      same: 'Pour l’instant, comme la moyenne des personnes comme toi.',
+      effect: (adds, years) => [
+        s(`Jusqu’ici, tes réponses ${adds ? 'ajoutent' : 'retirent'} environ `),
+        b(`${years} ans`),
+        s(' à la moyenne.'),
+      ],
+      a11y: (left, avg) => `Environ ${left} ans probables à venir, un cercle par an. La moyenne des personnes comme toi est d’environ ${avg}.`,
+    },
+    winBack: (cost, label, years) => [
+      s('Cette réponse retire environ '),
+      b(`${cost} ans`),
+      s(`. ${label} pourrait ajouter environ `),
+      b(`${years} ans`),
+      s('.'),
+    ],
+    skipHabits: 'Passer, utiliser la moyenne',
     welcomeEyebrow: 'Souviens-toi que tu vas mourir',
     welcomeLede:
       'Les stoïciens gardaient la mort à l’esprit pour ne pas gaspiller leurs jours. Cette app compte le temps qu’il te reste probablement, pour donner à aujourd’hui le poids qu’il mérite, et le tourner vers ce que tu aimes.',
@@ -802,6 +821,13 @@ export const fr: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: 'Pour l’instant, comme la moyenne des personnes comme toi.',
+      effect: (adds) =>
+        adds ? 'Jusqu’ici, tes réponses ajoutent du temps à la moyenne.' : 'Jusqu’ici, tes réponses retirent un peu de temps à la moyenne.',
+      a11y: 'Des cercles pour les années probables à venir, un par an.',
+      winBack: (label) => `Cette réponse retire un peu de temps. ${label} pourrait t’en rendre du bon.`,
+    },
     setting: 'Masquer les chiffres',
     settingNote:
       'Des mots au lieu des années, des semaines et des décomptes dans Vie, Amours, Aujourd’hui et l’ouverture. Le calendrier reste, sans ses chiffres.',

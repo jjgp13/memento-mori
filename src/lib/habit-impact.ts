@@ -108,7 +108,7 @@ export function healthyGainFrom(p: ModelInput, keys: Lever['key'][], now = Date.
 }
 
 /** The answer for each habit that carries no extra risk (hazard ratio 1). */
-const NEUTRAL: { [K in HabitKey]-?: NonNullable<ModelInput[K]> } = {
+export const NEUTRAL: { [K in HabitKey]-?: NonNullable<ModelInput[K]> } = {
   smoke: 'never',
   exercise: 'some',
   bmi: 'normal',

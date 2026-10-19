@@ -137,6 +137,25 @@ export const pt: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: 'Seus anos prováveis pela frente, um círculo por ano',
+      legend: { likely: 'Prováveis', phone: 'No celular', gain: 'Somados pelos seus hábitos', cost: 'Tirados pelos seus hábitos' },
+      same: 'Até agora, igual à média de pessoas como você.',
+      effect: (adds, years) => [
+        s(`Até agora suas respostas ${adds ? 'somam' : 'tiram'} cerca de `),
+        b(`${years} anos`),
+        s(adds ? ' à média.' : ' da média.'),
+      ],
+      a11y: (left, avg) => `Cerca de ${left} anos prováveis pela frente, um círculo por ano. A média de pessoas como você é de cerca de ${avg}.`,
+    },
+    winBack: (cost, label, years) => [
+      s('Esta resposta tira cerca de '),
+      b(`${cost} anos`),
+      s(`. ${label} poderia somar cerca de `),
+      b(`${years} anos`),
+      s('.'),
+    ],
+    skipHabits: 'Pular e usar a média',
     welcomeEyebrow: 'Lembre-se de que você vai morrer',
     welcomeLede:
       'Os estoicos mantinham a morte em mente para não desperdiçar seus dias. Este app conta o tempo que provavelmente lhe resta, para que o dia de hoje tenha o peso que merece, e o direciona ao que você ama.',
@@ -803,6 +822,12 @@ export const pt: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: 'Até agora, igual à média de pessoas como você.',
+      effect: (adds) => (adds ? 'Até agora suas respostas somam tempo à média.' : 'Até agora suas respostas tiram um pouco de tempo da média.'),
+      a11y: 'Círculos para os anos prováveis pela frente, um por ano.',
+      winBack: (label) => `Esta resposta tira um pouco de tempo. ${label} poderia devolver bom tempo.`,
+    },
     setting: 'Ocultar números',
     settingNote:
       'Palavras em vez de anos, semanas e contagens em Vida, Amores, Hoje e na abertura. O calendário fica, sem os números.',

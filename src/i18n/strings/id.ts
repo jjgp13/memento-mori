@@ -136,6 +136,25 @@ export const id: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: 'Tahun-tahun yang mungkin masih di depanmu, satu lingkaran per tahun',
+      legend: { likely: 'Mungkin', phone: 'Di ponsel', gain: 'Ditambah kebiasaanmu', cost: 'Dikurangi kebiasaanmu' },
+      same: 'Sejauh ini, sama dengan rata-rata orang sepertimu.',
+      effect: (adds, years) => [
+        s(`Sejauh ini jawabanmu ${adds ? 'menambah' : 'mengurangi'} sekitar `),
+        b(`${years} tahun`),
+        s(adds ? ' pada rata-rata.' : ' dari rata-rata.'),
+      ],
+      a11y: (left, avg) => `Sekitar ${left} tahun mungkin masih di depan, satu lingkaran per tahun. Rata-rata orang sepertimu sekitar ${avg}.`,
+    },
+    winBack: (cost, label, years) => [
+      s('Jawaban ini mengurangi sekitar '),
+      b(`${cost} tahun`),
+      s(`. ${label} bisa menambah sekitar `),
+      b(`${years} tahun`),
+      s('.'),
+    ],
+    skipHabits: 'Lewati, pakai rata-rata',
     welcomeEyebrow: 'Ingatlah bahwa kamu akan mati',
     welcomeLede:
       'Kaum Stoa selalu mengingat kematian agar tidak menyia-nyiakan hari-hari mereka. Aplikasi ini menghitung waktu yang mungkin masih kamu punya, agar hari ini mendapat bobot yang layak, dan mengarahkannya pada apa yang kamu cintai.',
@@ -798,6 +817,12 @@ export const id: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: 'Sejauh ini, sama dengan rata-rata orang sepertimu.',
+      effect: (adds) => (adds ? 'Sejauh ini jawabanmu menambah waktu pada rata-rata.' : 'Sejauh ini jawabanmu mengurangi sedikit waktu dari rata-rata.'),
+      a11y: 'Lingkaran untuk tahun-tahun yang mungkin masih di depan, satu per tahun.',
+      winBack: (label) => `Jawaban ini mengurangi sedikit waktu. ${label} bisa mengembalikan waktu yang baik.`,
+    },
     setting: 'Sembunyikan angka',
     settingNote:
       'Kata-kata sebagai ganti tahun, minggu, dan hitungan di Hidup, Yang Dicinta, Hari Ini, dan pembuka. Kalendernya tetap, tanpa angka.',

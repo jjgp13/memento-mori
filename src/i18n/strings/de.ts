@@ -137,6 +137,25 @@ export const de: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: 'Deine wahrscheinlichen Jahre, ein Kreis pro Jahr',
+      legend: { likely: 'Wahrscheinlich', phone: 'Am Handy', gain: 'Durch Gewohnheiten dazu', cost: 'Durch Gewohnheiten weg' },
+      same: 'Bisher genau wie der Durchschnitt für Menschen wie dich.',
+      effect: (adds, years) => [
+        s(`Bisher ${adds ? 'bringen' : 'kosten'} deine Antworten etwa `),
+        b(`${years} Jahre`),
+        s(adds ? ' mehr als der Durchschnitt.' : ' gegenüber dem Durchschnitt.'),
+      ],
+      a11y: (left, avg) => `Wahrscheinlich noch etwa ${left} Jahre, ein Kreis pro Jahr. Der Durchschnitt für Menschen wie dich liegt bei etwa ${avg}.`,
+    },
+    winBack: (cost, label, years) => [
+      s('Diese Antwort kostet etwa '),
+      b(`${cost} Jahre`),
+      s(`. ${label} könnte etwa `),
+      b(`${years} Jahre`),
+      s(' dazugeben.'),
+    ],
+    skipHabits: 'Überspringen, Durchschnitt nehmen',
     welcomeEyebrow: 'Bedenke, dass du sterben wirst',
     welcomeLede:
       'Die Stoiker hielten sich den Tod vor Augen, um ihre Tage nicht zu vergeuden. Diese App zählt die Zeit, die du wahrscheinlich noch hast, damit das Heute das Gewicht bekommt, das es verdient, und richtet sie auf das aus, was du liebst.',
@@ -806,6 +825,13 @@ export const de: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: 'Bisher genau wie der Durchschnitt für Menschen wie dich.',
+      effect: (adds) =>
+        adds ? 'Bisher bringen deine Antworten Zeit über den Durchschnitt hinaus.' : 'Bisher kosten deine Antworten etwas Zeit gegenüber dem Durchschnitt.',
+      a11y: 'Kreise für die wahrscheinlichen Jahre, einer pro Jahr.',
+      winBack: (label) => `Diese Antwort kostet etwas Zeit. ${label} könnte gute Zeit zurückgeben.`,
+    },
     setting: 'Zahlen ausblenden',
     settingNote:
       'Worte statt Jahren, Wochen und Zählungen in Leben, Liebe, Heute und beim Öffnen. Der Kalender bleibt, ohne seine Zahlen.',

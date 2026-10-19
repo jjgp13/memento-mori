@@ -137,6 +137,25 @@ export const es: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: 'Tus años probables por delante, un círculo por año',
+      legend: { likely: 'Probables', phone: 'En el celular', gain: 'Sumados por tus hábitos', cost: 'Restados por tus hábitos' },
+      same: 'Por ahora, igual que el promedio de personas como tú.',
+      effect: (adds, years) => [
+        s(`Hasta ahora tus respuestas ${adds ? 'suman' : 'restan'} unos `),
+        b(`${years} años`),
+        s(' al promedio.'),
+      ],
+      a11y: (left, avg) => `Unos ${left} años probables por delante, un círculo por año. El promedio de personas como tú es de unos ${avg}.`,
+    },
+    winBack: (cost, label, years) => [
+      s('Esta respuesta resta unos '),
+      b(`${cost} años`),
+      s(`. ${label} podría sumar unos `),
+      b(`${years} años`),
+      s('.'),
+    ],
+    skipHabits: 'Saltar y usar el promedio',
     welcomeEyebrow: 'Recuerda que vas a morir',
     welcomeLede:
       'Los estoicos tenían presente la muerte para no desperdiciar sus días. Esta app cuenta el tiempo que probablemente te queda, para que el día de hoy tenga el peso que merece, y lo dirige hacia lo que amas.',
@@ -780,6 +799,12 @@ export const es: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: 'Por ahora, igual que el promedio de personas como tú.',
+      effect: (adds) => (adds ? 'Hasta ahora tus respuestas suman tiempo al promedio.' : 'Hasta ahora tus respuestas restan algo de tiempo al promedio.'),
+      a11y: 'Círculos por los años probables por delante, uno por año.',
+      winBack: (label) => `Esta respuesta resta algo de tiempo. ${label} podría devolverte buen tiempo.`,
+    },
     setting: 'Ocultar números',
     settingNote:
       'Palabras en lugar de años, semanas y cuentas en Vida, Amores, Hoy y la apertura. El calendario se queda, sin sus números.',
