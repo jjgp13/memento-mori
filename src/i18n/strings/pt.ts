@@ -138,9 +138,11 @@ export const pt: Strings = {
 
   onboarding: {
     calendar: {
-      title: 'Seus anos prováveis pela frente, um círculo por ano',
-      legend: { likely: 'Prováveis', phone: 'No celular', gain: 'Somados pelos seus hábitos', cost: 'Tirados pelos seus hábitos' },
+      title: 'Sua vida, um círculo por ano',
+      legend: { lived: 'Vividos', likely: 'Prováveis', healthy: 'Com saúde e independência', phone: 'No celular', gain: 'Somados pelos seus hábitos', cost: 'Tirados pelos seus hábitos', last: 'Sua última resposta' },
       same: 'Até agora, igual à média de pessoas como você.',
+      last: (adds, years) => [s('Sua última resposta: '), b(`${adds ? '+' : '−'}${years} anos`), s(', circulados no calendário.')],
+      lastSame: 'Sua última resposta manteve a estimativa igual.',
       effect: (adds, years) => [
         s(`Até agora suas respostas ${adds ? 'somam' : 'tiram'} cerca de `),
         b(`${years} anos`),
@@ -824,6 +826,9 @@ export const pt: Strings = {
   gentle: {
     calendar: {
       same: 'Até agora, igual à média de pessoas como você.',
+      last: (adds) =>
+        adds ? 'Sua última resposta somou tempo: os círculos destacados.' : 'Sua última resposta tirou um pouco de tempo: os círculos destacados.',
+      lastSame: 'Sua última resposta manteve a estimativa igual.',
       effect: (adds) => (adds ? 'Até agora suas respostas somam tempo à média.' : 'Até agora suas respostas tiram um pouco de tempo da média.'),
       a11y: 'Círculos para os anos prováveis pela frente, um por ano.',
       winBack: (label) => `Esta resposta tira um pouco de tempo. ${label} poderia devolver bom tempo.`,

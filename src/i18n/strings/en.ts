@@ -157,9 +157,16 @@ export const en = {
   onboarding: {
     /** The live calendar over the habit questions (components/onboarding/habit-calendar.tsx). */
     calendar: {
-      title: 'Your likely years ahead, a circle for each',
-      legend: { likely: 'Likely', phone: 'On your phone', gain: 'Added by your habits', cost: 'Taken by your habits' },
+      title: 'Your life, a circle for each year',
+      legend: { lived: 'Lived', likely: 'Likely ahead', healthy: 'Healthy and independent', phone: 'On your phone', gain: 'Added by your habits', cost: 'Taken by your habits', last: 'Your last answer' },
       same: 'So far, the same as the average for people like you.',
+      /** What the last answer changed, ringed on the calendar until the next one. */
+      last: (adds: boolean, years: string): Rich => [
+        s('Your last answer: '),
+        b(`${adds ? '+' : '−'}${years} years`),
+        s(', ringed on the calendar.'),
+      ],
+      lastSame: 'Your last answer kept your estimate where it was.',
       effect: (adds: boolean, years: string): Rich => [
         s(`Your answers so far ${adds ? 'add' : 'take'} about `),
         b(`${years} years`),
@@ -862,6 +869,9 @@ export const en = {
     /** The habit questions' live calendar. */
     calendar: {
       same: 'So far, the same as the average for people like you.',
+      last: (adds: boolean): string =>
+        adds ? 'Your last answer added time: the ringed circles.' : 'Your last answer took some time: the ringed circles.',
+      lastSame: 'Your last answer kept your estimate where it was.',
       effect: (adds: boolean): string =>
         adds ? 'Your answers so far add time to the average.' : 'Your answers so far take some time from the average.',
       a11y: 'Circles for the years likely ahead, a circle for each.',

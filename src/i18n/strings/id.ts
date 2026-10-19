@@ -137,9 +137,11 @@ export const id: Strings = {
 
   onboarding: {
     calendar: {
-      title: 'Tahun-tahun yang mungkin masih di depanmu, satu lingkaran per tahun',
-      legend: { likely: 'Mungkin', phone: 'Di ponsel', gain: 'Ditambah kebiasaanmu', cost: 'Dikurangi kebiasaanmu' },
+      title: 'Hidupmu, satu lingkaran per tahun',
+      legend: { lived: 'Sudah dijalani', likely: 'Mungkin di depan', healthy: 'Sehat dan mandiri', phone: 'Di ponsel', gain: 'Ditambah kebiasaanmu', cost: 'Dikurangi kebiasaanmu', last: 'Jawaban terakhirmu' },
       same: 'Sejauh ini, sama dengan rata-rata orang sepertimu.',
+      last: (adds, years) => [s('Jawaban terakhirmu: '), b(`${adds ? '+' : '−'}${years} tahun`), s(', dilingkari di kalender.')],
+      lastSame: 'Jawaban terakhirmu tidak mengubah perkiraan.',
       effect: (adds, years) => [
         s(`Sejauh ini jawabanmu ${adds ? 'menambah' : 'mengurangi'} sekitar `),
         b(`${years} tahun`),
@@ -819,6 +821,9 @@ export const id: Strings = {
   gentle: {
     calendar: {
       same: 'Sejauh ini, sama dengan rata-rata orang sepertimu.',
+      last: (adds) =>
+        adds ? 'Jawaban terakhirmu menambah waktu: lingkaran yang ditandai.' : 'Jawaban terakhirmu mengurangi sedikit waktu: lingkaran yang ditandai.',
+      lastSame: 'Jawaban terakhirmu tidak mengubah perkiraan.',
       effect: (adds) => (adds ? 'Sejauh ini jawabanmu menambah waktu pada rata-rata.' : 'Sejauh ini jawabanmu mengurangi sedikit waktu dari rata-rata.'),
       a11y: 'Lingkaran untuk tahun-tahun yang mungkin masih di depan, satu per tahun.',
       winBack: (label) => `Jawaban ini mengurangi sedikit waktu. ${label} bisa mengembalikan waktu yang baik.`,

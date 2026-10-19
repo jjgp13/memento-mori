@@ -138,9 +138,11 @@ export const de: Strings = {
 
   onboarding: {
     calendar: {
-      title: 'Deine wahrscheinlichen Jahre, ein Kreis pro Jahr',
-      legend: { likely: 'Wahrscheinlich', phone: 'Am Handy', gain: 'Durch Gewohnheiten dazu', cost: 'Durch Gewohnheiten weg' },
+      title: 'Dein Leben, ein Kreis pro Jahr',
+      legend: { lived: 'Gelebt', likely: 'Wahrscheinlich noch', healthy: 'Gesund und selbstständig', phone: 'Am Handy', gain: 'Durch Gewohnheiten dazu', cost: 'Durch Gewohnheiten weg', last: 'Deine letzte Antwort' },
       same: 'Bisher genau wie der Durchschnitt für Menschen wie dich.',
+      last: (adds, years) => [s('Deine letzte Antwort: '), b(`${adds ? '+' : '−'}${years} Jahre`), s(', im Kalender umrandet.')],
+      lastSame: 'Deine letzte Antwort hat die Schätzung nicht verändert.',
       effect: (adds, years) => [
         s(`Bisher ${adds ? 'bringen' : 'kosten'} deine Antworten etwa `),
         b(`${years} Jahre`),
@@ -827,6 +829,9 @@ export const de: Strings = {
   gentle: {
     calendar: {
       same: 'Bisher genau wie der Durchschnitt für Menschen wie dich.',
+      last: (adds) =>
+        adds ? 'Deine letzte Antwort hat Zeit dazugebracht: die umrandeten Kreise.' : 'Deine letzte Antwort hat etwas Zeit gekostet: die umrandeten Kreise.',
+      lastSame: 'Deine letzte Antwort hat die Schätzung nicht verändert.',
       effect: (adds) =>
         adds ? 'Bisher bringen deine Antworten Zeit über den Durchschnitt hinaus.' : 'Bisher kosten deine Antworten etwas Zeit gegenüber dem Durchschnitt.',
       a11y: 'Kreise für die wahrscheinlichen Jahre, einer pro Jahr.',
