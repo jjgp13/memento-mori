@@ -5,12 +5,18 @@ import { ThemedText, type ThemedTextProps } from '@/components/themed-text';
 import { fmt } from '@/lib/life-views';
 
 /**
- * A number that counts up from zero, easing out; shows the final value at once under Reduce Motion.
- * `to` may keep changing (e.g. seconds alive): the count-up chases the latest value, then follows it live.
+ * A number that counts from `from` (zero by default) to `to`, easing out; shows the final value at once under
+ * Reduce Motion. `to` may keep changing (e.g. seconds alive): the count chases the latest value, then follows it live.
  */
-export function CountUp({ to, duration = 1400, delay = 250, ...rest }: ThemedTextProps & { to: number; duration?: number; delay?: number }) {
+export function CountUp({
+  to,
+  from = 0,
+  duration = 1400,
+  delay = 250,
+  ...rest
+}: ThemedTextProps & { to: number; from?: number; duration?: number; delay?: number }) {
   const reduced = useReducedMotion();
-  const [value, setValue] = useState(reduced ? to : 0);
+  const [value, setValue] = useState(reduced ? to : from);
   const target = useRef(to);
   const done = useRef(reduced);
 
@@ -26,7 +32,7 @@ export function CountUp({ to, duration = 1400, delay = 250, ...rest }: ThemedTex
     const tick = (t: number) => {
       if (!start) start = t;
       const k = Math.min(1, (t - start) / duration);
-      setValue(target.current * (1 - Math.pow(1 - k, 4)));
+      setValue(from + (target.current - from) * (1 - Math.pow(1 - k, 4)));
       if (k < 1) frame = requestAnimationFrame(tick);
       else done.current = true;
     };
@@ -35,7 +41,7 @@ export function CountUp({ to, duration = 1400, delay = 250, ...rest }: ThemedTex
       clearTimeout(timer);
       cancelAnimationFrame(frame);
     };
-  }, [duration, delay]);
+  }, [duration, delay, from]);
 
   return (
     <ThemedText accessibilityLabel={fmt(to)} {...rest}>

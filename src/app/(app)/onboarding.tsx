@@ -46,7 +46,9 @@ import {
   LATER_HABITS,
   WEEKS_PER_YEAR,
   ageAt,
+  estimate,
   healthEstimate,
+  survival,
   type HabitKey,
   type ModelInput,
   type Sex,
@@ -69,25 +71,33 @@ type StepKey =
   | 'activities'
   | 'disclaimer'
   | 'compute'
+  | 'baseline'
+  | 'habitsReveal'
   | 'reveal';
 
+type ChapterKey = 'you' | 'habits' | 'loves';
+/** Three chapters, each ending on what the answers mean so far, so every few taps pay off. */
+const CHAPTERS: { key: ChapterKey; questions: StepKey[]; reveal: StepKey }[] = [
+  { key: 'you', questions: ['name', 'dob', 'country', 'sex'], reveal: 'baseline' },
+  { key: 'habits', questions: [...HABIT_KEYS, 'phone'], reveal: 'habitsReveal' },
+  { key: 'loves', questions: ['values', 'people', 'activities'], reveal: 'reveal' },
+];
+const [YOU, HABITS, LOVES] = CHAPTERS;
+
+/** The disclaimer is acknowledged before the first number. */
 const FIRST_RUN: StepKey[] = [
   'welcome',
-  'name',
-  'dob',
-  'country',
-  'sex',
-  ...HABIT_KEYS,
-  'phone',
-  'values',
-  'people',
-  'activities',
+  ...YOU.questions,
   'disclaimer',
   'compute',
-  'reveal',
+  YOU.reveal,
+  ...HABITS.questions,
+  HABITS.reveal,
+  ...LOVES.questions,
+  LOVES.reveal,
 ];
-/** Editing skips the welcome and the reveal, and saves after the last question (or the one in `?only=`). */
-const EDIT: StepKey[] = ['name', 'dob', 'country', 'sex', ...HABIT_KEYS, 'phone', 'values', 'people', 'activities'];
+/** Editing skips the welcome and the reveals, and saves after the last question (or the one in `?only=`). */
+const EDIT: StepKey[] = CHAPTERS.flatMap((c) => c.questions);
 
 type Draft = Partial<Profile> & { name: string; dob: string; values: ValueKey[]; loves: Love[] };
 
@@ -107,7 +117,7 @@ function modelInput(d: Draft): ModelInput | null {
   return d as ModelInput;
 }
 
-/** One question per screen: name, birth, body, habits, what matters, who and what they love. */
+/** One question per screen, in three chapters (you, habits, what they love), each ending on a reveal. */
 export default function OnboardingScreen() {
   const theme = useTheme();
   const t = useT();
@@ -135,7 +145,11 @@ export default function OnboardingScreen() {
 
   const go = (delta: 1 | -1) => {
     setDirection(delta);
-    setIndex((i) => Math.min(steps.length - 1, Math.max(0, i + delta)));
+    setIndex((i) => {
+      const j = Math.min(steps.length - 1, Math.max(0, i + delta));
+      // "Counting your weeks" only plays going forward.
+      return delta < 0 && steps[j] === 'compute' ? j - 1 : j;
+    });
   };
   const next = () => go(1);
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'));
@@ -171,15 +185,22 @@ export default function OnboardingScreen() {
     return () => clearTimeout(t);
   }, [step, reduced]);
 
-  // Progress bar.
-  const progress = useSharedValue(0);
-  useEffect(() => {
-    progress.set(withTiming(steps.length > 1 ? (index / (steps.length - 1)) * 100 : 100, { duration: 500, easing: ease }));
-  }, [index, steps.length, progress]);
-  const barStyle = useAnimatedStyle(() => ({ width: `${progress.get()}%` }));
+  // One progress bar per chapter, each full once its reveal is reached.
+  const segments = CHAPTERS.flatMap((c) => {
+    const at = steps.flatMap((s, i) => (c.questions.includes(s) || s === c.reveal ? [i] : []));
+    if (!at.length) return [];
+    const [start, end] = [at[0], at[at.length - 1]];
+    const fill = end > start ? (index - start) / (end - start) : index >= start ? 1 : 0;
+    return [{ key: c.key, fill: Math.min(1, Math.max(0, fill)) }];
+  });
 
-  const showBack = index > 0 && step !== 'compute' && step !== 'reveal';
-  const number = FIRST_RUN.indexOf(step);
+  const showBack = index > 0 && step !== 'compute';
+  const chapter = CHAPTERS.find((c) => c.questions.includes(step));
+  const eyebrow = chapter ? (
+    <ThemedText key="e" type="eyebrow">
+      {o.chapterStep(o.chapters[chapter.key], chapter.questions.indexOf(step) + 1, chapter.questions.length)}
+    </ThemedText>
+  ) : null;
   const me = modelInput(draft);
 
   let body: ReactNode[] = [];
@@ -217,9 +238,7 @@ export default function OnboardingScreen() {
     );
   } else if (step === 'name') {
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.you}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {o.nameQuestion}
       </ThemedText>,
@@ -238,9 +257,7 @@ export default function OnboardingScreen() {
     footer = continueButton(draft.name.trim() ? t.common.continue : t.common.skip);
   } else if (step === 'dob') {
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.birth}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {o.dobQuestion}
       </ThemedText>,
@@ -250,9 +267,7 @@ export default function OnboardingScreen() {
     footer = continueButton(t.common.continue, !draft.dob);
   } else if (step === 'country') {
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.place}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {o.countryQuestion}
       </ThemedText>,
@@ -265,9 +280,7 @@ export default function OnboardingScreen() {
     footer = continueButton(draft.country ? t.common.continue : t.common.skip);
   } else if (step === 'sex') {
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.body}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {o.sexQuestion}
       </ThemedText>,
@@ -280,9 +293,7 @@ export default function OnboardingScreen() {
     const k = step as HabitKey;
     const h = t.habits[k];
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.habits}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {h.question}
       </ThemedText>,
@@ -296,9 +307,7 @@ export default function OnboardingScreen() {
     const hours = draft.phoneHours ?? DEFAULT_PHONE_HOURS;
     const where = Platform.OS === 'ios' ? o.phoneWhereIos : Platform.OS === 'android' ? o.phoneWhereAndroid : o.phoneWhereWeb;
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.time}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {o.phoneQuestion}
       </ThemedText>,
@@ -330,9 +339,7 @@ export default function OnboardingScreen() {
   } else if (step === 'values') {
     const full = draft.values.length >= MAX_VALUES;
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {o.step.values}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {o.valuesQuestion}
       </ThemedText>,
@@ -370,9 +377,7 @@ export default function OnboardingScreen() {
     const people = step === 'people';
     const any = draft.loves.some((l) => (people ? l.kind !== 'activity' : l.kind === 'activity'));
     body = [
-      <ThemedText key="e" type="eyebrow">
-        {number} · {people ? o.step.who : o.step.what}
-      </ThemedText>,
+      eyebrow,
       <ThemedText key="t" type="subtitle">
         {people ? o.peopleQuestion : o.activitiesQuestion}
       </ThemedText>,
@@ -410,6 +415,10 @@ export default function OnboardingScreen() {
     );
   } else if (step === 'compute') {
     body = [<Computing key="c" />];
+  } else if (step === 'baseline' && draft.dob && draft.sex) {
+    body = [<Baseline key="b" name={draft.name} dob={draft.dob} sex={draft.sex} country={draft.country} onNext={next} />];
+  } else if (step === 'habitsReveal' && me) {
+    body = [<HabitsReveal key="h" draft={draft} me={me} onNext={next} />];
   } else if (step === 'reveal' && me) {
     body = [<Reveal key="r" draft={draft} me={me} onDone={finish} />];
   }
@@ -420,8 +429,10 @@ export default function OnboardingScreen() {
         <View style={styles.backSlot}>
           {showBack ? <Button title={t.common.back} variant="link" onPress={() => go(-1)} /> : null}
         </View>
-        <View style={[styles.track, { backgroundColor: theme.line }]}>
-          <Animated.View style={[styles.bar, { backgroundColor: theme.accent }, barStyle]} />
+        <View style={styles.bars}>
+          {segments.map((sg) => (
+            <ChapterBar key={sg.key} fill={sg.fill} />
+          ))}
         </View>
         <View style={styles.backSlot}>
           {editing ? <Button title={t.common.close} variant="link" onPress={close} /> : null}
@@ -443,6 +454,22 @@ export default function OnboardingScreen() {
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+/** One chapter's share of the progress bar. */
+function ChapterBar({ fill }: { fill: number }) {
+  const theme = useTheme();
+  const width = useSharedValue(fill * 100);
+  useEffect(() => {
+    width.set(withTiming(fill * 100, { duration: 500, easing: ease }));
+  }, [fill, width]);
+  const style = useAnimatedStyle(() => ({ width: `${width.get()}%` }));
+
+  return (
+    <View style={[styles.track, { backgroundColor: theme.line }]}>
+      <Animated.View style={[styles.bar, { backgroundColor: theme.accent }, style]} />
+    </View>
   );
 }
 
@@ -473,28 +500,85 @@ function Computing() {
   );
 }
 
-/** The first look: weeks likely left, then what they mean and what can change them. */
-function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: () => void }) {
+/** End of chapter one: the starting point for people their age, sex and country, before habits. */
+function Baseline({
+  name,
+  dob,
+  sex,
+  country,
+  onNext,
+}: {
+  name: string;
+  dob: string;
+  sex: Sex;
+  country?: string;
+  onNext: () => void;
+}) {
+  const theme = useTheme();
+  const t = useT();
+  const r = t.reveal;
+  const { hideNumbers: hide } = usePrefs();
+  const [now] = useState(() => Date.now());
+  const age = ageAt(dob, now);
+  const est = survival(sex, age, 1, country);
+  const place = countryName(country) ?? null;
+
+  const lines: ReactNode[] = [
+    <ThemedText key="e" type="eyebrow">
+      {r.baseEyebrow(name)}
+    </ThemedText>,
+    hide ? (
+      <ThemedText key="n" style={styles.gentle} themeColor="accent">
+        {t.gentle.ahead[aheadLevel(age, est)]}
+      </ThemedText>
+    ) : (
+      <View key="n">
+        <ThemedText type="small">{r.about}</ThemedText>
+        <CountUp to={(est.med - age) * WEEKS_PER_YEAR} style={styles.huge} themeColor="accent" />
+        <ThemedText type="subtitle">{r.weeksRemain}</ThemedText>
+      </View>
+    ),
+    <ThemedText key="w">{r.baseWho(place)}</ThemedText>,
+    <View key="r" style={styles.healthy}>
+      <ThemedText type="small">
+        {hide ? t.gentle.reveal.range(place) : r.baseRange(Math.round(est.med), Math.round(est.q25), Math.round(est.q75))}
+      </ThemedText>
+      <SourceLink source={LIFE_TABLES.source} prefix={t.common.lifeTables} />
+    </View>,
+    <ThemedText key="h" style={[styles.agency, { borderTopColor: theme.line }]}>
+      {r.baseHook}
+    </ThemedText>,
+    <Button key="b" title={r.baseNext} onPress={onNext} />,
+  ];
+
+  return (
+    <View style={styles.reveal}>
+      <Stagger delay={0} step={450}>
+        {lines}
+      </Stagger>
+    </View>
+  );
+}
+
+/** End of chapter two: the estimate with their habits, counted from the starting point, and what could add more. */
+function HabitsReveal({ draft, me, onNext }: { draft: Draft; me: ModelInput; onNext: () => void }) {
   const theme = useTheme();
   const t = useT();
   const r = t.reveal;
   const g = t.gentle;
-  // "Hide numbers" can be on already when the reveal comes after editing the answers.
   const { hideNumbers: hide } = usePrefs();
   const [now] = useState(() => Date.now());
   const { life: est, health } = healthEstimate(me, now);
   const age = ageAt(me.dob, now);
-  const weeksLeft = (est.med - age) * WEEKS_PER_YEAR;
+  const base = survival(me.sex, age, 1, me.country);
   // Strength training first when it's open to them: it does the most for staying independent.
   const strong = allLevers(me, now).find((l) => l.key === 'strength' && l.healthy >= 0.2) ?? bestHealthyLever(me, now);
   const effect = habitsEffect(me, now);
   const lever = bestLever(me, now);
-  const person = draft.loves.find((l) => l.kind !== 'activity');
-  const values = VALUES.filter((v) => draft.values.includes(v)).map((v) => t.values[v]);
 
   const lines: ReactNode[] = [
     <ThemedText key="e" type="eyebrow">
-      {r.eyebrow(draft.name)}
+      {r.habitsEyebrow(draft.name)}
     </ThemedText>,
     hide ? (
       <ThemedText key="n" style={styles.gentle} themeColor="accent">
@@ -503,52 +587,17 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
     ) : (
       <View key="n">
         <ThemedText type="small">{r.about}</ThemedText>
-        <CountUp to={weeksLeft} style={styles.huge} themeColor="accent" />
+        <CountUp
+          from={(base.med - age) * WEEKS_PER_YEAR}
+          to={(est.med - age) * WEEKS_PER_YEAR}
+          delay={1100}
+          duration={1800}
+          style={styles.huge}
+          themeColor="accent"
+        />
         <ThemedText type="subtitle">{r.weeksRemain}</ThemedText>
       </View>
     ),
-    <ThemedText key="f">{hide ? g.reveal.fullLife : r.fullLife(fmt(est.med * WEEKS_PER_YEAR), fmt(age * WEEKS_PER_YEAR))}</ThemedText>,
-    <View key="hy" style={styles.healthy}>
-      {hide ? (
-        <ThemedText>{g.healthy.reveal(strong && strong.healthy >= 0.2 ? t.levers[strong.key] : null)}</ThemedText>
-      ) : (
-        <RichText
-          parts={r.healthy(
-            fmt((health.med - age) * WEEKS_PER_YEAR),
-            strong && strong.healthy >= 0.2 ? t.levers[strong.key] : null,
-            strong ? dec1(strong.healthy) : '',
-          )}
-        />
-      )}
-      <SourceLink source={HEALTHY_LIFE_TABLES.source} prefix={t.life.healthy.sourceHealthy} />
-    </View>,
-  ];
-
-  if (person) {
-    const times = loveCount(person, me, now).times;
-    lines.push(
-      hide ? (
-        <ThemedText key="p">{g.reveal.person(loveCountLabel(person, t), g.howMany[times < 100 ? 'few' : 'many'])}</ThemedText>
-      ) : (
-        <RichText key="p" parts={r.person(fmt(times), loveCountLabel(person, t))} />
-      ),
-    );
-  }
-
-  if (draft.phoneHours) {
-    lines.push(
-      hide ? (
-        <ThemedText key="ph">{g.reveal.phone}</ThemedText>
-      ) : (
-        <RichText
-          key="ph"
-          parts={r.phone(dec1(yearsOfHours(draft.phoneHours, est.med - age)), swapSuggestion(me, draft.loves, t, now))}
-        />
-      ),
-    );
-  }
-
-  lines.push(
     <View key="h" style={[styles.agency, { borderTopColor: theme.line }]}>
       <RichText
         parts={
@@ -565,7 +614,89 @@ function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: (
       />
       {lever ? <SourceLink of={lever.key} /> : null}
     </View>,
+    <View key="hy" style={styles.healthy}>
+      {hide ? (
+        <ThemedText>{g.healthy.reveal(strong && strong.healthy >= 0.2 ? t.levers[strong.key] : null)}</ThemedText>
+      ) : (
+        <RichText
+          parts={r.healthy(
+            fmt((health.med - age) * WEEKS_PER_YEAR),
+            strong && strong.healthy >= 0.2 ? t.levers[strong.key] : null,
+            strong ? dec1(strong.healthy) : '',
+          )}
+        />
+      )}
+      <SourceLink source={HEALTHY_LIFE_TABLES.source} prefix={t.life.healthy.sourceHealthy} />
+    </View>,
+  ];
+
+  if (draft.phoneHours) {
+    lines.push(
+      hide ? (
+        <ThemedText key="ph">{g.reveal.phone}</ThemedText>
+      ) : (
+        <RichText
+          key="ph"
+          parts={r.phone(dec1(yearsOfHours(draft.phoneHours, est.med - age)), swapSuggestion(me, draft.loves, t, now))}
+        />
+      ),
+    );
+  }
+
+  lines.push(
+    <ThemedText key="k" style={[styles.agency, { borderTopColor: theme.line }]}>
+      {r.habitsHook}
+    </ThemedText>,
+    <Button key="b" title={r.habitsNext} onPress={onNext} />,
   );
+
+  return (
+    <View style={styles.reveal}>
+      <Stagger delay={0} step={450}>
+        {lines}
+      </Stagger>
+    </View>
+  );
+}
+
+/** The last chapter's end: how many more times for who and what they love, then the whole range. */
+function Reveal({ draft, me, onDone }: { draft: Draft; me: ModelInput; onDone: () => void }) {
+  const t = useT();
+  const r = t.reveal;
+  const g = t.gentle;
+  // "Hide numbers" can be on already when the reveal comes after editing the answers.
+  const { hideNumbers: hide } = usePrefs();
+  const [now] = useState(() => Date.now());
+  const est = estimate(me, now);
+  const age = ageAt(me.dob, now);
+  const values = VALUES.filter((v) => draft.values.includes(v)).map((v) => t.values[v]);
+  const loves = draft.loves.slice(0, 3);
+
+  const lines: ReactNode[] = [
+    <ThemedText key="e" type="eyebrow">
+      {r.eyebrow(draft.name)}
+    </ThemedText>,
+    <ThemedText key="t" type="subtitle">
+      {r.lovesTitle}
+    </ThemedText>,
+  ];
+
+  if (loves.length) {
+    for (const love of loves) {
+      const times = loveCount(love, me, now).times;
+      lines.push(
+        hide ? (
+          <ThemedText key={love.id}>{g.reveal.person(loveCountLabel(love, t), g.howMany[times < 100 ? 'few' : 'many'])}</ThemedText>
+        ) : (
+          <RichText key={love.id} parts={r.person(fmt(times), loveCountLabel(love, t))} />
+        ),
+      );
+    }
+  } else {
+    lines.push(
+      <ThemedText key="f">{hide ? g.reveal.fullLife : r.fullLife(fmt(est.med * WEEKS_PER_YEAR), fmt(age * WEEKS_PER_YEAR))}</ThemedText>,
+    );
+  }
 
   if (values.length) {
     lines.push(
@@ -611,6 +742,11 @@ const styles = StyleSheet.create({
   },
   backSlot: {
     minWidth: 64,
+  },
+  bars: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 4,
   },
   track: {
     flex: 1,

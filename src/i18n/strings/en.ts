@@ -84,43 +84,43 @@ export const en = {
   /** Habit questions and answers, keyed like HABITS in lib/model.ts. */
   habits: {
     smoke: {
-      question: 'Do you smoke?',
+      question: 'Do you smoke cigarettes?',
       short: 'Smoking',
-      why: 'The single biggest lever on this list.',
+      why: 'The single biggest habit on this list.',
       options: { never: 'Never', former: 'I quit', current: 'Yes' },
     },
     exercise: {
-      question: 'How often do you exercise?',
+      question: 'In a normal week, how many days do you move enough to breathe harder?',
       short: 'Exercise',
-      why: 'Brisk walking counts.',
-      options: { none: 'Rarely', some: '1–2× a week', regular: '3+× a week' },
+      why: 'For 20 minutes or more: a brisk walk, cycling, dancing or a sport all count.',
+      options: { none: 'Rarely', some: '1–2 days a week', regular: '3 or more days a week' },
     },
     bmi: {
-      question: 'Which describes your weight?',
+      question: 'Which is closest to your weight for your height?',
       short: 'Weight',
-      why: 'Body mass index ranges. Rough is fine.',
-      options: { under: 'Underweight', normal: 'Healthy', over: 'Overweight', obese: 'Obese' },
+      why: 'Rough is fine. These are the body mass index (BMI) ranges: under 18.5, 18.5–25, 25–30, 30 or more.',
+      options: { under: 'Underweight', normal: 'Healthy weight', over: 'Overweight', obese: 'Obese' },
     },
     alcohol: {
-      question: 'How much do you drink?',
+      question: 'In a normal week, how many alcoholic drinks do you have?',
       short: 'Alcohol',
-      why: 'Heavy means about 15 or more drinks a week.',
-      options: { none: 'Little or none', moderate: 'Moderate', heavy: 'Heavy' },
+      why: 'One drink is a can of beer, a glass of wine or a shot.',
+      options: { none: '0–2 a week', moderate: '3–14 a week', heavy: '15 or more a week' },
     },
     sleep: {
-      question: 'How much do you sleep?',
+      question: 'On a normal night, how many hours do you sleep?',
       short: 'Sleep',
       why: 'Most nights, not your best nights.',
-      options: { short: 'Under 6 hours', ok: '6–9 hours' },
+      options: { short: 'Under 6 hours', ok: '6 hours or more' },
     },
     connection: {
-      question: 'How often do you spend time with people you are close to?',
+      question: 'In the last month, how often did you see or really talk with someone close to you?',
       short: 'Connection',
-      why: 'In person or a real conversation. Close relationships are one of the strongest predictors of a long life.',
-      options: { often: 'Every week', sometimes: 'A few times a month', rarely: 'Rarely; I often feel alone' },
+      why: 'In person or a real phone call. Close relationships are one of the strongest predictors of a long life.',
+      options: { often: 'Every week', sometimes: 'A few times', rarely: 'Hardly at all; I often feel alone' },
     },
     strength: {
-      question: 'Do you do strength training?',
+      question: 'In a normal week, how often do you do exercises that build strength?',
       short: 'Strength',
       why: 'Weights, bands, or your own body weight: squats, push-ups, carrying heavy bags. It keeps you strong and steady later on.',
       options: { none: 'Rarely or never', some: 'About once a week', regular: 'Twice a week or more' },
@@ -160,31 +160,23 @@ export const en = {
       'The Stoics kept death in mind so they would not waste their days. This app counts the time you likely have left, so today gets the weight it deserves, and points it at what you love.',
     welcomeNote: 'A few short questions, one at a time. Your answers stay on this device.',
     begin: 'Begin',
-    step: {
-      you: 'You',
-      birth: 'Birth',
-      place: 'Place',
-      body: 'Body',
-      habits: 'Habits',
-      time: 'Your time',
-      values: 'What matters',
-      who: 'Who loves you',
-      what: 'What you love',
-    },
+    /** The three chapters of onboarding; each ends by showing what the answers mean. */
+    chapters: { you: 'You', habits: 'Your habits', loves: 'What you love' },
+    /** Over each question: "Your habits · 3 of 8". */
+    chapterStep: (chapter: string, k: number, n: number) => `${chapter} · ${k} of ${n}`,
     nameQuestion: 'What should we call you?',
     nameA11y: 'First name',
     namePlaceholder: 'Your first name',
     dobQuestion: 'When were you born?',
-    countryQuestion: 'Where do you live?',
-    countryWhy:
-      "Where you live shapes how long people live, by 30 years or more between countries. We start from your country's life tables.",
+    countryQuestion: 'Which country do you live in?',
+    countryWhy: 'Life expectancy differs by 30 years or more between countries, so we start from yours.',
     countrySearch: 'Search countries',
     countrySearchAgain: 'Somewhere else? Search',
     countryNone: 'No country by that name in the UN tables.',
     sexQuestion: 'What was your sex at birth?',
-    sexWhy: 'On average women outlive men by about five years.',
+    sexWhy: 'On average women outlive men by about five years, so the starting point differs.',
     sex: { m: 'Male', f: 'Female' },
-    phoneQuestion: 'How many hours a day are you on your phone?',
+    phoneQuestion: 'On a normal day, how many hours are you on your phone?',
     phoneWhereIos: 'Your iPhone already knows: Settings → Screen Time → See All App & Website Activity. Use the daily average.',
     phoneWhereAndroid: 'Your phone already knows: Settings → Digital Wellbeing. Use the daily average.',
     phoneWhereWeb:
@@ -195,13 +187,14 @@ export const en = {
       b(`${years} years`),
       s(`, ${share} of your waking hours.`),
     ],
-    valuesQuestion: 'What matters most to you?',
+    valuesQuestion: 'Which of these matter most to you right now?',
     valuesWhy: 'Pick up to three. Your reminders will keep pointing back to them.',
-    peopleQuestion: 'Who loves you, and who do you love?',
+    peopleQuestion: 'Who do you want more time with?',
     peopleWhy:
-      "The people (and pets) you'd most regret not seeing enough. We'll count how many more times you're likely to see them.",
-    activitiesQuestion: 'What do you love doing?',
-    activitiesWhy: "We'll count how many more times you get to do it.",
+      "Anyone who matters to you: a parent, your grandchildren, an old friend, a pet. The names below are only ideas. We'll count how many more times you're likely to see them.",
+    activitiesQuestion: 'What do you want to do more of?',
+    activitiesWhy:
+      "Anything you love: cooking, learning something new, fishing, playing music, dancing. The ones below are only ideas. We'll count how many more times you get to do it.",
     computing: 'Counting your weeks',
     computingNote: 'Turning your answers into time.',
   },
@@ -212,7 +205,7 @@ export const en = {
     weeksRemain: 'weeks likely remain',
     fullLife: (total: string, lived: string) =>
       `A full life like yours is about ${total} weeks. You have lived ${lived} of them. Let's make the rest count.`,
-    person: (n: string, label: string): Rich => [s('That is about '), b(n), s(` ${label}.`)],
+    person: (n: string, label: string): Rich => [s('About '), b(n), s(` ${label}.`)],
     phone: (years: string, swap: string): Rich => [
       s('Your phone takes about '),
       b(`${years} years`),
@@ -228,6 +221,20 @@ export const en = {
     range: (med: number, q25: number, q75: number, country: string | null) =>
       `This is a range, not a date: half of people living like you${country ? ` in ${country}` : ''} reach ${med}, and most land between ${q25} and ${q75}. Not medical advice.`,
     seeLife: 'See your life',
+    /** End of chapter one: the starting point, before habits. */
+    baseEyebrow: (name: string) => (name ? `${name}, where you start` : 'Where you start'),
+    baseWho: (country: string | null) =>
+      `That is the average for people your age and sex${country ? ` (${country})` : ''}, before anything about how you live.`,
+    baseRange: (med: number, q25: number, q75: number) =>
+      `Half of them reach ${med}, and most land between ${q25} and ${q75}. A range, not a date. Not medical advice.`,
+    baseHook: 'How you live can move this by years, either way. A few quick questions will show where you stand.',
+    baseNext: 'See where I stand',
+    /** End of chapter two: the same count, with their habits. */
+    habitsEyebrow: (name: string) => (name ? `${name}, with your habits` : 'With your habits'),
+    habitsHook: 'That is your time. Next: who and what you want to spend it on.',
+    habitsNext: 'Choose what matters',
+    /** End of chapter three. */
+    lovesTitle: 'What your time holds',
     /** Healthy years, and the change that would add the most of them. */
     healthy: (weeks: string, lever: string | null, years: string): Rich => [
       s('About '),
