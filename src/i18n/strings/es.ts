@@ -137,6 +137,27 @@ export const es: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: 'Tu vida, un círculo por año',
+      legend: { lived: 'Vividos', likely: 'Probables', healthy: 'Con salud e independencia', phone: 'En el celular', gain: 'Sumados por tus hábitos', cost: 'Restados por tus hábitos', last: 'Tu última respuesta' },
+      same: 'Por ahora, igual que el promedio de personas como tú.',
+      last: (adds, years) => [s('Tu última respuesta: '), b(`${adds ? '+' : '−'}${years} años`), s(', marcados en el calendario.')],
+      lastSame: 'Tu última respuesta dejó tu estimación igual.',
+      effect: (adds, years) => [
+        s(`Hasta ahora tus respuestas ${adds ? 'suman' : 'restan'} unos `),
+        b(`${years} años`),
+        s(' al promedio.'),
+      ],
+      a11y: (left, avg) => `Unos ${left} años probables por delante, un círculo por año. El promedio de personas como tú es de unos ${avg}.`,
+    },
+    winBack: (cost, label, years) => [
+      s('Esta respuesta resta unos '),
+      b(`${cost} años`),
+      s(`. ${label} podría sumar unos `),
+      b(`${years} años`),
+      s('.'),
+    ],
+    skipHabits: 'Saltar y usar el promedio',
     welcomeEyebrow: 'Recuerda que vas a morir',
     welcomeLede:
       'Los estoicos tenían presente la muerte para no desperdiciar sus días. Esta app cuenta el tiempo que probablemente te queda, para que el día de hoy tenga el peso que merece, y lo dirige hacia lo que amas.',
@@ -780,6 +801,15 @@ export const es: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: 'Por ahora, igual que el promedio de personas como tú.',
+      last: (adds) =>
+        adds ? 'Tu última respuesta sumó tiempo: los círculos marcados.' : 'Tu última respuesta restó algo de tiempo: los círculos marcados.',
+      lastSame: 'Tu última respuesta dejó tu estimación igual.',
+      effect: (adds) => (adds ? 'Hasta ahora tus respuestas suman tiempo al promedio.' : 'Hasta ahora tus respuestas restan algo de tiempo al promedio.'),
+      a11y: 'Círculos por los años probables por delante, uno por año.',
+      winBack: (label) => `Esta respuesta resta algo de tiempo. ${label} podría devolverte buen tiempo.`,
+    },
     setting: 'Ocultar números',
     settingNote:
       'Palabras en lugar de años, semanas y cuentas en Vida, Amores, Hoy y la apertura. El calendario se queda, sin sus números.',

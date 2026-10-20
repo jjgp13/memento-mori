@@ -134,6 +134,17 @@ export const zh: Strings = {
   },
 
   onboarding: {
+    calendar: {
+      title: '你的一生，一年一个圆',
+      legend: { lived: '已度过', likely: '很可能还有', healthy: '健康、能自理', phone: '在手机上', gain: '习惯增加的', cost: '习惯减少的', last: '你上一个回答' },
+      same: '目前为止，和与你相似的人的平均水平一样。',
+      last: (adds, years) => [s('你上一个回答：'), b(`${adds ? '+' : '−'}${years} 年`), s('，日历上已圈出。')],
+      lastSame: '你上一个回答没有改变估计。',
+      effect: (adds, years) => [s(`目前为止，你的回答比平均${adds ? '多' : '少'}了大约 `), b(`${years} 年`), s('。')],
+      a11y: (left, avg) => `大约还有 ${left} 年，一年一个圆。与你相似的人平均约为 ${avg} 年。`,
+    },
+    winBack: (cost, label, years) => [s('这个回答减少了大约 '), b(`${cost} 年`), s(`。${label}可能增加大约 `), b(`${years} 年`), s('。')],
+    skipHabits: '跳过，使用平均值',
     welcomeEyebrow: '记住你终将死去',
     welcomeLede:
       '斯多葛学派常把死亡放在心上，以免虚度光阴。这个应用会计算你大约还剩多少时间，让今天得到应有的分量，并把它投向你所爱的一切。',
@@ -774,6 +785,14 @@ export const zh: Strings = {
   },
 
   gentle: {
+    calendar: {
+      same: '目前为止，和与你相似的人的平均水平一样。',
+      last: (adds) => (adds ? '你上一个回答增加了时间：圈出的圆。' : '你上一个回答减少了一些时间：圈出的圆。'),
+      lastSame: '你上一个回答没有改变估计。',
+      effect: (adds) => (adds ? '目前为止，你的回答为平均值增加了时间。' : '目前为止，你的回答从平均值中减少了一些时间。'),
+      a11y: '圆圈代表你可能还有的岁月，一年一个。',
+      winBack: (label) => `这个回答减少了一些时间。${label}可能把好时光加回来。`,
+    },
     setting: '隐藏数字',
     settingNote: '在“生命”“所爱”“今天”和开场中用文字代替年、周和次数。日历仍在，只是没有数字。',
     ahead: {

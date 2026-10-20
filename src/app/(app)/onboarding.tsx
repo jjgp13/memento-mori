@@ -21,6 +21,7 @@ import { LinkedText } from '@/components/linked-text';
 import { LanguagePicker } from '@/components/language-picker';
 import { AliveTimeline } from '@/components/onboarding/alive-timeline';
 import { CountUp } from '@/components/onboarding/count-up';
+import { HabitCalendar } from '@/components/onboarding/habit-calendar';
 import { LoveEditor } from '@/components/onboarding/love-editor';
 import { Stagger } from '@/components/onboarding/stagger';
 import { RichText } from '@/components/rich-text';
@@ -36,17 +37,17 @@ import { habitOptions } from '@/i18n/labels';
 import { s as plain } from '@/i18n/rich';
 import { countryName, deviceCountry } from '@/lib/country';
 import { HEALTHY_LIFE_TABLES, LIFE_TABLES } from '@/lib/evidence';
-import { allLevers, bestHealthyLever, bestLever, habitsEffect } from '@/lib/habit-impact';
+import { NEUTRAL, allLevers, bestHealthyLever, bestLever, habitsEffect } from '@/lib/habit-impact';
 import { markIntroSeen } from '@/lib/intro';
 import { LEGAL_VERSION } from '@/lib/legal';
 import { aheadLevel } from '@/lib/life-views';
 import { loveCount, loveCountLabel, type Love } from '@/lib/loves';
 import {
   HABIT_KEYS,
-  LATER_HABITS,
   WEEKS_PER_YEAR,
   ageAt,
   estimate,
+  habitHR,
   healthEstimate,
   survival,
   type HabitKey,
@@ -110,11 +111,32 @@ const ease = Easing.bezier(0.2, 0.7, 0.2, 1);
 /** Starting point for the phone question: roughly the US adult average. */
 const DEFAULT_PHONE_HOURS = 4;
 
-/** Model inputs once every answer the model needs is in. */
+/**
+ * Model inputs once birth date and sex are in. A habit not answered yet (still to come, skipped with "use the
+ * average", or asked only since 2026.10d on older profiles) counts as ×1, which the model does for a missing answer.
+ */
 function modelInput(d: Draft): ModelInput | null {
-  // Habits asked only since 2026.10d may be missing on older profiles; they count as ×1 until answered.
-  if (!d.dob || !d.sex || HABIT_KEYS.some((k) => !d[k] && !(LATER_HABITS as readonly HabitKey[]).includes(k))) return null;
+  if (!d.dob || !d.sex) return null;
   return d as ModelInput;
+}
+
+/** Changes smaller than this aren't worth pointing to (as in lib/habit-impact.ts). */
+const MIN_LEVER_YEARS = 0.2;
+
+/**
+ * The single change that would win back what answer `k` costs: that habit's own, else the biggest other one
+ * (a former smoker can't quit again, so smoking is never suggested to them). Early in the chapter the other
+ * habits may not be answered yet; then they're taken at their neutral answer, so there is always a next step.
+ */
+function winBackLever(me: ModelInput, k: HabitKey, now: number) {
+  const usable = (p: ModelInput) =>
+    allLevers(p, now).filter((l) => l.years >= MIN_LEVER_YEARS && !(l.key === 'smoke' && me.smoke === 'former'));
+  const levers = usable(me);
+  const own = levers.find((l) => l.key === k || (k === 'exercise' && l.key === 'steps'));
+  if (own ?? levers[0]) return own ?? levers[0];
+  const filled = { ...me };
+  for (const h of HABIT_KEYS) if (filled[h] == null) Object.assign(filled, { [h]: NEUTRAL[h] });
+  return usable(filled)[0] ?? null;
 }
 
 /** One question per screen, in three chapters (you, habits, what they love), each ending on a reveal. */
@@ -123,6 +145,8 @@ export default function OnboardingScreen() {
   const t = useT();
   const o = t.onboarding;
   const reduced = useReducedMotion();
+  const { hideNumbers: hide } = usePrefs();
+  const [now] = useState(() => Date.now());
   const existing = useProfile();
   const params = useLocalSearchParams<{ edit?: string; only?: string }>();
   const editing = params.edit === '1';
@@ -164,7 +188,7 @@ export default function OnboardingScreen() {
   // Single-choice answers move on by themselves after a beat, so the choice registers.
   const advanceTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(advanceTimer.current), []);
-  const answerAndAdvance = (patch: Partial<Draft>) => {
+  const answerAndAdvance = (patch: Partial<Draft>, wait = 320) => {
     set(patch);
     clearTimeout(advanceTimer.current);
     // Editing a single answer (`?only=strength`): the answer is the last step, so save and close.
@@ -172,7 +196,13 @@ export default function OnboardingScreen() {
       saveProfile({ ...draft, ...patch } as Profile);
       close();
     };
-    advanceTimer.current = setTimeout(editing && index === steps.length - 1 ? save : next, reduced ? 0 : 320);
+    advanceTimer.current = setTimeout(editing && index === steps.length - 1 ? save : next, reduced ? 0 : wait);
+  };
+  /** "Skip, use the average": straight to the chapter's reveal, with the habits not answered yet at ×1. */
+  const skipHabits = () => {
+    clearTimeout(advanceTimer.current);
+    setDirection(1);
+    setIndex(steps.indexOf(HABITS.reveal));
   };
 
   // "Counting your weeks" plays for a moment, then the reveal.
@@ -202,6 +232,10 @@ export default function OnboardingScreen() {
     </ThemedText>
   ) : null;
   const me = modelInput(draft);
+  // The live calendar stays put across the habit questions, so each answer shows up on it.
+  const inHabits = HABITS.questions.includes(step);
+  const skipLink =
+    inHabits && !editing ? <Button title={o.skipHabits} variant="link" onPress={skipHabits} /> : null;
 
   let body: ReactNode[] = [];
   let footer: ReactNode = null;
@@ -292,6 +326,11 @@ export default function OnboardingScreen() {
   } else if ((HABIT_KEYS as string[]).includes(step)) {
     const k = step as HabitKey;
     const h = t.habits[k];
+    const answer = draft[k];
+    // An answer that costs time stays on screen with the change that could win it back; others move on.
+    const costs = !!me && answer != null && habitHR(k, answer) > 1;
+    const lever = costs && me ? winBackLever(me, k, now) : null;
+    const cost = me ? estimate({ ...me, [k]: undefined }, now).med - estimate(me, now).med : 0;
     body = [
       eyebrow,
       <ThemedText key="t" type="subtitle">
@@ -300,9 +339,38 @@ export default function OnboardingScreen() {
       <ThemedText key="w" type="small" style={styles.why}>
         {h.why}
       </ThemedText>,
-      <Choices key="c" options={habitOptions(t, k)} value={draft[k]} onChange={(v) => answerAndAdvance({ [k]: v })} />,
+      <Choices
+        key="c"
+        options={habitOptions(t, k)}
+        value={answer}
+        onChange={(v) => {
+          if (me && habitHR(k, v) > 1) {
+            clearTimeout(advanceTimer.current);
+            set({ [k]: v });
+          } else answerAndAdvance({ [k]: v }, habitHR(k, v) < 1 ? 900 : 320);
+        }}
+      />,
       <SourceLink key="s" of={k} prefix={t.common.theScience} />,
+      lever ? (
+        <View key="wb" style={[styles.agency, styles.healthy, { borderTopColor: theme.line }]}>
+          <RichText
+            parts={
+              hide
+                ? [plain(t.gentle.calendar.winBack(t.levers[lever.key]))]
+                : o.winBack(dec1(cost), t.levers[lever.key], dec1(lever.years))
+            }
+          />
+          <SourceLink of={lever.key} />
+        </View>
+      ) : null,
     ];
+    footer =
+      costs || skipLink ? (
+        <View style={styles.healthy}>
+          {costs ? continueButton() : null}
+          {skipLink}
+        </View>
+      ) : null;
   } else if (step === 'phone') {
     const hours = draft.phoneHours ?? DEFAULT_PHONE_HOURS;
     const where = Platform.OS === 'ios' ? o.phoneWhereIos : Platform.OS === 'android' ? o.phoneWhereAndroid : o.phoneWhereWeb;
@@ -327,14 +395,17 @@ export default function OnboardingScreen() {
       me ? <RichText key="i" parts={o.phoneResult(dec1(yearsOfHours(hours, yearsLeft(me))), shareOfWaking(hours, t))} /> : null,
     ];
     footer = (
-      <Button
-        title={t.common.continue}
-        onPress={() => {
-          if (draft.phoneHours == null) set({ phoneHours: hours });
-          if (editing && index === steps.length - 1) finish();
-          else next();
-        }}
-      />
+      <View style={styles.healthy}>
+        <Button
+          title={t.common.continue}
+          onPress={() => {
+            if (draft.phoneHours == null) set({ phoneHours: hours });
+            if (editing && index === steps.length - 1) finish();
+            else next();
+          }}
+        />
+        {skipLink}
+      </View>
     );
   } else if (step === 'values') {
     const full = draft.values.length >= MAX_VALUES;
@@ -438,6 +509,16 @@ export default function OnboardingScreen() {
           {editing ? <Button title={t.common.close} variant="link" onPress={close} /> : null}
         </View>
       </View>
+
+      {inHabits && me ? (
+        <Animated.View entering={FadeIn.duration(400)} exiting={FadeOut.duration(200)} style={styles.calendar}>
+          <HabitCalendar
+            me={me}
+            hide={hide}
+            phoneHours={step === 'phone' ? (draft.phoneHours ?? DEFAULT_PHONE_HOURS) : undefined}
+          />
+        </Animated.View>
+      ) : null}
 
       <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.root}>
@@ -766,6 +847,13 @@ const styles = StyleSheet.create({
     paddingTop: 28,
     paddingBottom: Spacing.four,
     gap: 18,
+  },
+  calendar: {
+    width: '100%',
+    maxWidth: MaxContentWidth,
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.three,
   },
   footer: {
     marginTop: 'auto',
